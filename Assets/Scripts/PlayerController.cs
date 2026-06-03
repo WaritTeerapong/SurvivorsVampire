@@ -1,7 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     private Rigidbody2D _rb;
 
@@ -12,6 +13,15 @@ public class PlayerController : MonoBehaviour
     private InputAction _moveAction;
 
     private Vector2 _position;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (IsOwner)
+        {
+            Camera.main.GetComponent<CameraController>().Target = transform;
+        }
+    }
 
     void Awake()
     {
