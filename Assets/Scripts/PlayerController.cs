@@ -7,11 +7,11 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float _speed = 5f;
 
-    [SerializeField] private PlayerControls _inputs;
+    private PlayerControls _inputs;
 
-    [SerializeField] private InputAction _moveAction;
+    private InputAction _moveAction;
 
-    [SerializeField] private Vector2 _position;
+    private Vector2 _position;
 
     void Awake()
     {
@@ -35,8 +35,11 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        _rb.linearVelocity = _position * _speed;
+        Move();
     }
 
-
+    private void Move()
+    {
+        _rb.linearVelocity = _position * _speed;
+    }
 }
