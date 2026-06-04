@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 
-public class SelectionUI : MonoBehaviour
+public class SelectColorUI : MonoBehaviour
 {
     [SerializeField] private GameObject _selectionCanvas;
     [SerializeField] private Button _redBtn;
