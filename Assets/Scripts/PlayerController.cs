@@ -37,6 +37,11 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+    void OnDisable()
+    {
+        _inputs.Disable();
+    }
+
     void Update()
     {
         if (!IsOwner) return;
