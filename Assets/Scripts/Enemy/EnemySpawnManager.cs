@@ -28,9 +28,24 @@ public class EnemySpawnManager : NetworkBehaviour
         _spawnCoroutine = StartCoroutine(SpawnEnemies());
     }
 
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        StopLoop();
+    }
+
+    private void StopLoop()
+    {
+        if (_spawnCoroutine != null)
+        {
+            StopCoroutine(_spawnCoroutine);
+            _spawnCoroutine = null;
+        }
+    }
+
     private IEnumerator SpawnEnemies()
     {
-        while (true)
+        while (IsSpawned && IsServer)
         {
             if (EnemyPrefab == null || SpawnPoints == null || SpawnPoints.Length == 0)
             {
@@ -42,15 +57,19 @@ public class EnemySpawnManager : NetworkBehaviour
             {
                 Transform spawnPoint = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
                 GameObject enemy = Instantiate(EnemyPrefab, spawnPoint.position, spawnPoint.rotation);
-                enemy.GetComponent<NetworkObject>().Spawn();
 
-                Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if (enemyScript != null)
+                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
                 {
-                    enemyScript.OnEnemyDespawned += HandleEnemyDespawned;
-                }
+                    enemy.GetComponent<NetworkObject>().Spawn();
 
-                _currentEnemiesCount++;
+                    Enemy enemyScript = enemy.GetComponent<Enemy>();
+                    if (enemyScript != null)
+                    {
+                        enemyScript.OnEnemyDespawned += HandleEnemyDespawned;
+                    }
+
+                    _currentEnemiesCount++;
+                }
             }
 
             yield return new WaitForSeconds(SpawnCD);

@@ -5,11 +5,11 @@ using UnityEngine.InputSystem;
 public class PlayerController : NetworkBehaviour
 {
     private Rigidbody2D _rb;
+    private PlayerRunTimeStats _stats;
 
-    [SerializeField] private float _speed = 5f;
+    // [SerializeField] private float _speed = 5f;
 
     private PlayerControls _inputs;
-
     private InputAction _moveAction;
 
     private Vector2 _position;
@@ -27,6 +27,7 @@ public class PlayerController : NetworkBehaviour
     {
         _inputs = new PlayerControls();
         _rb = GetComponent<Rigidbody2D>();
+        _stats = GetComponent<PlayerRunTimeStats>();
     }
 
     void OnEnable()
@@ -59,6 +60,17 @@ public class PlayerController : NetworkBehaviour
             InteractWithPlayerRpc();
         }
 
+        if (Keyboard.current.qKey.wasPressedThisFrame)
+        {
+            TakeDamageRpc(10);
+        }
+
+        if (Keyboard.current.tKey.wasPressedThisFrame)
+        {
+            PlayerRunTimeStats stats = GetComponent<PlayerRunTimeStats>();
+            stats.DebugLogStatsRpc();
+        }
+
     }
 
     void FixedUpdate()
@@ -68,7 +80,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Move()
     {
-        _rb.linearVelocity = _position * _speed;
+        _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
     }
 
     [Rpc(SendTo.Server)]
@@ -98,6 +110,12 @@ public class PlayerController : NetworkBehaviour
     public void DebugLogSomethingRpc(DataSomethings data)
     {
         Debug.Log("Something" + data.Value);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void TakeDamageRpc(int damage)
+    {
+        _stats.ApplyDamage(damage);
     }
 
     void OnDrawGizmos()

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1910428972926576345}
   - component: {fileID: 2149631394445439214}
   - component: {fileID: 4025028624891841170}
+  - component: {fileID: 4028539088482179428}
   m_Layer: 0
   m_Name: PlayerRedPrefabs
   m_TagString: Untagged
@@ -235,6 +236,25 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1, y: 2}
   m_Direction: 0
+--- !u!114 &4028539088482179428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3482641455033270784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 423180fc5aa35a64bb3d05ecdbb759aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRunTimeStats
+  ShowTopMostFoldoutHeaderGroup: 1
+  PlayerData: {fileID: 11400000, guid: 4d5cedc669609fd4e90485badd050046, type: 2}
+  CurrentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!1 &4088478910970860924
 GameObject:
   m_ObjectHideFlags: 0
