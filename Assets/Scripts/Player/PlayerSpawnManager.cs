@@ -7,6 +7,8 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     [SerializeField] private GameObject[] _playerPrefabs;
 
+    private bool _hasSpawnedEnemies = false;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -25,5 +27,14 @@ public class PlayerSpawnManager : NetworkBehaviour
         netObj.SpawnAsPlayerObject(clinetId);
 
         Debug.Log($"Spawned player for client {clinetId} with color index {colorIndex}");
+
+        if (!_hasSpawnedEnemies)
+        {
+            _hasSpawnedEnemies = true;
+            if (EnemySpawnManager.Instance != null)
+            {
+                EnemySpawnManager.Instance.SpawnEnemies();
+            }
+        }
     }
 }
