@@ -33,7 +33,8 @@ public class PlayerSpawnManager : NetworkBehaviour
             _hasSpawnedEnemies = true;
             if (EnemySpawnManager.Instance != null)
             {
-                EnemySpawnManager.Instance.SpawnEnemies();
+                // EnemySpawnManager.Instance.SpawnEnemiesOnJoin();
+                EnemySpawnManager.Instance.SpawnLoop();
             }
         }
     }

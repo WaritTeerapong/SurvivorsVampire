@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,7 +7,12 @@ public class EnemySpawnManager : NetworkBehaviour
     public static EnemySpawnManager Instance;
 
     public GameObject EnemyPrefab;
-    public Transform[] SpawnPoints;
+    public Transform[] SpawnPoints; // Assume 2 Points for now
+    public float SpawnCD = 5f; // 1 unit / 5 seconds
+
+    public int MaxEnemies = 10;
+    private int _currentEnemiesCount = 0;
+    private Coroutine _spawnCoroutine;
 
     private void Awake()
     {
@@ -14,20 +20,47 @@ public class EnemySpawnManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
-    public void SpawnEnemies()
+    public void SpawnLoop()
     {
         if (!IsServer) return;
 
-        if (EnemyPrefab == null || SpawnPoints == null || SpawnPoints.Length == 0)
-        {
-            Debug.LogWarning("EnemyPrefab or SpawnPoints not set in EnemySpawnManager.");
-            return;
-        }
+        // Spawn Coroutine
+        _spawnCoroutine = StartCoroutine(SpawnEnemies());
+    }
 
-        foreach (Transform spawnPoint in SpawnPoints)
+    private IEnumerator SpawnEnemies()
+    {
+        while (true)
         {
-            GameObject enemy = Instantiate(EnemyPrefab, spawnPoint.position, spawnPoint.rotation);
-            enemy.GetComponent<NetworkObject>().Spawn();
+            if (EnemyPrefab == null || SpawnPoints == null || SpawnPoints.Length == 0)
+            {
+                Debug.LogWarning("EnemyPrefab or SpawnPoints not set in EnemySpawnManager.");
+                yield break;
+            }
+
+            if (_currentEnemiesCount < MaxEnemies)
+            {
+                Transform spawnPoint = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
+                GameObject enemy = Instantiate(EnemyPrefab, spawnPoint.position, spawnPoint.rotation);
+                enemy.GetComponent<NetworkObject>().Spawn();
+
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                if (enemyScript != null)
+                {
+                    enemyScript.OnEnemyDespawned += HandleEnemyDespawned;
+                }
+
+                _currentEnemiesCount++;
+            }
+
+            yield return new WaitForSeconds(SpawnCD);
         }
     }
+
+    private void HandleEnemyDespawned()
+    {
+        _currentEnemiesCount--;
+        if (_currentEnemiesCount < 0) _currentEnemiesCount = 0;
+    }
+
 }
