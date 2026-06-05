@@ -53,7 +53,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1405730234
+  GlobalObjectIdHash: 3862946498
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -79,6 +79,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   ShowTopMostFoldoutHeaderGroup: 1
+  BulletPrefab: {fileID: 3774078582942600365, guid: bb594c0f1be8b084e80fa71ce30c937e, type: 3}
+  FirePoint: {fileID: 5247820462084371655}
 --- !u!50 &6724945170257205172
 Rigidbody2D:
   serializedVersion: 5
@@ -390,11 +392,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0c6e765f2636c64abb85a413c47d973, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Detector
-  _targetLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  _detectPoint: {fileID: 0}
-  DetectRange: 0
 --- !u!58 &7310061579689187109
 CircleCollider2D:
   m_ObjectHideFlags: 0

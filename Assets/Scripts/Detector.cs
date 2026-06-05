@@ -44,7 +44,6 @@ public class Detector : MonoBehaviour
         }
 
         NearestTarget = nearestEnemy;
-        Debug.Log("Nearest Enemy: " + NearestTarget.name);
     }
 
     void OnTriggerEnter2D(Collider2D other)
