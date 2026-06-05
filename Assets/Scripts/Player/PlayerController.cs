@@ -7,8 +7,6 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody2D _rb;
     private PlayerRunTimeStats _stats;
 
-    // [SerializeField] private float _speed = 5f;
-
     private PlayerControls _inputs;
     private InputAction _moveAction;
 
@@ -67,14 +65,12 @@ public class PlayerController : NetworkBehaviour
 
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
-            PlayerRunTimeStats stats = GetComponent<PlayerRunTimeStats>();
-            stats.DebugLogStatsRpc();
+            _stats.DebugLogStatsRpc();
         }
 
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
-            PlayerRunTimeStats stats = GetComponent<PlayerRunTimeStats>();
-            stats.RequestGainXPRpc(2000);
+            PlayerLevelManager.Instance.RequestGainXPRpc(100);
         }
 
     }

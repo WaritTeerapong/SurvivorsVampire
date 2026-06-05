@@ -7,53 +7,69 @@ public class XPBarUI : NetworkBehaviour
 {
     [SerializeField] private GameObject _xpBar;
 
-    [Header("Experience")]
-    [SerializeField] AnimationCurve experienceCurve;
-
-    public PlayerRunTimeStats CurrentStatsScript;
-    private int _currentLevel, _currentXP, _XPneeded;
 
     [Header("Interface")]
-    [SerializeField] TextMeshProUGUI LevelText;
-    [SerializeField] TextMeshProUGUI ExperienceText;
-    [SerializeField] Image ExperienceFill;
+    [SerializeField] private TMP_Text _levelText; // Current Level
+    [SerializeField] private TMP_Text _xpText; // Current XP
+    [SerializeField] private Slider _xpSlider; // Current XP Value
 
-    private void Awake()
+    void Start()
     {
-        gameObject.TryGetComponent<PlayerRunTimeStats>(out PlayerRunTimeStats CurrentStatsScript);
-    }
-    private void Start()
-    {
+        _xpBar.SetActive(false);
 
-        if (CurrentStatsScript != null)
-        {
-            CurrentStatsScript.OnStatChanged += OnPlayerStatsChanged;
-            PlayerStats current = CurrentStatsScript.CurrentStats.Value;
-            UpdateXPBarUI(current);
-        }
+        if (PlayerLevelManager.Instance != null) PlayerLevelManager.Instance.OnLevelStatChanged += UpdateUI;
 
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnected;
         }
-
-        _xpBar.gameObject.SetActive(false);
     }
 
-    void OnDestroy()
+    public override void OnDestroy()
     {
+        base.OnDestroy();
+
+        if (PlayerLevelManager.Instance != null) PlayerLevelManager.Instance.OnLevelStatChanged -= UpdateUI;
+
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnDisconnected;
         }
     }
+
+    void UpdateUI()
+    {
+        if (PlayerLevelManager.Instance == null) return;
+
+        int currentXP = PlayerLevelManager.Instance.SharedXP.Value;
+        int xpNeeded = PlayerLevelManager.Instance.SharedXPNeeded.Value;
+
+        string xp = $"{currentXP} / {xpNeeded}";
+
+        _levelText.text = PlayerLevelManager.Instance.SharedLevel.Value.ToString();
+
+        if (xpNeeded == -1)
+        {
+            _xpText.text = "MAX";
+
+            _xpSlider.maxValue = 1;
+            _xpSlider.value = 1;
+        }
+        else
+        {
+            _xpText.text = xp;
+            _xpSlider.maxValue = xpNeeded;
+            _xpSlider.value = currentXP;
+        }
+    }
+
     void OnConnected(ulong clientId)
     {
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
-            _xpBar.gameObject.SetActive(true);
+            _xpBar.SetActive(true);
         }
     }
 
@@ -61,46 +77,9 @@ public class XPBarUI : NetworkBehaviour
     {
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
-            _xpBar.gameObject.SetActive(false);
-
+            _xpBar.SetActive(false);
         }
     }
 
-    private void OnDisable()
-    {
-        if (CurrentStatsScript != null)
-        {
-            CurrentStatsScript.OnStatChanged -= OnPlayerStatsChanged;
-        }
-    }
 
-    private void OnPlayerStatsChanged(PlayerStats stats)
-    {
-        UpdateXPBarUI(stats);
-    }
-
-    public void UpdateXPBarUI(PlayerStats stats)
-    { 
-        _currentLevel = stats.Level;
-        _currentXP = stats.XP;
-        _XPneeded = stats.XPNeeded;
-
-        LevelText.text = _currentLevel.ToString();
-
-        if (_XPneeded == -1)
-        {
-            ExperienceText.text = "MAX LEVEL";
-            ExperienceFill.fillAmount = 1f;
-        }
-        else if (_XPneeded > 0)
-        {
-            ExperienceText.text = $"{_currentXP} exp / {_XPneeded} exp";
-            ExperienceFill.fillAmount = (float)_currentXP / (float)_XPneeded;
-        }
-        else
-        {
-            ExperienceText.text = "0 exp";
-            ExperienceFill.fillAmount = 0f;
-        }
-    }
 }
