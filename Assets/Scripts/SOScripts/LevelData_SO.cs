@@ -19,6 +19,6 @@ public class LevelData_SO : ScriptableObject
 [System.Serializable]
 public struct LevelData
 {
-    public int Level; // Level 2
+    public int Level; // Level 1
     public int XPNeeded;
 }

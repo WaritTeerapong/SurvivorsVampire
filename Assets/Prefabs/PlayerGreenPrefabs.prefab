@@ -78,7 +78,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   ShowTopMostFoldoutHeaderGroup: 1
-  _speed: 5
 --- !u!50 &6724945170257205172
 Rigidbody2D:
   serializedVersion: 5
@@ -250,11 +249,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRunTimeStats
   ShowTopMostFoldoutHeaderGroup: 1
   PlayerData: {fileID: 11400000, guid: 4d5cedc669609fd4e90485badd050046, type: 2}
-  CurrentHealth:
+  LevelData: {fileID: 11400000, guid: ec665eeeb7ef6374f8539b0d90c45773, type: 2}
+  XPBar: {fileID: 0}
+  CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
 --- !u!1 &4088478910970860924
 GameObject:
   m_ObjectHideFlags: 0

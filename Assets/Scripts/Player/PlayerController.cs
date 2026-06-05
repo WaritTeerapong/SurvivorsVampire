@@ -71,6 +71,12 @@ public class PlayerController : NetworkBehaviour
             stats.DebugLogStatsRpc();
         }
 
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            PlayerRunTimeStats stats = GetComponent<PlayerRunTimeStats>();
+            stats.RequestGainXPRpc(2000);
+        }
+
     }
 
     void FixedUpdate()
