@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: LevelData_SO
   m_EditorClassIdentifier: Assembly-CSharp::LevelData_SO
   Levels:
+  - Level: 1
+    XPNeeded: 0
   - Level: 2
     XPNeeded: 500
   - Level: 3

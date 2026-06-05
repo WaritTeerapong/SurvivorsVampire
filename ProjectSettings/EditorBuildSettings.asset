@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Bob_Test_Scene.unity
     guid: 2c35ae89f80917c47b53f6f26078a7c9
+  - enabled: 1
+    path: Assets/Scenes/Player Level.unity
+    guid: 38940c7bedd2d2c49b73c30b857cd47c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

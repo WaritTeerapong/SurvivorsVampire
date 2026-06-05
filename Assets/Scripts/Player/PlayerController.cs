@@ -72,6 +72,11 @@ public class PlayerController : NetworkBehaviour
             _stats.DebugLogStatsRpc();
         }
 
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            PlayerLevelManager.Instance.RequestGainXPRpc(100);
+        }
+
     }
 
     void FixedUpdate()

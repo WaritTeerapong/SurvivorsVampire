@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
 {
     public PlayerData_SO PlayerData;
 
+    public event Action<PlayerStats> OnStatChanged;
     public NetworkVariable<PlayerStats> CurrentStats = new NetworkVariable<PlayerStats>
     (
         new PlayerStats(),
@@ -34,13 +36,27 @@ public class PlayerRunTimeStats : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        CurrentStats.OnValueChanged += OnStatsValueChanged;
+
         if (IsServer)
         {
-            IntiStats();
+            InitStats();
         }
+
     }
 
-    private void IntiStats()
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        CurrentStats.OnValueChanged -= OnStatsValueChanged;
+    }
+
+    private void OnStatsValueChanged(PlayerStats previousValue, PlayerStats newValue)
+    {
+        OnStatChanged?.Invoke(newValue);
+    }
+
+    private void InitStats()
     {
         if (PlayerData == null)
         {
@@ -72,9 +88,38 @@ public class PlayerRunTimeStats : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
+    // public void GainXP(int incomingXP)
+    // {
+    //     if (!IsServer) return;
+
+    //     PlayerStats stats = CurrentStats.Value;
+    //     if (stats.XPNeeded == -1) return;
+
+    //     stats.CurrentXP += incomingXP;
+
+    //     while (stats.CurrentXP >= stats.XPNeeded && stats.XPNeeded != -1)
+    //     {
+    //         stats.CurrentXP -= stats.XPNeeded;
+    //         stats.CurrentLevel++;
+    //         stats.XPNeeded = LevelData.GetNeededXPForLevel(stats.CurrentLevel + 1);
+    //         if (stats.XPNeeded == -1)
+    //         {
+    //             stats.CurrentXP = 0;
+    //             break;
+    //         }
+    //     }
+    //     CurrentStats.Value = stats;
+    // }
+
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()
     {
-        Debug.Log($"Player {OwnerClientId} Stats - Health: {CurrentStats.Value.CurrentHealth}, MoveSpeed: {CurrentStats.Value.MoveSpeed}, ATKDamage: {CurrentStats.Value.ATKDamage}, ATKSpeed: {CurrentStats.Value.ATKSpeed}");
+        Debug.Log($"Player {OwnerClientId} Stats - " +
+            $"Health: {CurrentStats.Value.CurrentHealth}, " +
+            $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
+            $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
+            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}");
     }
+
+
 }
