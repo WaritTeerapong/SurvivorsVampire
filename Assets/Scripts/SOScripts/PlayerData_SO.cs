@@ -1,12 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerData_SO", menuName = "PlayerData_SO", order = 0)]
-public class PlayerData_SO : ScriptableObject
+public class PlayerData_SO : BaseData_SO
 {
     public int PlayerId;
-    public int MaxHealth;
-    public int MoveSpeed;
-    public int ATKDamage;
-    public float ATKSpeed; // Attacks per second
-    public float ATKRange;
 }
