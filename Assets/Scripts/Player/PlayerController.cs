@@ -4,10 +4,11 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
 {
+    // Component Refernce
     private Rigidbody2D _rb;
-    private PlayerRunTimeStats _stats;
+    private PlayerRunTimeStats _stats; // Data
 
-    // [SerializeField] private float _speed = 5f;
+    private Detector _detector;
 
     private PlayerControls _inputs;
     private InputAction _moveAction;
@@ -28,6 +29,7 @@ public class PlayerController : NetworkBehaviour
         _inputs = new PlayerControls();
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<PlayerRunTimeStats>();
+        _detector = GetComponentInChildren<Detector>();
     }
 
     void OnEnable()
@@ -50,15 +52,7 @@ public class PlayerController : NetworkBehaviour
         _position = _moveAction.ReadValue<Vector2>();
         _position.Normalize();
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            DebugLogSomethingRpc(new DataSomethings { Value = 42 });
-        }
-
-        if (Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            InteractWithPlayerRpc();
-        }
+        _detector.FindNearestTarget();
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
@@ -67,8 +61,7 @@ public class PlayerController : NetworkBehaviour
 
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
-            PlayerRunTimeStats stats = GetComponent<PlayerRunTimeStats>();
-            stats.DebugLogStatsRpc();
+            _stats.DebugLogStatsRpc();
         }
 
     }
@@ -78,60 +71,20 @@ public class PlayerController : NetworkBehaviour
         Move();
     }
 
-    private void Move()
-    {
-        _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
-    }
+    private void Move() => _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
 
     [Rpc(SendTo.Server)]
-    private void InteractWithPlayerRpc()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 2f);
-
-        foreach (var hitCollider in hitColliders)
-        {
-            var pc = hitCollider.GetComponent<PlayerController>();
-            if (pc != null && pc != this)
-            {
-                Debug.Log("Interacted with player: " + pc.name);
-                pc.ShowTargetUIRpc();
-            }
-        }
-    }
-
-    [Rpc(SendTo.Owner)]
-    private void ShowTargetUIRpc()
-    {
-        // Show UI element above the player
-        Debug.Log("Yoo! Someone interacted with you!");
-    }
-
-    [Rpc(SendTo.NotOwner)]
-    public void DebugLogSomethingRpc(DataSomethings data)
-    {
-        Debug.Log("Something" + data.Value);
-    }
-
-    [Rpc(SendTo.Server)]
-    public void TakeDamageRpc(int damage)
-    {
-        _stats.ApplyDamage(damage);
-    }
+    public void TakeDamageRpc(int damage) => _stats.ApplyDamage(damage);
 
     void OnDrawGizmos()
+    {
+
+    }
+
+    void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, 2f);
     }
 }
 
-
-public struct DataSomethings : INetworkSerializable
-{
-    public int Value;
-
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        serializer.SerializeValue(ref Value);
-    }
-}

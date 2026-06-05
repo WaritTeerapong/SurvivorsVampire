@@ -17,4 +17,4 @@ MonoBehaviour:
   MoveSpeed: 5
   ATKDamage: 5
   ATKSpeed: 1
-  ATKRange: 3
+  ATKRange: 5
