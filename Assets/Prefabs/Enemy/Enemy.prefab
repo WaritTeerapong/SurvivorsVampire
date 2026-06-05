@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -4202244241765752369}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   ShowTopMostFoldoutHeaderGroup: 1
-  LifeTimer: 3
+  LifeTimer: 0
 --- !u!1 &6190337516101859191
 GameObject:
   m_ObjectHideFlags: 0

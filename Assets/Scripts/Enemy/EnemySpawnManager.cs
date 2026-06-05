@@ -20,18 +20,37 @@ public class EnemySpawnManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (EnemyPrefab != null)
+        {
+            NetworkManager.Singleton.PrefabHandler.AddHandler(
+                EnemyPrefab,
+                new NetworkObjectPoolHandler(EnemyPrefab, PoolCategory.Enemies)
+            );
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (EnemyPrefab != null && NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.PrefabHandler.RemoveHandler(EnemyPrefab);
+        }
+
+        StopLoop();
+    }
+
     public void SpawnLoop()
     {
         if (!IsServer) return;
 
         // Spawn Coroutine
         _spawnCoroutine = StartCoroutine(SpawnEnemies());
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        StopLoop();
     }
 
     private void StopLoop()
@@ -56,15 +75,18 @@ public class EnemySpawnManager : NetworkBehaviour
             if (_currentEnemiesCount < MaxEnemies)
             {
                 Transform spawnPoint = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
-                GameObject enemy = Instantiate(EnemyPrefab, spawnPoint.position, spawnPoint.rotation);
+                GameObject enemy = ObjectPoolManager.Instance.SpawnObject(
+                    EnemyPrefab, spawnPoint.position, spawnPoint.rotation, PoolCategory.Enemies
+                );
 
                 if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
                 {
-                    enemy.GetComponent<NetworkObject>().Spawn();
+                    enemy.GetComponent<NetworkObject>().Spawn(true);
 
                     Enemy enemyScript = enemy.GetComponent<Enemy>();
                     if (enemyScript != null)
                     {
+                        enemyScript.OnEnemyDespawned -= HandleEnemyDespawned;
                         enemyScript.OnEnemyDespawned += HandleEnemyDespawned;
                     }
 

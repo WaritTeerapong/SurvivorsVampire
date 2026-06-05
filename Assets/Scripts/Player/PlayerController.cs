@@ -1,16 +1,25 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
 {
+    // Component Refernce
     private Rigidbody2D _rb;
-    private PlayerRunTimeStats _stats;
+    private PlayerRunTimeStats _stats; // Data
+    private Detector _detector;
 
     private PlayerControls _inputs;
     private InputAction _moveAction;
 
     private Vector2 _position;
+
+    [Header("Combat Setting")]
+    public GameObject BulletPrefab;
+    public Transform FirePoint;
+
+    private float _atkTimer = 0f;
 
     public override void OnNetworkSpawn()
     {
@@ -26,6 +35,7 @@ public class PlayerController : NetworkBehaviour
         _inputs = new PlayerControls();
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<PlayerRunTimeStats>();
+        _detector = GetComponentInChildren<Detector>();
     }
 
     void OnEnable()
@@ -48,15 +58,9 @@ public class PlayerController : NetworkBehaviour
         _position = _moveAction.ReadValue<Vector2>();
         _position.Normalize();
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            DebugLogSomethingRpc(new DataSomethings { Value = 42 });
-        }
+        _detector.FindNearestTarget();
 
-        if (Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            InteractWithPlayerRpc();
-        }
+        HandleAutoAttack();
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
@@ -80,60 +84,72 @@ public class PlayerController : NetworkBehaviour
         Move();
     }
 
-    private void Move()
+    void HandleAutoAttack()
     {
-        _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
-    }
+        if (_detector.NearestTarget == null) return;
 
-    [Rpc(SendTo.Server)]
-    private void InteractWithPlayerRpc()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 2f);
+        float atkSpeed = _stats.CurrentStats.Value.ATKSpeed;
 
-        foreach (var hitCollider in hitColliders)
+        if (atkSpeed <= 0) return;
+
+        float atkCD = 1f / atkSpeed;
+
+        _atkTimer += Time.deltaTime;
+
+        if (_atkTimer >= atkCD)
         {
-            var pc = hitCollider.GetComponent<PlayerController>();
-            if (pc != null && pc != this)
+            _atkTimer = 0f;
+
+            NetworkObject targetNetObj = _detector.NearestTarget.GetComponent<NetworkObject>();
+            if (targetNetObj != null)
             {
-                Debug.Log("Interacted with player: " + pc.name);
-                pc.ShowTargetUIRpc();
+                RequestFireServerRpc(targetNetObj.NetworkObjectId);
             }
         }
     }
 
-    [Rpc(SendTo.Owner)]
-    private void ShowTargetUIRpc()
-    {
-        // Show UI element above the player
-        Debug.Log("Yoo! Someone interacted with you!");
-    }
-
-    [Rpc(SendTo.NotOwner)]
-    public void DebugLogSomethingRpc(DataSomethings data)
-    {
-        Debug.Log("Something" + data.Value);
-    }
+    private void Move() => _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
 
     [Rpc(SendTo.Server)]
-    public void TakeDamageRpc(int damage)
+    public void TakeDamageRpc(int damage) => _stats.ApplyDamage(damage);
+
+
+    [Rpc(SendTo.Server)]
+    private void RequestFireServerRpc(ulong targetNetworkId)
     {
-        _stats.ApplyDamage(damage);
+        FireClientRpc(targetNetworkId);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void FireClientRpc(ulong targetNetworkId)
+    {
+        if (BulletPrefab == null || ObjectPoolManager.Instance == null) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
+        {
+            Vector3 spawnPos = FirePoint != null ? FirePoint.position : transform.position;
+
+            // Ask the manager for a bullet
+            GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+
+            if (bulletObj != null)
+            {
+                Bullet bulletScript = bulletObj.GetComponent<Bullet>();
+                if (bulletScript != null)
+                {
+                    bulletScript.Initialize(targetObj.transform, _stats.CurrentStats.Value.ATKDamage);
+                }
+            }
+        }
     }
 
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, 2f);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _stats.CurrentStats.Value.ATKRange);
     }
 }
 
-
-public struct DataSomethings : INetworkSerializable
-{
-    public int Value;
-
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        serializer.SerializeValue(ref Value);
-    }
-}

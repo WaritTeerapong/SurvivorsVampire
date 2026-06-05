@@ -8,6 +8,7 @@ public struct PlayerStats : INetworkSerializable
     public int MoveSpeed;
     public int ATKDamage;
     public float ATKSpeed;
+    public float ATKRange;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -15,6 +16,7 @@ public struct PlayerStats : INetworkSerializable
         serializer.SerializeValue(ref MoveSpeed);
         serializer.SerializeValue(ref ATKDamage);
         serializer.SerializeValue(ref ATKSpeed);
+        serializer.SerializeValue(ref ATKRange);
     }
 }
 
@@ -68,6 +70,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
             MoveSpeed = PlayerData.MoveSpeed,
             ATKDamage = PlayerData.ATKDamage,
             ATKSpeed = PlayerData.ATKSpeed,
+            ATKRange = PlayerData.ATKRange
         };
 
         CurrentStats.Value = initStats;
