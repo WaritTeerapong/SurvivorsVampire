@@ -28,8 +28,8 @@ public struct EnemyCurrentStats : INetworkSerializable
     public class Enemy : NetworkBehaviour
 {
 
-    [SerializeField] private int _enemyType;
-    [SerializeField] private int _enemyTier;
+    [SerializeField] private int _enemyTypeIndex;
+    [SerializeField] private int _enemyTierIndex;
 
     public EnemyData_SO EnemyData;
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
@@ -79,12 +79,12 @@ public struct EnemyCurrentStats : INetworkSerializable
             return;
         }
 
-        EnemyStats _stats = EnemyData.enemyType[_enemyType].enemyTiers[_enemyTier].enemyStats;
+        EnemyStats _stats = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].enemyStats;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
-            EnemyID = EnemyData.enemyType[_enemyType].EnemyID,
-            Tier = EnemyData.enemyType[_enemyType].enemyTiers[_enemyTier].Tier,
+            EnemyID = EnemyData.enemyType[_enemyTypeIndex].EnemyID,
+            Tier = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].Tier,
             CurrentHealth = _stats.MaxHealth,
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
