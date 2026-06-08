@@ -157,9 +157,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   ShowTopMostFoldoutHeaderGroup: 1
-  _enemyType: 1
-  _enemyTier: 2
-  EnemyData: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+  _enemyTypeIndex: 0
+  _enemyTierIndex: 0
+  EnemyData: {fileID: 0}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
