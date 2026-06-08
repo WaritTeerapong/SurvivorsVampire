@@ -30,11 +30,13 @@ public class Enemy : NetworkBehaviour
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
+    [Header("Enemy Identity")]
+    public int EnemyTypeIndex;
+    public int EnemyTier;
 
-    [SerializeField] private int _enemyTypeIndex;
-    [SerializeField] private int _enemyTierIndex;
-
-    public EnemyData_SO EnemyData;
+    [Header("Database")]
+    public EnemyDataBase_SO EnemyDatabase;
+    public EnemyTier EnemyData;
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -55,15 +57,19 @@ public class Enemy : NetworkBehaviour
         base.OnNetworkSpawn();
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
-        if (IsServer)
+        if (EnemyDatabase != null && IsServer)
         {
+            EnemyData = EnemyDatabase.GetEnemyData(EnemyTypeIndex, EnemyTier);
             InitStats();
 
             Detector?.StartDetect();
 
             SwitchState(IdleState);
         }
-
+        else
+        {
+            Debug.LogError("GlobalEnemyDatabase is missing on " + gameObject.name);
+        }
         DebugLogStatsRpc();
     }
 
@@ -88,18 +94,13 @@ public class Enemy : NetworkBehaviour
 
     public void InitStats()
     {
-        if (EnemyData == null)
-        {
-            Debug.LogWarning("EnemyData_SO is not assigned in Enemy Script.");
-            return;
-        }
 
-        EnemyStats _stats = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].enemyStats;
+        EnemyStats _stats = EnemyData.enemyStats;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
-            EnemyID = EnemyData.enemyType[_enemyTypeIndex].EnemyID,
-            Tier = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].Tier,
+            EnemyID = EnemyData.EnemyID,
+            Tier = EnemyData.Tier,
             CurrentHealth = _stats.MaxHealth,
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
