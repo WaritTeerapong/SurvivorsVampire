@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -30,13 +31,10 @@ public class Enemy : NetworkBehaviour
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
-    [Header("Enemy Identity")]
-    public int EnemyTypeIndex;
-    public int EnemyTier;
 
-    [Header("Database")]
-    public EnemyDataBase_SO EnemyDatabase;
-    public EnemyTier EnemyData;
+    [Header("Eneym Type SO")]
+    public EnemyTypeData_SO EnemyType;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -57,19 +55,21 @@ public class Enemy : NetworkBehaviour
         base.OnNetworkSpawn();
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
-        if (EnemyDatabase != null && IsServer)
+
+        // แก้ไข: เอา EnemyType == null ออกไป เพราะเราจะสุ่มค่าให้มันใหม่เสมอ
+        if (IsServer && EnemySpawnManager.Instance != null)
         {
-            EnemyData = EnemyDatabase.GetEnemyData(EnemyTypeIndex, EnemyTier);
-            InitStats();
+            StartCoroutine(InitStats());
 
             Detector?.StartDetect();
 
             SwitchState(IdleState);
         }
-        else
+        else if (IsServer) // ดัก Error ไว้เผื่อกรณีหา Manager ไม่เจอ
         {
-            Debug.LogError("GlobalEnemyDatabase is missing on " + gameObject.name);
+            Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
         }
+
         DebugLogStatsRpc();
     }
 
@@ -84,6 +84,10 @@ public class Enemy : NetworkBehaviour
 
             OnEnemyDespawned?.Invoke();
             OnEnemyDespawned = null;
+
+            // เพิ่มบรรทัดนี้: เคลียร์ค่าทิ้งตอนเก็บเข้า Pool
+            EnemyType = null;
+            _currentState = null;
         }
     }
 
@@ -92,15 +96,21 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public void InitStats()
+    public IEnumerator InitStats()
     {
+        yield return null;
+        // Random Type & Tier
+        EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
+        int tierIndex = EnemySpawnManager.Instance.GetRandomEnemyTier();
 
-        EnemyStats _stats = EnemyData.enemyStats;
+        // Enemy Stats
+        EnemyStats _stats = EnemyType.enemyTiers[tierIndex].enemyStats;
 
+        // Assign Stats
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
-            EnemyID = EnemyData.EnemyID,
-            Tier = EnemyData.Tier,
+            EnemyID = EnemyType.enemyTiers[tierIndex].EnemyID,
+            Tier = tierIndex,
             CurrentHealth = _stats.MaxHealth,
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
@@ -108,6 +118,12 @@ public class Enemy : NetworkBehaviour
             ATKRange = _stats.ATKRange
         };
         CurrentStats.Value = initStats;
+    }
+
+    private void ResetStats()
+    {
+        EnemyType = null;
+        CurrentStats = null;
     }
 
     public void SwitchState(IEnemyState newState)
