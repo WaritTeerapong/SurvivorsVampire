@@ -85,7 +85,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3875020284
+  GlobalObjectIdHash: 1111825701
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -157,9 +157,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   ShowTopMostFoldoutHeaderGroup: 1
-  _enemyType: 1
-  _enemyTier: 2
-  EnemyData: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+  EnemyTypeIndex: 1
+  EnemyTier: 2
+  EnemyDatabase: {fileID: 11400000, guid: 6be1f05f3c52b9d4385c7afc4118a7b1, type: 2}
+  EnemyData:
+    Tier: 0
+    EnemyID: 0
+    sprite: {fileID: 0}
+    enemyStats:
+      MaxHealth: 0
+      MoveSpeed: 0
+      ATKDamage: 0
+      ATKSpeed: 0
+      ATKRange: 0
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
