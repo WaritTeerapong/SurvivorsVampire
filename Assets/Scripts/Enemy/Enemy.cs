@@ -25,8 +25,10 @@ public struct EnemyCurrentStats : INetworkSerializable
 
 }
 
-    public class Enemy : NetworkBehaviour
+public class Enemy : NetworkBehaviour
 {
+    public EnemyDetector Detector;
+    public EnemyMovement Movement;
 
     [SerializeField] private int _enemyTypeIndex;
     [SerializeField] private int _enemyTierIndex;
@@ -41,6 +43,12 @@ public struct EnemyCurrentStats : INetworkSerializable
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action OnEnemyDespawned;
 
+    public readonly IEnemyState IdleState = new EnemyIdleState();
+    public readonly IEnemyState MoveState = new EnemyMoveState();
+    public readonly IEnemyState AttackState = new EnemyAttackState();
+
+    private IEnemyState _currentState;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -49,6 +57,10 @@ public struct EnemyCurrentStats : INetworkSerializable
         if (IsServer)
         {
             InitStats();
+
+            Detector?.StartDetect();
+
+            SwitchState(IdleState);
         }
 
         DebugLogStatsRpc();
@@ -61,6 +73,8 @@ public struct EnemyCurrentStats : INetworkSerializable
 
         if (IsServer)
         {
+            Detector?.StopDetect();
+
             OnEnemyDespawned?.Invoke();
             OnEnemyDespawned = null;
         }
@@ -92,6 +106,33 @@ public struct EnemyCurrentStats : INetworkSerializable
             ATKRange = _stats.ATKRange
         };
         CurrentStats.Value = initStats;
+    }
+
+    public void SwitchState(IEnemyState newState)
+    {
+        if (!IsServer) return;
+
+        _currentState?.OnExit(this);
+        _currentState = newState;
+        _currentState?.OnEnter(this);
+    }
+
+    public bool IsPlayerInATKRange()
+    {
+        float atkRange = CurrentStats.Value.ATKRange;
+
+        if (Detector.SqrDistanceToTarget <= (atkRange * atkRange))
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        _currentState?.OnUpdate(this);
     }
 
     public void TakeDamage(int damage)
@@ -131,5 +172,11 @@ public struct EnemyCurrentStats : INetworkSerializable
             $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
             $"ATKSpeed: {CurrentStats.Value.ATKSpeed}");
+    }
+
+    private void OnDrawGizmos()
+    {
+        Color color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, CurrentStats.Value.ATKRange);
     }
 }

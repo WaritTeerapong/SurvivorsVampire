@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 603669010307118608}
   - component: {fileID: 3388925012026835816}
   - component: {fileID: -4202244241765752369}
+  - component: {fileID: 6849801764137899047}
+  - component: {fileID: 5280175360996344786}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -85,8 +87,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3875020284
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3803065962
+  InScenePlacedSourceGlobalObjectIdHash: 1111825701
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -157,13 +159,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   ShowTopMostFoldoutHeaderGroup: 1
-  _enemyType: 1
-  _enemyTier: 2
+  Detector: {fileID: 6849801764137899047}
+  Movement: {fileID: 5280175360996344786}
+  _enemyTypeIndex: 0
+  _enemyTierIndex: 0
   EnemyData: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
+--- !u!114 &6849801764137899047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3942754042103540661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8bf85833cf85354e933828160c9115a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDetector
+  UpdateTargetInterval: 0.5
+--- !u!114 &5280175360996344786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3942754042103540661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43a3c794935715646abb4704900e272d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
 --- !u!1 &6190337516101859191
 GameObject:
   m_ObjectHideFlags: 0
