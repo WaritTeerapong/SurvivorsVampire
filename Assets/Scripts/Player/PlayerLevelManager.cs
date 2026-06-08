@@ -12,7 +12,8 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedXP = new NetworkVariable<int>(0);
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
 
-    public event Action OnLevelStatChanged;
+    public event Action OnLevelUp;
+    public event Action OnGainXP;
 
     void Awake()
     {
@@ -24,9 +25,8 @@ public class PlayerLevelManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        SharedLevel.OnValueChanged += (prev, newValue) => OnLevelStatChanged?.Invoke();
-        SharedXP.OnValueChanged += (prev, newValue) => OnLevelStatChanged?.Invoke();
-        SharedXPNeeded.OnValueChanged += (prev, newValue) => OnLevelStatChanged?.Invoke();
+        SharedLevel.OnValueChanged += HandleLevelChanged;
+        SharedXP.OnValueChanged += HandleXPChanged;
 
         if (IsServer)
         {
@@ -37,6 +37,28 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
             }
         }
+    }
+
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        SharedLevel.OnValueChanged -= HandleLevelChanged;
+        SharedXP.OnValueChanged -= HandleXPChanged;
+
+        OnLevelUp = null;
+        OnGainXP = null;
+    }
+
+    private void HandleLevelChanged(int previousValue, int newValue)
+    {
+        OnLevelUp?.Invoke();
+    }
+
+    private void HandleXPChanged(int previousValue, int newValue)
+    {
+        OnGainXP?.Invoke();
     }
 
     [Rpc(SendTo.Server)]
@@ -55,7 +77,7 @@ public class PlayerLevelManager : NetworkBehaviour
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
         {
             SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++;
+            SharedLevel.Value++;    // OnLevelUp event fire!
             SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
 
             if (SharedXPNeeded.Value == -1)
@@ -65,4 +87,6 @@ public class PlayerLevelManager : NetworkBehaviour
             }
         }
     }
+
+
 }
