@@ -19,7 +19,7 @@ MonoBehaviour:
     - Tier: 1
       enemyStats:
         MaxHealth: 5
-        MoveSpeed: 1
+        MoveSpeed: 3
         ATKDamage: 1
         ATKSpeed: 1
         ATKRange: 1

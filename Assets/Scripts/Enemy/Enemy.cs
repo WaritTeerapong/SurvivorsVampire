@@ -29,6 +29,7 @@ public class Enemy : NetworkBehaviour
 {
     public EnemyDetector Detector;
     public EnemyMovement Movement;
+    public EnemyCombat Combat;
 
     [SerializeField] private int _enemyTypeIndex;
     [SerializeField] private int _enemyTierIndex;
@@ -119,13 +120,13 @@ public class Enemy : NetworkBehaviour
 
     public bool IsPlayerInATKRange()
     {
+        if (Detector == null || Detector.NearestTarget == null) return false;
+
         float atkRange = CurrentStats.Value.ATKRange;
 
-        if (Detector.SqrDistanceToTarget <= (atkRange * atkRange))
-        {
-            return true;
-        }
-        else return false;
+        float currentSqrDistance = (Detector.NearestTarget.position - transform.position).sqrMagnitude;
+
+        return currentSqrDistance <= (atkRange * atkRange);
     }
 
     private void Update()
@@ -171,7 +172,8 @@ public class Enemy : NetworkBehaviour
             $"Health: {CurrentStats.Value.CurrentHealth}, " +
             $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
-            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}");
+            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}" +
+            $"ATKRange: {CurrentStats.Value.ATKRange}");
     }
 
     private void OnDrawGizmos()

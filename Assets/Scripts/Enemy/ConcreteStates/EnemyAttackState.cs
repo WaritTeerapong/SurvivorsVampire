@@ -2,17 +2,46 @@ using UnityEngine;
 
 public class EnemyAttackState : IEnemyState
 {
+    private float _atkTimer;
+    private float _atkCooldown;
+    private bool _hasAttacked;
+
     public void OnEnter(Enemy enemy)
     {
-        // Stop Move
-        // Preform Attack Animation
-    }
+        float atkSpeed = enemy.CurrentStats.Value.ATKSpeed;
+        _atkCooldown = (atkSpeed > 0) ? (1f / atkSpeed) : 1f;
 
-    public void OnExit(Enemy enemy)
-    {
+        _atkTimer = 0f;
+        _hasAttacked = false;
     }
 
     public void OnUpdate(Enemy enemy)
+    {
+        _atkTimer += Time.deltaTime;
+
+        float windUpTime = 0.2f;
+
+        if (_atkTimer >= windUpTime && !_hasAttacked)
+        {
+            enemy.Combat.PerformMeleeAttack(enemy, enemy.Detector.NearestTarget);
+            _hasAttacked = true;
+        }
+
+        if (_atkTimer >= _atkCooldown)
+        {
+            if (!enemy.IsPlayerInATKRange())
+            {
+                enemy.SwitchState(enemy.MoveState);
+            }
+            else
+            {
+                _atkTimer = 0f;
+                _hasAttacked = false;
+            }
+        }
+    }
+
+    public void OnExit(Enemy enemy)
     {
     }
 }

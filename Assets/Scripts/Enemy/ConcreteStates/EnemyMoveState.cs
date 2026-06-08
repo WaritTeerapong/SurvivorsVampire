@@ -18,14 +18,15 @@ public class EnemyMoveState : IEnemyState
             return;
         }
 
+        if (enemy.IsPlayerInATKRange())
+        {
+            enemy.SwitchState(enemy.AttackState);
+            return;
+        }
+
         enemy.Movement.MoveToward(
             enemy.Detector.NearestTarget,
             enemy.CurrentStats.Value.MoveSpeed
         );
-
-        if (enemy.IsPlayerInATKRange())
-        {
-            enemy.SwitchState(enemy.AttackState);
-        }
     }
 }
