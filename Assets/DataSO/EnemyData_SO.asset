@@ -18,46 +18,46 @@ MonoBehaviour:
     enemyTiers:
     - Tier: 1
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 5
+        MoveSpeed: 1
+        ATKDamage: 1
+        ATKSpeed: 1
+        ATKRange: 1
     - Tier: 2
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 10
+        MoveSpeed: 2
+        ATKDamage: 2
+        ATKSpeed: 1
+        ATKRange: 1
     - Tier: 3
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 15
+        MoveSpeed: 3
+        ATKDamage: 3
+        ATKSpeed: 1
+        ATKRange: 1
   - EnemyName: Human
     EnemyID: 2
     enemyTiers:
     - Tier: 1
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 10
+        MoveSpeed: 2
+        ATKDamage: 5
+        ATKSpeed: 1
+        ATKRange: 1
     - Tier: 2
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 15
+        MoveSpeed: 4
+        ATKDamage: 10
+        ATKSpeed: 1.5
+        ATKRange: 1
     - Tier: 3
       enemyStats:
-        MaxHealth: 0
-        MoveSpeed: 0
-        ATKDamage: 0
-        ATKSpeed: 0
-        ATKRange: 0
+        MaxHealth: 20
+        MoveSpeed: 6
+        ATKDamage: 10
+        ATKSpeed: 2
+        ATKRange: 1

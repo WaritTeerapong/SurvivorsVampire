@@ -2,28 +2,62 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Enemy : NetworkBehaviour
+public struct EnemyCurrentStats : INetworkSerializable
 {
-    [Header("Enemy Stats")]
-    public int MaxHealth = 20;
-    public int CurrentHealth = 20;
-    public float LifeTimer = 3f;
+    public int EnemyID;
+    public int Tier;
+    public int CurrentHealth;
+    public int MoveSpeed;
+    public int ATKDamage;
+    public float ATKSpeed;
+    public float ATKRange;
 
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref EnemyID);
+        serializer.SerializeValue(ref Tier);
+        serializer.SerializeValue(ref CurrentHealth);
+        serializer.SerializeValue(ref MoveSpeed);
+        serializer.SerializeValue(ref ATKDamage);
+        serializer.SerializeValue(ref ATKSpeed);
+        serializer.SerializeValue(ref ATKRange);
+    }
+
+}
+
+    public class Enemy : NetworkBehaviour
+{
+
+    [SerializeField] private int _enemyTypeIndex;
+    [SerializeField] private int _enemyTierIndex;
+
+    public EnemyData_SO EnemyData;
+    public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
+        new EnemyCurrentStats(),
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
+    public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action OnEnemyDespawned;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
+        CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         if (IsServer)
         {
-            ResetStats();
+            InitStats();
         }
+
+        DebugLogStatsRpc();
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+        CurrentStats.OnValueChanged -= OnEnemyStatsValueChanged;
 
         if (IsServer)
         {
@@ -32,9 +66,32 @@ public class Enemy : NetworkBehaviour
         }
     }
 
-    public void ResetStats()
+    private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
-        CurrentHealth = MaxHealth;
+        OnEnemyStatsChanged?.Invoke(newValue);
+    }
+
+    public void InitStats()
+    {
+        if (EnemyData == null)
+        {
+            Debug.LogWarning("EnemyData_SO is not assigned in Enemy Script.");
+            return;
+        }
+
+        EnemyStats _stats = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].enemyStats;
+
+        EnemyCurrentStats initStats = new EnemyCurrentStats
+        {
+            EnemyID = EnemyData.enemyType[_enemyTypeIndex].EnemyID,
+            Tier = EnemyData.enemyType[_enemyTypeIndex].enemyTiers[_enemyTierIndex].Tier,
+            CurrentHealth = _stats.MaxHealth,
+            MoveSpeed = _stats.MoveSpeed,
+            ATKDamage = _stats.ATKDamage,
+            ATKSpeed = _stats.ATKSpeed,
+            ATKRange = _stats.ATKRange
+        };
+        CurrentStats.Value = initStats;
     }
 
     public void TakeDamage(int damage)
@@ -42,11 +99,15 @@ public class Enemy : NetworkBehaviour
         // Only the Server calculates health and damage
         if (!IsServer) return;
 
-        CurrentHealth -= damage;
-        if (CurrentHealth <= 0)
+        EnemyCurrentStats stats = CurrentStats.Value;
+        stats.CurrentHealth -= damage;
+        if (stats.CurrentHealth <= 0)
         {
+            stats.CurrentHealth = 0;
             Despawn();
         }
+
+        CurrentStats.Value = stats;
     }
 
     private void Despawn()
@@ -56,5 +117,19 @@ public class Enemy : NetworkBehaviour
             // 'true' will destroy the GameObject in the scene along with despawning it
             NetworkObject.Despawn(true);
         }
+    }
+
+
+
+    [Rpc(SendTo.Server)]
+    public void DebugLogStatsRpc()
+    {
+        Debug.Log($"Enemy Stats - " +
+            $"EnemyID: {CurrentStats.Value.EnemyID}, " +
+            $"TIer: {CurrentStats.Value.Tier}, " +
+            $"Health: {CurrentStats.Value.CurrentHealth}, " +
+            $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
+            $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
+            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}");
     }
 }

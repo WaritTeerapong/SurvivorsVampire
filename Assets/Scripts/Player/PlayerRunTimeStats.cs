@@ -88,29 +88,6 @@ public class PlayerRunTimeStats : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
-    // public void GainXP(int incomingXP)
-    // {
-    //     if (!IsServer) return;
-
-    //     PlayerStats stats = CurrentStats.Value;
-    //     if (stats.XPNeeded == -1) return;
-
-    //     stats.CurrentXP += incomingXP;
-
-    //     while (stats.CurrentXP >= stats.XPNeeded && stats.XPNeeded != -1)
-    //     {
-    //         stats.CurrentXP -= stats.XPNeeded;
-    //         stats.CurrentLevel++;
-    //         stats.XPNeeded = LevelData.GetNeededXPForLevel(stats.CurrentLevel + 1);
-    //         if (stats.XPNeeded == -1)
-    //         {
-    //             stats.CurrentXP = 0;
-    //             break;
-    //         }
-    //     }
-    //     CurrentStats.Value = stats;
-    // }
-
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()
     {
