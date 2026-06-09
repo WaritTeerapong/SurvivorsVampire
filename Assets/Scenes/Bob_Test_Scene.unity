@@ -3242,6 +3242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnManager
   ShowTopMostFoldoutHeaderGroup: 1
+  EnemyDatabase: {fileID: 11400000, guid: 6be1f05f3c52b9d4385c7afc4118a7b1, type: 2}
   EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
   SpawnPoints:
   - {fileID: 431250117}

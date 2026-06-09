@@ -6,6 +6,8 @@ public class EnemySpawnManager : NetworkBehaviour
 {
     public static EnemySpawnManager Instance;
 
+    public EnemyDataBase_SO EnemyDatabase;
+
     public GameObject EnemyPrefab;
     public Transform[] SpawnPoints; // Assume 2 Points for now
     public float SpawnCD = 5f; // 1 unit / 5 seconds
@@ -102,6 +104,18 @@ public class EnemySpawnManager : NetworkBehaviour
     {
         _currentEnemiesCount--;
         if (_currentEnemiesCount < 0) _currentEnemiesCount = 0;
+    }
+
+    public EnemyTypeData_SO GetRandomEnemyType()
+    {
+        int typeIndex = Random.Range(0, EnemyDatabase.EnemyType.Length);
+        EnemyTypeData_SO enemyType = EnemyDatabase.EnemyType[typeIndex];
+        return enemyType;
+    }
+
+    public int GetRandomEnemyTier()
+    {
+        return Random.Range(0, 3);
     }
 
 }
