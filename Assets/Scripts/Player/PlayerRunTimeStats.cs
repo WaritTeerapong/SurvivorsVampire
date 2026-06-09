@@ -87,6 +87,19 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         CurrentStats.Value = stats;
     }
+    
+    //public void UpgradeStat(BaseStat bonusStat)
+    //{
+    //    PlayerStats newStats = new PlayerStats
+    //    {
+    //        CurrentHealth = PlayerData.Stat.MaxHealth + bonusStat.MaxHealth,
+    //        MoveSpeed = PlayerData.Stat.MoveSpeed + bonusStat.MoveSpeed,
+    //        ATKDamage = PlayerData.Stat.ATKDamage + bonusStat.ATKDamage,
+    //        ATKSpeed = PlayerData.Stat.ATKSpeed + bonusStat.ATKSpeed,
+    //        ATKRange = PlayerData.Stat.ATKRange + bonusStat.ATKRange
+    //    };
+    //    CurrentStats.Value = newStats;
+    //}
 
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()

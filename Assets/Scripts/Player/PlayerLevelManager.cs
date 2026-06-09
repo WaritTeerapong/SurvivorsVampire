@@ -7,6 +7,10 @@ public class PlayerLevelManager : NetworkBehaviour
     public static PlayerLevelManager Instance { get; private set; }
 
     public LevelData_SO LevelData;
+    //public PlayerData_SO PlayerData;
+    //public StatBonusData_SO StatBonusData;
+
+    public StatLevelCheckpoint StatLevel;
 
     public NetworkVariable<int> SharedLevel = new NetworkVariable<int>(1);
     public NetworkVariable<int> SharedXP = new NetworkVariable<int>(0);
@@ -36,6 +40,11 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedXP.Value = 0;
                 SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
             }
+
+            //if (PlayerData != null)
+            //{
+            //    StatLevel = PlayerData.StatLevel;
+            //}
         }
     }
 
@@ -53,7 +62,9 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void HandleLevelChanged(int previousValue, int newValue)
     {
+        
         OnLevelUp?.Invoke();
+        
     }
 
     private void HandleXPChanged(int previousValue, int newValue)

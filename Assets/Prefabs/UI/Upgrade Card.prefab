@@ -366,9 +366,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  StatName: {fileID: 6731128877437712822}
-  StatLevel: {fileID: 3227187542542315561}
-  StatBonus: {fileID: 1168216644492774422}
+  StatNameText: {fileID: 6731128877437712822}
+  StatLevelText: {fileID: 3227187542542315561}
+  StatBonusText: {fileID: 1168216644492774422}
+  UpgradeButton: {fileID: 6924721579620125366}
 --- !u!1 &6091977947827314084
 GameObject:
   m_ObjectHideFlags: 0

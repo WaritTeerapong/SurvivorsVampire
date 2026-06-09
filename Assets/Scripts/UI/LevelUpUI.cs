@@ -7,14 +7,17 @@ public class LevelUpUI : NetworkBehaviour
 {
 
     [SerializeField] private GameObject _levelUpScreen;
-    [SerializeField] private Button[] _upgradeBtns = new Button[3];
+    [SerializeField] private UpgradeCard[] _upgradeCard;
+
+    // player stat level
+    // public StatBonusData_SO StatBonusData;
 
 
     void Start()
     {
-        foreach (var _button in _upgradeBtns)
+        foreach (var _card in _upgradeCard)
         {
-            _button.onClick.AddListener(OnUpgradeClicked);
+            _card.UpgradeButton.onClick.AddListener(OnUpgradeClicked);
         }
         _levelUpScreen.SetActive(false);
 
@@ -23,26 +26,25 @@ public class LevelUpUI : NetworkBehaviour
 
     private void UpdateUI()
     {
+        Time.timeScale = 0;
         _levelUpScreen.SetActive(true);
-
-        // Random stat on to the botton
         
 
     }
 
     private void OnDestroy()
     {
-        foreach (var _button in _upgradeBtns)
+        foreach (var _card in _upgradeCard)
         {
-            _button.onClick.RemoveListener(OnUpgradeClicked);
+            _card.UpgradeButton.onClick.RemoveListener(OnUpgradeClicked);
         }
     }
-
-
 
     private void OnUpgradeClicked()
     {
         // upgrade choose Stat
         _levelUpScreen.SetActive(false);
+        Time.timeScale = 1;
     }
+
 }

@@ -560,6 +560,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2095541036116435742, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 400
+      objectReference: {fileID: 0}
     - target: {fileID: 6213626146725574779, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -733,6 +737,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLevelManager
   ShowTopMostFoldoutHeaderGroup: 1
   LevelData: {fileID: 11400000, guid: ec665eeeb7ef6374f8539b0d90c45773, type: 2}
+  StatLevel:
+    MaxHealthLevel: 0
+    MoveSpeedLevel: 0
+    ATKDamageLevel: 0
+    ATKSpeedLevel: 0
+    ATKRangeLevel: 0
   SharedLevel:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -801,6 +811,7 @@ GameObject:
   - component: {fileID: 579246270}
   - component: {fileID: 579246272}
   - component: {fileID: 579246273}
+  - component: {fileID: 579246274}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -897,6 +908,24 @@ MonoBehaviour:
   _levelText: {fileID: 521524023}
   _xpText: {fileID: 521524024}
   _xpSlider: {fileID: 521524026}
+--- !u!114 &579246274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579246268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcdb8d13723f7ce40bed32a160d57b12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelUpUI
+  ShowTopMostFoldoutHeaderGroup: 1
+  _levelUpScreen: {fileID: 905103122}
+  _upgradeCard:
+  - {fileID: 1375419730}
+  - {fileID: 1953422739}
+  - {fileID: 1613131315}
 --- !u!1 &589749772
 GameObject:
   m_ObjectHideFlags: 0
@@ -2670,6 +2699,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1362257120}
   m_CullTransparentMesh: 1
+--- !u!114 &1375419730 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -2956434333696072615, guid: 65912fc7adabad14c8618a4099e14ba6, type: 3}
+  m_PrefabInstance: {fileID: 665405679}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1388754796
 GameObject:
   m_ObjectHideFlags: 0
@@ -3427,6 +3467,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4824577460566447809, guid: 65912fc7adabad14c8618a4099e14ba6, type: 3}
   m_PrefabInstance: {fileID: 1613131313}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1613131315 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -2956434333696072615, guid: 65912fc7adabad14c8618a4099e14ba6, type: 3}
+  m_PrefabInstance: {fileID: 1613131313}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1621610968
 GameObject:
   m_ObjectHideFlags: 0
@@ -3848,7 +3899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnManager
   ShowTopMostFoldoutHeaderGroup: 1
-  EnemyDatabase: {fileID: 0}
+  EnemyDatabase: {fileID: 11400000, guid: 6be1f05f3c52b9d4385c7afc4118a7b1, type: 2}
   EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
   SpawnPoints:
   - {fileID: 431250117}
@@ -4052,6 +4103,17 @@ MonoBehaviour:
     PacketDelayMS: 0
     PacketJitterMS: 0
     PacketDropRate: 0
+--- !u!114 &1953422739 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -2956434333696072615, guid: 65912fc7adabad14c8618a4099e14ba6, type: 3}
+  m_PrefabInstance: {fileID: 1765190068}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &2037292825
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,14 +4,24 @@ using UnityEngine.UI;
 
 public class UpgradeCard : MonoBehaviour
 {
-    public TMP_Text StatName;
-    public TMP_Text StatLevel;
-    public TMP_Text StatBonus;
+    public TMP_Text StatNameText;
+    public TMP_Text StatLevelText;
+    public TMP_Text StatBonusText;
+    public Button UpgradeButton;
 
-    public void Setup(string name, int level, int bonus)
+    // increaseAmount = newLevel.bonus - lastLevel.bonus
+    // totalValue = baseValue + newLevel.bonus
+    public void Setup(string statName, int newLevel, int increaseAmount, int totalValue)
     {
-        StatName.text = name;
-        StatLevel.text = $"Lv.{level}";
-        StatBonus.text = $" +{bonus}";
+        StatNameText.text = statName;
+        StatLevelText.text = $"Lv.{newLevel}";
+        StatBonusText.text = $" +{increaseAmount} ({totalValue})";
+    }
+
+    public void Setup(string statName, int newLevel, float increaseAmount, float totalValue)
+    {
+        StatNameText.text = statName;
+        StatLevelText.text = $"Lv.{newLevel}";
+        StatBonusText.text = $" +{increaseAmount:F1} ({totalValue:F1})";
     }
 }

@@ -5,6 +5,7 @@ public class BaseData_SO : ScriptableObject
     public BaseStat Stat;
 }
 
+[System.Serializable]
 public struct BaseStat
 {
     public int MaxHealth;
