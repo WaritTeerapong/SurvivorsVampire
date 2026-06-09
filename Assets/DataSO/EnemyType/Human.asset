@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b69b2c75b1e5e4a47972202e04629fa7, type: 3}
   m_Name: Human
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
-  EnemyName: Slime
+  EnemyName: Human
   enemyTiers:
   - Tier: 1
     EnemyID: 3
