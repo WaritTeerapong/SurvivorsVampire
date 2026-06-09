@@ -5,6 +5,7 @@ public class EnemyTypeData_SO : ScriptableObject
 {
     public string EnemyName;
     public EnemyTier[] enemyTiers;
+    public int XPValue = 10;
     public EnemyTier Setup(int tier)
     {
         if (enemyTiers == null || enemyTiers.Length == 0)

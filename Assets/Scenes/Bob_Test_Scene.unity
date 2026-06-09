@@ -3680,6 +3680,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   WaveDatabase: {fileID: 11400000, guid: f29cbf21131be724c890b191386ca588, type: 2}
   EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
+  XPPrefab: {fileID: 166676543266631813, guid: 200f88a9da17e0e468b7431d0621d2a0, type: 3}
   MapSize: {x: 50, y: 25}
   SpawnOffset: 5
   CurrentWave:

@@ -37,6 +37,9 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
+    [Header("XP Prefab")]
+    [SerializeField] private GameObject _xpPrefab;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -162,6 +165,32 @@ public class Enemy : NetworkBehaviour
 
     private void Despawn()
     {
+        if (!IsServer) return;
+
+        // Spawn XP Orb
+        if (_xpPrefab != null && ObjectPoolManager.Instance != null)
+        {
+            GameObject xpObj = ObjectPoolManager.Instance.SpawnObject(
+                _xpPrefab, transform.position, Quaternion.identity, PoolCategory.XP
+            );
+
+            if (xpObj != null)
+            {
+                NetworkObject netObj = xpObj.GetComponent<NetworkObject>();
+
+                if (netObj != null && !netObj.IsSpawned)
+                {
+                    xpObj.GetComponent<XPOrb>().Initialize(EnemyType.XPValue);
+                    netObj.Spawn(true);
+                }
+                else
+                {
+                    xpObj.GetComponent<XPOrb>().Initialize(EnemyType.XPValue);
+                }
+            }
+        }
+
+        // Despawn enemy obj
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);

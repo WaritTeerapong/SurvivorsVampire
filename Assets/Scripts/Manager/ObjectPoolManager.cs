@@ -8,7 +8,8 @@ public enum PoolCategory
     Default,
     Projectiles,
     VFX,
-    Enemies
+    Enemies,
+    XP
 }
 
 public class ObjectPoolManager : MonoBehaviour
@@ -76,10 +77,16 @@ public class ObjectPoolManager : MonoBehaviour
 
         // Get object from pool
         GameObject spawnedObj = _prefabToPoolMap[prefab].Get();
+
+        if (spawnedObj == null || spawnedObj.Equals(null))
+        {
+            _prefabToPoolMap[prefab].Release(spawnedObj);
+            return SpawnObject(prefab, position, rotation, category);
+        }
+
         spawnedObj.transform.position = position;
         spawnedObj.transform.rotation = rotation;
 
-        // Remember which prefab this instance belongs to
         _instanceToPrefabMap[spawnedObj] = prefab;
 
         return spawnedObj;
