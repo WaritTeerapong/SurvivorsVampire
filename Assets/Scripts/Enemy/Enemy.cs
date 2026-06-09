@@ -61,7 +61,7 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            StartCoroutine(InitStats());
+            InitStats();
 
             Detector?.StartDetect();
 
@@ -72,7 +72,7 @@ public class Enemy : NetworkBehaviour
             Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
         }
 
-        DebugLogStatsRpc();
+        // DebugLogStatsRpc();
     }
 
     public override void OnNetworkDespawn()
@@ -97,7 +97,7 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public IEnumerator InitStats()
+    public void InitStats()
     {
         EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
         int tierLevel = EnemySpawnManager.Instance.GetRandomEnemyTier(); // ได้เลข 1, 2, 3
@@ -116,8 +116,6 @@ public class Enemy : NetworkBehaviour
             ATKRange = _stats.ATKRange
         };
         CurrentStats.Value = initStats;
-
-        yield break;
     }
 
     public void SwitchState(IEnemyState newState)
