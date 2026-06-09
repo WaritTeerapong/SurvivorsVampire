@@ -162,6 +162,15 @@ public class Enemy : NetworkBehaviour
 
     private void Despawn()
     {
+        if (!IsServer) return;
+
+        // Spawn XP Orb
+        if (XPDropManager.Instance != null && EnemyType != null)
+        {
+            XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
+        }
+
+        // Despawn enemy obj
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);

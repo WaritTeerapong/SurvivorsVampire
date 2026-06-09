@@ -8,7 +8,8 @@ public enum PoolCategory
     Default,
     Projectiles,
     VFX,
-    Enemies
+    Enemies,
+    XP
 }
 
 public class ObjectPoolManager : MonoBehaviour
@@ -19,9 +20,7 @@ public class ObjectPoolManager : MonoBehaviour
     public int MaxSize = 100;
 
     private Dictionary<GameObject, ObjectPool<GameObject>> _prefabToPoolMap = new Dictionary<GameObject, ObjectPool<GameObject>>();
-
     private Dictionary<GameObject, GameObject> _instanceToPrefabMap = new Dictionary<GameObject, GameObject>();
-
     private Dictionary<PoolCategory, Transform> _categoryFolders = new Dictionary<PoolCategory, Transform>();
 
     void Awake()
@@ -44,11 +43,7 @@ public class ObjectPoolManager : MonoBehaviour
 
     public GameObject SpawnObject(GameObject prefab, Vector3 position, Quaternion rotation, PoolCategory category = PoolCategory.Default)
     {
-        if (prefab == null)
-        {
-            Debug.LogError("Prefab is null Bro!!");
-            return null;
-        }
+        if (prefab == null) return null;
 
         // Create a new pool for this prefab if it doesn't exist yet
         if (!_prefabToPoolMap.ContainsKey(prefab))
@@ -57,16 +52,22 @@ public class ObjectPoolManager : MonoBehaviour
                 createFunc: () =>
                 {
                     GameObject obj = Instantiate(prefab);
+                    return obj;
+                },
+                actionOnGet: (obj) =>
+                {
+                    obj.transform.SetParent(null);
+                    obj.SetActive(true);
+                },
+                actionOnRelease: (obj) =>
+                {
+                    obj.SetActive(false);
 
-                    if (obj.GetComponent<NetworkObject>() == null)
+                    if (!obj.TryGetComponent<NetworkObject>(out _))
                     {
                         obj.transform.SetParent(_categoryFolders[category]);
                     }
-
-                    return obj;
                 },
-                actionOnGet: (obj) => obj.SetActive(true),
-                actionOnRelease: (obj) => obj.SetActive(false),
                 actionOnDestroy: (obj) => Destroy(obj),
                 collectionCheck: false,
                 defaultCapacity: DefaultCapacity,
@@ -76,10 +77,15 @@ public class ObjectPoolManager : MonoBehaviour
 
         // Get object from pool
         GameObject spawnedObj = _prefabToPoolMap[prefab].Get();
+
+        if (spawnedObj == null || spawnedObj.Equals(null))
+        {
+            return SpawnObject(prefab, position, rotation, category);
+        }
+
         spawnedObj.transform.position = position;
         spawnedObj.transform.rotation = rotation;
 
-        // Remember which prefab this instance belongs to
         _instanceToPrefabMap[spawnedObj] = prefab;
 
         return spawnedObj;

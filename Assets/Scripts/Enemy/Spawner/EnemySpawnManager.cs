@@ -51,6 +51,7 @@ public class EnemySpawnManager : NetworkBehaviour
         {
             NetworkManager.Singleton.PrefabHandler.RemoveHandler(EnemyPrefab);
         }
+
         StopAllCoroutines();
     }
 

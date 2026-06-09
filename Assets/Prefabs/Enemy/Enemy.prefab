@@ -88,7 +88,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3803065962
+  GlobalObjectIdHash: 1111825701
   InScenePlacedSourceGlobalObjectIdHash: 1111825701
   DeferredDespawnTick: 0
   Ownership: 1
@@ -163,19 +163,8 @@ MonoBehaviour:
   Detector: {fileID: 6849801764137899047}
   Movement: {fileID: 5280175360996344786}
   Combat: {fileID: 8998301714788667492}
-  EnemyTypeIndex: 1
-  EnemyTier: 2
-  EnemyDatabase: {fileID: 11400000, guid: 6be1f05f3c52b9d4385c7afc4118a7b1, type: 2}
-  EnemyData:
-    Tier: 0
-    EnemyID: 0
-    sprite: {fileID: 0}
-    enemyStats:
-      MaxHealth: 0
-      MoveSpeed: 0
-      ATKDamage: 0
-      ATKSpeed: 0
-      ATKRange: 0
+  EnemyType: {fileID: 0}
+  _xpPrefab: {fileID: 166676543266631813, guid: 200f88a9da17e0e468b7431d0621d2a0, type: 3}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
