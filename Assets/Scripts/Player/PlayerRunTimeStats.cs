@@ -66,11 +66,11 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         PlayerStats initStats = new PlayerStats
         {
-            CurrentHealth = PlayerData.MaxHealth,
-            MoveSpeed = PlayerData.MoveSpeed,
-            ATKDamage = PlayerData.ATKDamage,
-            ATKSpeed = PlayerData.ATKSpeed,
-            ATKRange = PlayerData.ATKRange
+            CurrentHealth = PlayerData.Stat.MaxHealth,
+            MoveSpeed = PlayerData.Stat.MoveSpeed,
+            ATKDamage = PlayerData.Stat.ATKDamage,
+            ATKSpeed = PlayerData.Stat.ATKSpeed,
+            ATKRange = PlayerData.Stat.ATKRange
         };
 
         CurrentStats.Value = initStats;
