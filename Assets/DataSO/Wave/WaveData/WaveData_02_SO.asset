@@ -18,9 +18,9 @@ MonoBehaviour:
   MaxActiveEnemies: 50
   AllowedEnemyTypes:
   - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
-    Weight: 100
+    Weight: 80
   - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
-    Weight: 0
+    Weight: 20
   AllowedEnemyTiers:
   - Tier: 0
     Weight: 70
