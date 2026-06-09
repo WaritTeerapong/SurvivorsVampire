@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -27,29 +28,29 @@ public struct EnemyCurrentStats : INetworkSerializable
 
 public class Enemy : NetworkBehaviour
 {
+    [Header("Component refernce")]
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
-    [Header("Enemy Identity")]
-    public int EnemyTypeIndex;
-    public int EnemyTier;
 
-    [Header("Database")]
-    public EnemyDataBase_SO EnemyDatabase;
-    public EnemyTier EnemyData;
+
+    [Header("Eneym Type SO")]
+    public EnemyTypeData_SO EnemyType;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
 
+    // C# event
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action OnEnemyDespawned;
 
+    // === FSM ( Finite State-Machine ) ===
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
     public readonly IEnemyState AttackState = new EnemyAttackState();
-
     private IEnemyState _currentState;
 
     public override void OnNetworkSpawn()
@@ -57,19 +58,20 @@ public class Enemy : NetworkBehaviour
         base.OnNetworkSpawn();
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
-        if (EnemyDatabase != null && IsServer)
+
+        if (IsServer && EnemySpawnManager.Instance != null)
         {
-            EnemyData = EnemyDatabase.GetEnemyData(EnemyTypeIndex, EnemyTier);
-            InitStats();
+            StartCoroutine(InitStats());
 
             Detector?.StartDetect();
 
             SwitchState(IdleState);
         }
-        else
+        else if (IsServer) // Check if Manager not Instance
         {
-            Debug.LogError("GlobalEnemyDatabase is missing on " + gameObject.name);
+            Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
         }
+
         DebugLogStatsRpc();
     }
 
@@ -84,6 +86,9 @@ public class Enemy : NetworkBehaviour
 
             OnEnemyDespawned?.Invoke();
             OnEnemyDespawned = null;
+
+            EnemyType = null;
+            _currentState = null;
         }
     }
 
@@ -92,15 +97,22 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public void InitStats()
+    public IEnumerator InitStats()
     {
+        yield return null;
 
-        EnemyStats _stats = EnemyData.enemyStats;
+        // Random Type & Tier
+        EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
+        int tierIndex = EnemySpawnManager.Instance.GetRandomEnemyTier();
 
+        // Set Enemy Stats with Tier
+        EnemyStats _stats = EnemyType.enemyTiers[tierIndex].enemyStats;
+
+        // Assign Stats
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
-            EnemyID = EnemyData.EnemyID,
-            Tier = EnemyData.Tier,
+            EnemyID = EnemyType.enemyTiers[tierIndex].EnemyID,
+            Tier = tierIndex,
             CurrentHealth = _stats.MaxHealth,
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
@@ -139,7 +151,6 @@ public class Enemy : NetworkBehaviour
 
     public void TakeDamage(int damage)
     {
-        // Only the Server calculates health and damage
         if (!IsServer) return;
 
         EnemyCurrentStats stats = CurrentStats.Value;
@@ -157,7 +168,6 @@ public class Enemy : NetworkBehaviour
     {
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
-            // 'true' will destroy the GameObject in the scene along with despawning it
             NetworkObject.Despawn(true);
         }
     }
