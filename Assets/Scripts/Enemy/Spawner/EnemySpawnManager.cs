@@ -10,7 +10,6 @@ public class EnemySpawnManager : NetworkBehaviour
     [Header("Databases")]
     public WaveDatabase_SO WaveDatabase;
     public GameObject EnemyPrefab;
-    public GameObject XPPrefab;
 
     [Header("Map & Spawn Settings")]
     public Vector2 MapSize = new Vector2(50f, 25f);
@@ -43,14 +42,6 @@ public class EnemySpawnManager : NetworkBehaviour
                 new NetworkObjectPoolHandler(EnemyPrefab, PoolCategory.Enemies)
             );
         }
-
-        if (XPPrefab != null)
-        {
-            NetworkManager.Singleton.PrefabHandler.AddHandler(
-                XPPrefab,
-                new NetworkObjectPoolHandler(XPPrefab, PoolCategory.XP)
-            );
-        }
     }
 
     public override void OnNetworkDespawn()
@@ -59,11 +50,6 @@ public class EnemySpawnManager : NetworkBehaviour
         if (EnemyPrefab != null && NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.PrefabHandler.RemoveHandler(EnemyPrefab);
-        }
-
-        if (XPPrefab != null && NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.PrefabHandler.RemoveHandler(XPPrefab);
         }
 
         StopAllCoroutines();

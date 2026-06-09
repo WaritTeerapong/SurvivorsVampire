@@ -18,17 +18,10 @@ public class XPOrb : NetworkBehaviour
         {
             PlayerLevelManager.Instance.RequestGainXPRpc(XPValue);
 
-            ReturnToPool();
+            if (NetworkObject != null && NetworkObject.IsSpawned)
+            {
+                NetworkObject.Despawn(true);
+            }
         }
-    }
-
-    private void ReturnToPool()
-    {
-        if (NetworkObject != null && NetworkObject.IsSpawned)
-        {
-            NetworkObject.Despawn();
-        }
-
-        ObjectPoolManager.Instance.ReturnObjectToPool(gameObject);
     }
 }
