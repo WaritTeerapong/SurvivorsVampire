@@ -28,9 +28,11 @@ public struct EnemyCurrentStats : INetworkSerializable
 
 public class Enemy : NetworkBehaviour
 {
+    [Header("Component refernce")]
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
+
 
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
@@ -41,13 +43,14 @@ public class Enemy : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
+    // C# event
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action OnEnemyDespawned;
 
+    // === FSM ( Finite State-Machine ) ===
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
     public readonly IEnemyState AttackState = new EnemyAttackState();
-
     private IEnemyState _currentState;
 
     public override void OnNetworkSpawn()
@@ -56,7 +59,6 @@ public class Enemy : NetworkBehaviour
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
 
-        // แก้ไข: เอา EnemyType == null ออกไป เพราะเราจะสุ่มค่าให้มันใหม่เสมอ
         if (IsServer && EnemySpawnManager.Instance != null)
         {
             StartCoroutine(InitStats());
@@ -65,7 +67,7 @@ public class Enemy : NetworkBehaviour
 
             SwitchState(IdleState);
         }
-        else if (IsServer) // ดัก Error ไว้เผื่อกรณีหา Manager ไม่เจอ
+        else if (IsServer) // Check if Manager not Instance
         {
             Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
         }
@@ -85,7 +87,6 @@ public class Enemy : NetworkBehaviour
             OnEnemyDespawned?.Invoke();
             OnEnemyDespawned = null;
 
-            // เพิ่มบรรทัดนี้: เคลียร์ค่าทิ้งตอนเก็บเข้า Pool
             EnemyType = null;
             _currentState = null;
         }
@@ -99,11 +100,12 @@ public class Enemy : NetworkBehaviour
     public IEnumerator InitStats()
     {
         yield return null;
+
         // Random Type & Tier
         EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
         int tierIndex = EnemySpawnManager.Instance.GetRandomEnemyTier();
 
-        // Enemy Stats
+        // Set Enemy Stats with Tier
         EnemyStats _stats = EnemyType.enemyTiers[tierIndex].enemyStats;
 
         // Assign Stats
@@ -118,12 +120,6 @@ public class Enemy : NetworkBehaviour
             ATKRange = _stats.ATKRange
         };
         CurrentStats.Value = initStats;
-    }
-
-    private void ResetStats()
-    {
-        EnemyType = null;
-        CurrentStats = null;
     }
 
     public void SwitchState(IEnemyState newState)
@@ -155,7 +151,6 @@ public class Enemy : NetworkBehaviour
 
     public void TakeDamage(int damage)
     {
-        // Only the Server calculates health and damage
         if (!IsServer) return;
 
         EnemyCurrentStats stats = CurrentStats.Value;
@@ -173,7 +168,6 @@ public class Enemy : NetworkBehaviour
     {
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
-            // 'true' will destroy the GameObject in the scene along with despawning it
             NetworkObject.Despawn(true);
         }
     }
