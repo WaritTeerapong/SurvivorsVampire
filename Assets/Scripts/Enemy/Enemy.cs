@@ -25,8 +25,11 @@ public struct EnemyCurrentStats : INetworkSerializable
 
 }
 
-    public class Enemy : NetworkBehaviour
+public class Enemy : NetworkBehaviour
 {
+    public EnemyDetector Detector;
+    public EnemyMovement Movement;
+    public EnemyCombat Combat;
     [Header("Enemy Identity")]
     public int EnemyTypeIndex;
     public int EnemyTier;
@@ -43,15 +46,25 @@ public struct EnemyCurrentStats : INetworkSerializable
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action OnEnemyDespawned;
 
+    public readonly IEnemyState IdleState = new EnemyIdleState();
+    public readonly IEnemyState MoveState = new EnemyMoveState();
+    public readonly IEnemyState AttackState = new EnemyAttackState();
+
+    private IEnemyState _currentState;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
-        if (EnemyDatabase != null)
+        if (EnemyDatabase != null && IsServer)
         {
-            EnemyData = EnemyDatabase.GetEnemyData(EnemyTypeIndex,EnemyTier);
+            EnemyData = EnemyDatabase.GetEnemyData(EnemyTypeIndex, EnemyTier);
             InitStats();
+
+            Detector?.StartDetect();
+
+            SwitchState(IdleState);
         }
         else
         {
@@ -67,6 +80,8 @@ public struct EnemyCurrentStats : INetworkSerializable
 
         if (IsServer)
         {
+            Detector?.StopDetect();
+
             OnEnemyDespawned?.Invoke();
             OnEnemyDespawned = null;
         }
@@ -93,6 +108,33 @@ public struct EnemyCurrentStats : INetworkSerializable
             ATKRange = _stats.ATKRange
         };
         CurrentStats.Value = initStats;
+    }
+
+    public void SwitchState(IEnemyState newState)
+    {
+        if (!IsServer) return;
+
+        _currentState?.OnExit(this);
+        _currentState = newState;
+        _currentState?.OnEnter(this);
+    }
+
+    public bool IsPlayerInATKRange()
+    {
+        if (Detector == null || Detector.NearestTarget == null) return false;
+
+        float atkRange = CurrentStats.Value.ATKRange;
+
+        float currentSqrDistance = (Detector.NearestTarget.position - transform.position).sqrMagnitude;
+
+        return currentSqrDistance <= (atkRange * atkRange);
+    }
+
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        _currentState?.OnUpdate(this);
     }
 
     public void TakeDamage(int damage)
@@ -131,6 +173,13 @@ public struct EnemyCurrentStats : INetworkSerializable
             $"Health: {CurrentStats.Value.CurrentHealth}, " +
             $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
-            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}");
+            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}" +
+            $"ATKRange: {CurrentStats.Value.ATKRange}");
+    }
+
+    private void OnDrawGizmos()
+    {
+        Color color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, CurrentStats.Value.ATKRange);
     }
 }

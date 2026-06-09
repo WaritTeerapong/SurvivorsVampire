@@ -28,6 +28,21 @@ public class PlayerController : NetworkBehaviour
         {
             Camera.main.GetComponent<CameraController>().Target = transform;
         }
+
+        if (IsServer && PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.AddPlayer(transform);
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (IsServer && PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.RemovePlayer(transform);
+        }
     }
 
     void Awake()
