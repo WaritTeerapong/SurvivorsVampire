@@ -45,7 +45,7 @@ public class Enemy : NetworkBehaviour
 
     // C# event
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
-    public event Action OnEnemyDespawned;
+    public event Action<Enemy> OnEnemyDespawned;
 
     // === FSM ( Finite State-Machine ) ===
     public readonly IEnemyState IdleState = new EnemyIdleState();
@@ -61,7 +61,7 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            StartCoroutine(InitStats());
+            InitStats();
 
             Detector?.StartDetect();
 
@@ -72,7 +72,7 @@ public class Enemy : NetworkBehaviour
             Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
         }
 
-        DebugLogStatsRpc();
+        // DebugLogStatsRpc();
     }
 
     public override void OnNetworkDespawn()
@@ -84,7 +84,7 @@ public class Enemy : NetworkBehaviour
         {
             Detector?.StopDetect();
 
-            OnEnemyDespawned?.Invoke();
+            OnEnemyDespawned?.Invoke(this);
             OnEnemyDespawned = null;
 
             EnemyType = null;
@@ -97,22 +97,18 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public IEnumerator InitStats()
+    public void InitStats()
     {
-        yield return null;
-
-        // Random Type & Tier
         EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
-        int tierIndex = EnemySpawnManager.Instance.GetRandomEnemyTier();
+        int tierLevel = EnemySpawnManager.Instance.GetRandomEnemyTier(); // ได้เลข 1, 2, 3
 
-        // Set Enemy Stats with Tier
-        EnemyStats _stats = EnemyType.enemyTiers[tierIndex].enemyStats;
+        EnemyTier currentTierData = EnemyType.Setup(tierLevel);
+        EnemyStats _stats = currentTierData.enemyStats;
 
-        // Assign Stats
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
-            EnemyID = EnemyType.enemyTiers[tierIndex].EnemyID,
-            Tier = tierIndex,
+            EnemyID = currentTierData.EnemyID,
+            Tier = tierLevel,
             CurrentHealth = _stats.MaxHealth,
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
@@ -179,7 +175,7 @@ public class Enemy : NetworkBehaviour
     {
         Debug.Log($"Enemy Stats - " +
             $"EnemyID: {CurrentStats.Value.EnemyID}, " +
-            $"TIer: {CurrentStats.Value.Tier}, " +
+            $"Tier: {CurrentStats.Value.Tier}, " +
             $"Health: {CurrentStats.Value.CurrentHealth}, " +
             $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
