@@ -1,9 +1,26 @@
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "StatUpgradeDatabase_SO", menuName = "DataSO/StatUpgradeDatabase_SO")]
 public class StatUpgradeDatabase_SO : ScriptableObject
 {
-    public StatUpgrade[] Stat;
+    public StatUpgrade[] Stats;
+    public int GetMaxLevelForStat(StatType type)
+    {
+        foreach (var stat in Stats)
+        {
+            if (stat.StatType == type) return stat.MaxLevel;
+        }
+        return 0;
+    }
+    public StatUpgrade GetStatUpgradeInfo(StatType type)
+    {
+        foreach (var stat in Stats)
+        {
+            if (stat.StatType == type) return stat;
+        }
+        return new StatUpgrade();
+    }
 }
 
 [System.Serializable]
@@ -27,4 +44,7 @@ public struct StatUpgrade {
         // Max Level
         return BonusPerLevel[BonusPerLevel.Length - 1];
     }
+    
 }
+
+

@@ -1,16 +1,15 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerLevelManager : NetworkBehaviour
 {
     public static PlayerLevelManager Instance { get; private set; }
 
     public LevelData_SO LevelData;
-    //public PlayerData_SO PlayerData;
-    //public StatBonusData_SO StatBonusData;
-
-    public StatLevelCheckpoint StatLevel;
+    public StatUpgradeDatabase_SO StatUpgradeData;
 
     public NetworkVariable<int> SharedLevel = new NetworkVariable<int>(1);
     public NetworkVariable<int> SharedXP = new NetworkVariable<int>(0);
@@ -19,12 +18,23 @@ public class PlayerLevelManager : NetworkBehaviour
     public event Action OnLevelUp;
     public event Action OnGainXP;
 
+    [SerializeField] private List<StatType> _availableUpgradeStat;
+
+
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
+    private void Start()
+    {
+        _availableUpgradeStat.Add(StatType.MaxHealth);
+        _availableUpgradeStat.Add(StatType.MoveSpeed);
+        _availableUpgradeStat.Add(StatType.ATKDamage);
+        _availableUpgradeStat.Add(StatType.ATKSpeed);
+        _availableUpgradeStat.Add(StatType.ATKRange);
+    }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -40,14 +50,8 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedXP.Value = 0;
                 SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
             }
-
-            //if (PlayerData != null)
-            //{
-            //    StatLevel = PlayerData.StatLevel;
-            //}
         }
     }
-
 
     public override void OnNetworkDespawn()
     {
@@ -62,9 +66,9 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void HandleLevelChanged(int previousValue, int newValue)
     {
-        
+
         OnLevelUp?.Invoke();
-        
+
     }
 
     private void HandleXPChanged(int previousValue, int newValue)
@@ -98,6 +102,39 @@ public class PlayerLevelManager : NetworkBehaviour
             }
         }
     }
+    
+    public Dictionary<StatType, int> RandomUpgradeStats(LevelCheckpoint statLevel)
+    {
+        Dictionary<StatType, int> selectedUpgradeStats = new Dictionary<StatType, int>();
 
+        List<StatType> poolToDrawFrom = new List<StatType>(_availableUpgradeStat);
+        // Exclude stat that has maxlevel from pull
+        for (int i = poolToDrawFrom.Count - 1; i >= 0; i--)
+        {
+            StatType stat = poolToDrawFrom[i];
+            int maxLevel = StatUpgradeData.GetMaxLevelForStat(stat);
+            int currentLevel = statLevel.GetCurrentLevel(stat);
 
+            if (maxLevel == 0) continue;
+
+            if (currentLevel >= maxLevel)
+            {
+                poolToDrawFrom.RemoveAt(i); 
+            }
+        }
+
+        StatType selectedStat;
+        while (selectedUpgradeStats.Count < 3 && poolToDrawFrom.Count > 0)
+        {
+            int randomIndex = Random.Range(0, poolToDrawFrom.Count);
+            selectedStat = poolToDrawFrom[randomIndex];
+
+            poolToDrawFrom.RemoveAt(randomIndex);
+
+            int currentLevel = statLevel.GetCurrentLevel(selectedStat);
+            selectedUpgradeStats.Add(selectedStat, currentLevel);
+        }
+
+        return selectedUpgradeStats;
+    }
 }

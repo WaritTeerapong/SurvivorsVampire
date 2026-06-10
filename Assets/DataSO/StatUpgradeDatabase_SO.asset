@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd15299d5dc67049950a2994673090e, type: 3}
   m_Name: StatUpgradeDatabase_SO
   m_EditorClassIdentifier: Assembly-CSharp::StatUpgradeDatabase_SO
-  Stat:
+  Stats:
   - UpgradeName: Max Health
-    Description: Increase flat maximum Health
+    Description: 
     UpgradeIcon: {fileID: 0}
     StatType: 0
     BonusPerLevel:
@@ -22,31 +22,31 @@ MonoBehaviour:
     - 20
     - 50
   - UpgradeName: Move Speed
-    Description: Increase base movement speed
+    Description: 
     UpgradeIcon: {fileID: 0}
     StatType: 1
     BonusPerLevel:
     - 0
     - 1
     - 2
-  - UpgradeName: 'Attack Damage '
-    Description: Increase base atk damage
+  - UpgradeName: ATK Damage
+    Description: 
     UpgradeIcon: {fileID: 0}
     StatType: 2
     BonusPerLevel:
     - 0
-    - 5
     - 10
-  - UpgradeName: Attack Speed
-    Description: Reduce attack cooldown
+    - 20
+  - UpgradeName: ATK Speed
+    Description: 
     UpgradeIcon: {fileID: 0}
     StatType: 3
     BonusPerLevel:
     - 0
-    - -0.3
-    - -0.5
-  - UpgradeName: Attack Range
-    Description: Increase range of attack
+    - 1
+    - 2
+  - UpgradeName: ATK Range
+    Description: 
     UpgradeIcon: {fileID: 0}
     StatType: 4
     BonusPerLevel:
