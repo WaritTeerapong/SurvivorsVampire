@@ -12,9 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4fc36b6433efe4283d4c026ea9f56f, type: 3}
   m_Name: PlayerData_SO
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData_SO
-  MaxHealth: 100
-  MoveSpeed: 5
-  ATKDamage: 5
-  ATKSpeed: 5
-  ATKRange: 5
-  PlayerId: -1
+  Stat:
+    MaxHealth: 50
+    MoveSpeed: 5
+    ATKDamage: 5
+    ATKSpeed: 1
+    ATKRange: 5
+  PlayerId: 0
+  StatLevel:
+    MaxHealthLevel: 1
+    MoveSpeedLevel: 1
+    ATKDamageLevel: 1
+    ATKSpeedLevel: 1
+    ATKRangeLevel: 1

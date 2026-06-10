@@ -17,7 +17,11 @@ public class XPBarUI : NetworkBehaviour
     {
         _xpBar.SetActive(false);
 
-        if (PlayerLevelManager.Instance != null) PlayerLevelManager.Instance.OnLevelStatChanged += UpdateUI;
+        if (PlayerLevelManager.Instance != null)
+        {
+            PlayerLevelManager.Instance.OnLevelUp += UpdateUI;
+            PlayerLevelManager.Instance.OnGainXP += UpdateUI;
+        }
 
         if (NetworkManager.Singleton != null)
         {
@@ -30,7 +34,11 @@ public class XPBarUI : NetworkBehaviour
     {
         base.OnDestroy();
 
-        if (PlayerLevelManager.Instance != null) PlayerLevelManager.Instance.OnLevelStatChanged -= UpdateUI;
+        if (PlayerLevelManager.Instance != null)
+        {
+            PlayerLevelManager.Instance.OnLevelUp -= UpdateUI;
+            PlayerLevelManager.Instance.OnGainXP -= UpdateUI;
+        }
 
         if (NetworkManager.Singleton != null)
         {
