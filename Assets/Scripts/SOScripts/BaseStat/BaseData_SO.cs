@@ -20,3 +20,12 @@ public struct BaseStat
     // 5
 }
 
+public enum StatType
+{
+    MaxHealth,
+    MoveSpeed,
+    ATKDamage,
+    ATKSpeed,
+    ATKRange
+}
+
