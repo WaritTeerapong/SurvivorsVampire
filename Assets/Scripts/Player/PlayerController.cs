@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
@@ -9,6 +8,7 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody2D _rb;
     private PlayerRunTimeStats _stats; // Data
     private Detector _detector;
+    private Animator _anim;
 
     private PlayerControls _inputs;
     private InputAction _moveAction;
@@ -20,6 +20,12 @@ public class PlayerController : NetworkBehaviour
     public Transform FirePoint;
 
     private float _atkTimer = 0f;
+
+    public NetworkVariable<float> FacingDirection = new NetworkVariable<float>(
+        1f,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Owner
+    );
 
     public override void OnNetworkSpawn()
     {
@@ -51,6 +57,7 @@ public class PlayerController : NetworkBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<PlayerRunTimeStats>();
         _detector = GetComponentInChildren<Detector>();
+        _anim = GetComponentInChildren<Animator>();
     }
 
     void OnEnable()
@@ -68,6 +75,8 @@ public class PlayerController : NetworkBehaviour
 
     void Update()
     {
+        transform.localScale = new Vector3(FacingDirection.Value, 1, 1);
+
         if (!IsOwner) return;
 
         _position = _moveAction.ReadValue<Vector2>();
@@ -96,7 +105,10 @@ public class PlayerController : NetworkBehaviour
 
     void FixedUpdate()
     {
+        if (!IsOwner) return;
+
         Move();
+        Flip();
     }
 
     void HandleAutoAttack()
@@ -123,7 +135,18 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    private void Move() => _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
+    private void Move()
+    {
+        _rb.linearVelocity = _position * _stats.CurrentStats.Value.MoveSpeed;
+
+        _anim.SetBool("IsMove", _rb.linearVelocity.sqrMagnitude >= 0.002f);
+    }
+
+    private void Flip()
+    {
+        if (_position.x > 0) FacingDirection.Value = 1f;
+        else if (_position.x < 0) FacingDirection.Value = -1f;
+    }
 
     [Rpc(SendTo.Server)]
     public void TakeDamageRpc(int damage) => _stats.ApplyDamage(damage);
