@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Human
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
   EnemyName: Human
+  IsRange: 0
   enemyTiers:
   - Tier: 1
     EnemyID: 3
     sprite: {fileID: 0}
     enemyStats:
-      MaxHealth: 10
+      MaxHealth: 500
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -41,3 +42,4 @@ MonoBehaviour:
       ATKDamage: 7
       ATKSpeed: 3
       ATKRange: 1
+  XPValue: 10

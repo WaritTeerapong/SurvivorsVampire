@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyTypeData_SO : ScriptableObject
 {
     public string EnemyName;
+    public bool IsRange;
     public EnemyTier[] enemyTiers;
     public int XPValue = 10;
     public EnemyTier Setup(int tier)

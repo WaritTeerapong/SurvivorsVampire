@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6158637030968502773}
   - component: {fileID: 5073274272504109335}
   - component: {fileID: 2872730420504286743}
-  - component: {fileID: 5556848558326708537}
+  - component: {fileID: -4061192656873492412}
   m_Layer: 0
-  m_Name: BulletPrefab
+  m_Name: EnemyBulletPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.9433962, g: 0.9331185, b: 0.4405482, a: 1}
+  m_Color: {r: 0.94509804, g: 0.4698466, b: 0.43921566, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -107,8 +107,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bullet
   Speed: 15
   HitDistance: 0.3
-  IsEnemy: 0
---- !u!58 &5556848558326708537
+  IsEnemy: 1
+--- !u!58 &-4061192656873492412
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
