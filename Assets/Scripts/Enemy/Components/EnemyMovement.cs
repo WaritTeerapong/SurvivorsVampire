@@ -8,10 +8,10 @@ public class EnemyMovement : MonoBehaviour
 
         transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
 
-        if (target.position.x > transform.position.x)
-            transform.localScale = new Vector3(1, 1, 1);
-        else if (target.position.x < transform.position.x)
-            transform.localScale = new Vector3(-1, 1, 1);
+        // if (target.position.x > transform.position.x)
+        //     transform.localScale = new Vector3(1, 1, 1);
+        // else if (target.position.x < transform.position.x)
+        //     transform.localScale = new Vector3(-1, 1, 1);
 
     }
 }

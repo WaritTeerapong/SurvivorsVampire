@@ -39,6 +39,8 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
+    private Vector3 _lastPosition;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -142,6 +144,13 @@ public class Enemy : NetworkBehaviour
 
     private void Update()
     {
+        Vector3 positionDelta = transform.position - _lastPosition;
+
+        if (positionDelta.x > 0.001f) transform.localScale = new Vector3(1, 1, 1);
+        else if (positionDelta.x < -0.001f) transform.localScale = new Vector3(-1, 1, 1);
+
+        _lastPosition = transform.position;
+
         if (!IsServer) return;
 
         _currentState?.OnUpdate(this);
