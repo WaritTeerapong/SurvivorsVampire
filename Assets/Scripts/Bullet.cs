@@ -8,10 +8,11 @@ public class Bullet : MonoBehaviour
     public float HitDistance = 1f;
     public bool IsEnemy = false;
 
-    private Transform _firePoint;
     private Transform _target;
     private int _damage;
     private bool _isFired;
+
+    private LayerMask _targetLayer;
 
     private Vector3 _shootDirection;
     private float _lifeTimer = 5f;
@@ -22,6 +23,12 @@ public class Bullet : MonoBehaviour
         _damage = damage;
         _lifeTimer = 5f;
         _isFired = true;
+
+        CircleCollider2D col = GetComponent<CircleCollider2D>();
+        if (col != null)
+        {
+            col.radius = HitDistance;
+        }
 
         // ✅ คำนวณ "ทิศทาง (Direction)" เอาไว้ตั้งแต่ตอนกดยิง (สำหรับ Non-Lock)
         if (target != null)
@@ -36,6 +43,9 @@ public class Bullet : MonoBehaviour
         {
             _shootDirection = Vector3.right; // เผื่อเหนียวกรณีเป้าหมายหายไปกระทันหัน
         }
+
+        if (IsEnemy) _targetLayer = LayerMask.GetMask("Player");
+        else _targetLayer = LayerMask.GetMask("Enemy");
     }
 
     private void Update()
@@ -49,6 +59,10 @@ public class Bullet : MonoBehaviour
             return;
         }
 
+        // ✅ 1. จดจำตำแหน่ง "ก่อนเดิน" เอาไว้
+        Vector3 previousPosition = transform.position;
+
+        // --- การเคลื่อนที่ ---
         if (!IsEnemy)
         {
             if (_target == null || !_target.gameObject.activeInHierarchy)
@@ -63,40 +77,54 @@ public class Bullet : MonoBehaviour
             transform.position += _shootDirection * Speed * Time.deltaTime;
         }
 
-        if (_target != null && _target.gameObject.activeInHierarchy)
-        {
-            // Check impact
-            float shotdistance = (_target.position - transform.position).sqrMagnitude;
-            if (shotdistance <= (HitDistance * HitDistance))
-            {
-                HitTarget();
-            }
-            // if (Vector3.Distance(transform.position, _target.position) <= HitDistance)
-            // {
-            //     HitTarget();
-            // }
-        }
-
+        // ✅ 2. ส่งตำแหน่งเก่าไปให้ฟังก์ชันเช็กการชนแบบลากเส้น
+        CheckCollision(previousPosition);
     }
 
-    private void HitTarget()
+    private void CheckCollision(Vector3 previousPosition)
     {
-        // Only the Server applies damage
-        if (NetworkManager.Singleton.IsServer)
+        Vector3 currentPosition = transform.position;
+        Vector3 direction = currentPosition - previousPosition;
+        float distanceMoveThisFrame = direction.magnitude;
+
+        // ดักบั๊กกรณีที่เฟรมนี้กระสุนยังไม่ได้ขยับ ให้ใช้ OverlapCircle แบบเดิม
+        if (distanceMoveThisFrame == 0)
         {
-            if (!IsEnemy)
-            {
-                Enemy enemy = _target.GetComponent<Enemy>();
-                if (enemy != null) enemy.TakeDamage(_damage);
-            }
-            else if (IsEnemy)
-            {
-                PlayerController player = _target.GetComponent<PlayerController>();
-                if (player != null) player.TakeDamageRpc(_damage);
-            }
+            Collider2D hitCollider = Physics2D.OverlapCircle(currentPosition, HitDistance, _targetLayer);
+            if (hitCollider != null) ProcessHit(hitCollider);
+            return;
         }
 
-        ReturnToPool();
+        // ✅ 3. อัปเกรด: ใช้ CircleCast! (กวาดวงกลมจากจุดเก่า ไปยังจุดใหม่)
+        // มันจะกวาดเช็กตลอดทางเดินของกระสุนในเฟรมนั้นๆ ทำให้ไม่มีทางทะลุเป้าหมายได้เลย
+        RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, direction.normalized, distanceMoveThisFrame, _targetLayer);
+
+        if (hit.collider != null)
+        {
+            ProcessHit(hit.collider);
+        }
+    }
+
+    private void ProcessHit(Collider2D hitCollider)
+    {
+        if (!IsEnemy && hitCollider.CompareTag("Enemy"))
+        {
+            Enemy enemy = hitCollider.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                if (NetworkManager.Singleton.IsServer) enemy.TakeDamage(_damage);
+                ReturnToPool();
+            }
+        }
+        else if (IsEnemy && hitCollider.CompareTag("Player"))
+        {
+            PlayerController player = hitCollider.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                if (NetworkManager.Singleton.IsServer) player.TakeDamageRpc(_damage);
+                ReturnToPool();
+            }
+        }
     }
 
     private void ReturnToPool()
@@ -113,6 +141,7 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject); // Fallback if manager is destroyed
         }
     }
+
 
     private void OnDrawGizmos()
     {

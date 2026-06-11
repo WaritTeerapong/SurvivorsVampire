@@ -238,7 +238,7 @@ public class Enemy : NetworkBehaviour
 
     private void OnDrawGizmos()
     {
-        Color color = Color.red;
+        Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, CurrentStats.Value.ATKRange);
     }
 }

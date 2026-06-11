@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c631dd8f7c5d1c84ea4e84d76ddfbbeb, type: 3}
   m_Name: WaveData_01_SO
   m_EditorClassIdentifier: Assembly-CSharp::WaveData_SO
-  WaveDuration: 1000
+  WaveDuration: 30
   RestTime: 5
   SpawnCD: 1
   MaxActiveEnemies: 20

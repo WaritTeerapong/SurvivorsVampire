@@ -19,7 +19,7 @@ MonoBehaviour:
     EnemyID: 3
     sprite: {fileID: 0}
     enemyStats:
-      MaxHealth: 10
+      MaxHealth: 1000
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
     EnemyID: 4
     sprite: {fileID: 0}
     enemyStats:
-      MaxHealth: 15
+      MaxHealth: 1000
       MoveSpeed: 2
       ATKDamage: 6
       ATKSpeed: 2
@@ -37,7 +37,7 @@ MonoBehaviour:
     EnemyID: 5
     sprite: {fileID: 0}
     enemyStats:
-      MaxHealth: 15
+      MaxHealth: 1000
       MoveSpeed: 3
       ATKDamage: 7
       ATKSpeed: 3

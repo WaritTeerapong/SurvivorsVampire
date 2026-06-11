@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class EnemyCombat : MonoBehaviour
 {
+
     public void PerformMeleeAttack(Enemy enemy, Transform target)
     {
         if (target == null) return;
@@ -29,7 +30,7 @@ public class EnemyCombat : MonoBehaviour
     {
         if (target == null) return;
 
-        float hitRange = enemy.CurrentStats.Value.ATKRange + 0.5f; // +0.5 for Enemy not missed more often
+        float hitRange = enemy.CurrentStats.Value.ATKRange;
 
         float currentSqrDistance = (target.position - transform.position).sqrMagnitude;
 
@@ -45,6 +46,4 @@ public class EnemyCombat : MonoBehaviour
             }
         }
     }
-
-
 }

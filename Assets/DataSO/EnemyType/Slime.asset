@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
   EnemyName: Slimes
+  IsRange: 0
   enemyTiers:
   - Tier: 1
     EnemyID: 0
     sprite: {fileID: 0}
     enemyStats:
-      MaxHealth: 5
+      MaxHealth: 500
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -41,3 +42,4 @@ MonoBehaviour:
       ATKDamage: 15
       ATKSpeed: 3
       ATKRange: 1
+  XPValue: 10
