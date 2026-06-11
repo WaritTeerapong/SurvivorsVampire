@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -83,13 +84,29 @@ public class LevelUpUI : NetworkBehaviour
 
             float currentStatValue = OwnerStat.CurrentStats.Value.GetCurrentStat(stat);
             float totalValue = currentStatValue + increaseAmount;
-
             
             // Active Card Component
             UpgradeCard targetCard = _upgradeCard[cardIndex];
             targetCard.gameObject.SetActive(true);
             // Draw Card
-            targetCard.SetupCard(statName, nextLevel, increaseAmount, totalValue);
+            if (IntStatArray.Contains(stat))
+            {
+                targetCard.SetupCard(
+                    statName,
+                    nextLevel,
+                    Mathf.RoundToInt(increaseAmount),
+                    Mathf.RoundToInt(totalValue)
+                );
+            }
+            else
+            {
+                targetCard.SetupCard(
+                    statName,
+                    nextLevel,
+                    increaseAmount,
+                    totalValue
+                );
+            }
             targetCard.UpgradeButton.onClick.RemoveAllListeners();
             targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(stat); });
             
