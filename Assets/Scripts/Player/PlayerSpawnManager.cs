@@ -16,17 +16,17 @@ public class PlayerSpawnManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void RequestSpawnPlayerRpc(int colorIndex, ulong clinetId)
+    public void RequestSpawnPlayerRpc(int charaterIndex, ulong clinetId)
     {
-        if (colorIndex < 0 || colorIndex >= _playerPrefabs.Length) return;
+        if (charaterIndex < 0 || charaterIndex >= _playerPrefabs.Length) return;
 
-        GameObject playerInstance = Instantiate(_playerPrefabs[colorIndex], Vector3.zero, Quaternion.identity);
+        GameObject playerInstance = Instantiate(_playerPrefabs[charaterIndex], Vector3.zero, Quaternion.identity);
 
         NetworkObject netObj = playerInstance.GetComponent<NetworkObject>();
 
         netObj.SpawnAsPlayerObject(clinetId);
 
-        Debug.Log($"Spawned player for client {clinetId} with color index {colorIndex}");
+        Debug.Log($"Spawned player for client {clinetId} with color index {charaterIndex}");
 
         if (!_hasSpawnedEnemies)
         {
