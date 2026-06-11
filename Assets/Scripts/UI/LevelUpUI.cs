@@ -50,7 +50,6 @@ public class LevelUpUI : NetworkBehaviour
 
         
         CreateCards(PlayerLevelManager.Instance.RandomUpgradeStats(OwnerStat.CurrentStatsLevel.Value));
-        Time.timeScale = 0;
         _levelUpScreen.SetActive(true);
     }
 
@@ -106,7 +105,6 @@ public class LevelUpUI : NetworkBehaviour
             card.UpgradeButton.onClick.RemoveAllListeners();
         }
         _levelUpScreen.SetActive(false);
-        Time.timeScale = 1;
     }
 
 }
