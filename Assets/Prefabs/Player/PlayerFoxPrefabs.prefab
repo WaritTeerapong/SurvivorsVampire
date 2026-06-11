@@ -59,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,8 +78,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1661552117
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -1453350334737186109, guid: 849ea60b27ef6b941b45966a2dc762ba, type: 3}
@@ -277,6 +277,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   BulletPrefab: {fileID: 3774078582942600365, guid: bb594c0f1be8b084e80fa71ce30c937e, type: 3}
   FirePoint: {fileID: 2033561544125119969}
+  FacingDirection:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1
 --- !u!50 &4375759319298222741
 Rigidbody2D:
   serializedVersion: 5
