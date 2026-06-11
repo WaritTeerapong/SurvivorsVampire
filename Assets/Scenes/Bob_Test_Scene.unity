@@ -335,6 +335,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 70370700}
   m_CullTransparentMesh: 1
+--- !u!114 &133369197 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8834466883495280212, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &271130262
 GameObject:
   m_ObjectHideFlags: 0
@@ -846,6 +857,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLevelManager
   ShowTopMostFoldoutHeaderGroup: 1
   LevelData: {fileID: 11400000, guid: ec665eeeb7ef6374f8539b0d90c45773, type: 2}
+  StatUpgradeData: {fileID: 11400000, guid: 8b5bc69e86eb6d048a87056198938226, type: 2}
   SharedLevel:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -861,6 +873,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  _availableUpgradeStat: 
 --- !u!114 &549504186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -915,6 +928,7 @@ GameObject:
   - component: {fileID: 579246272}
   - component: {fileID: 579246273}
   - component: {fileID: 579246274}
+  - component: {fileID: 579246275}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -1025,6 +1039,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaveUI
   _waveText: {fileID: 2040936956}
   _timerText: {fileID: 271130264}
+--- !u!114 &579246275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579246268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcdb8d13723f7ce40bed32a160d57b12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelUpUI
+  ShowTopMostFoldoutHeaderGroup: 1
+  _levelUpScreen: {fileID: 680909313}
+  _upgradeCard:
+  - {fileID: 1456336012}
+  - {fileID: 133369197}
+  - {fileID: 1945232764}
+  IntStatArray: 000000000100000002000000
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1109,6 +1142,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &680909313 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8402467215355904824, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &726123270
 GameObject:
   m_ObjectHideFlags: 0
@@ -2654,6 +2692,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1453936097}
   m_CullTransparentMesh: 1
+--- !u!114 &1456336012 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2370680004261785602, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1511553955
 GameObject:
   m_ObjectHideFlags: 0
@@ -3323,7 +3372,7 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 26.233.102.238
+    Address: 127.0.0.1
     Port: 7777
     WebSocketPath: /
     ServerListenAddress: 0.0.0.0
@@ -3337,6 +3386,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6213626146725574779, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
   m_PrefabInstance: {fileID: 521524022}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1945232764 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1004819469100850399, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23d1efc1f7fd0645972ea4b7c252bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &2037292825
 GameObject:
   m_ObjectHideFlags: 0

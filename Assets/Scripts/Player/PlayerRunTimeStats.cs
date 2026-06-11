@@ -194,7 +194,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
     {
         Debug.Log($"Player {OwnerClientId} Stats - " +
             $"Health: {CurrentStats.Value.CurrentHealth}, " +
-            $"MaxHealth: {CurrentStats.Value.CurrentHealth}, " +
+            $"MaxHealth: {CurrentStats.Value.MaxHealth}, " +
             $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
             $"ATKSpeed: {CurrentStats.Value.ATKSpeed}, " +
