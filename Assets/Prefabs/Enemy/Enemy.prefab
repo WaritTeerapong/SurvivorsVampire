@@ -163,8 +163,8 @@ MonoBehaviour:
   Detector: {fileID: 6849801764137899047}
   Movement: {fileID: 5280175360996344786}
   Combat: {fileID: 8998301714788667492}
+  BulletPrefab: {fileID: 3774078582942600365, guid: f33e895a80adc714d8ac7085d68907a9, type: 3}
   EnemyType: {fileID: 0}
-  _xpPrefab: {fileID: 166676543266631813, guid: 200f88a9da17e0e468b7431d0621d2a0, type: 3}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

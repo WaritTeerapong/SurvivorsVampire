@@ -23,7 +23,9 @@ public class EnemyAttackState : IEnemyState
 
         if (_atkTimer >= windUpTime && !_hasAttacked)
         {
-            enemy.Combat.PerformMeleeAttack(enemy, enemy.Detector.NearestTarget);
+            if (enemy.EnemyType.IsRange) enemy.Combat.PerformRangeAttack(enemy, enemy.Detector.NearestTarget);
+            else if (!enemy.EnemyType.IsRange) enemy.Combat.PerformMeleeAttack(enemy, enemy.Detector.NearestTarget);
+
             _hasAttacked = true;
         }
 

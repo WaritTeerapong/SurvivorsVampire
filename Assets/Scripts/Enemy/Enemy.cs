@@ -33,6 +33,8 @@ public class Enemy : NetworkBehaviour
     public EnemyMovement Movement;
     public EnemyCombat Combat;
 
+    [Header("Bullet Prefab")]
+    public GameObject BulletPrefab;
 
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
@@ -190,6 +192,48 @@ public class Enemy : NetworkBehaviour
             $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
             $"ATKSpeed: {CurrentStats.Value.ATKSpeed}" +
             $"ATKRange: {CurrentStats.Value.ATKRange}");
+    }
+
+    [Rpc(SendTo.Server)]
+    public void RequestFireRpc()
+    {
+        // 1. ตรวจสอบก่อนว่า Server หาเป้าหมายเจอไหม
+        if (Detector != null && Detector.NearestTarget != null)
+        {
+            // 2. ดึง NetworkObject ของเป้าหมาย (Player)
+            NetworkObject targetNetObj = Detector.NearestTarget.GetComponent<NetworkObject>();
+            if (targetNetObj != null)
+            {
+                // 3. ส่ง NetworkObjectId ของเป้าหมายไปให้ Client ทุกคน
+                EnemyFireRpc(targetNetObj.NetworkObjectId);
+            }
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    // 4. รับค่า NetworkObjectId เข้ามา
+    private void EnemyFireRpc(ulong targetNetworkId)
+    {
+        if (BulletPrefab == null || ObjectPoolManager.Instance == null) return;
+
+        // 5. ให้ทุกเครื่องค้นหาตัว Player จาก NetworkObjectId ที่ Server สั่งมา
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
+        {
+            Vector3 spawnPos = transform.position;
+
+            // เบิกกระสุนจาก Pool
+            GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+
+            if (bulletObj != null)
+            {
+                Bullet bulletScript = bulletObj.GetComponent<Bullet>();
+                if (bulletScript != null)
+                {
+                    // 6. เล็งเป้าหมายไปที่ targetObj ที่หาเจอ
+                    bulletScript.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage);
+                }
+            }
+        }
     }
 
     private void OnDrawGizmos()
