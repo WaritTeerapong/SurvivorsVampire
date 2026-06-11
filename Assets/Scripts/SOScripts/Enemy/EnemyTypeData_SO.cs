@@ -33,7 +33,6 @@ public struct EnemyTier
 {
     public int Tier;
     public int EnemyID;
-    public Sprite sprite;
     public EnemyStats enemyStats;
 }
 
