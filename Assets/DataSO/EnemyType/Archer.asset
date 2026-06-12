@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Archer
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
   EnemyName: Archer
+  EnemyPrefab: {fileID: 3942754042103540661, guid: 71d564fb5d417f941a690277f48204eb, type: 3}
   IsRange: 1
   enemyTiers:
   - Tier: 1
     EnemyID: 3
     color: {r: 0.6537335, g: 1, b: 0.5896226, a: 1}
     enemyStats:
-      MaxHealth: 1000
+      MaxHealth: 10
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -28,7 +29,7 @@ MonoBehaviour:
     EnemyID: 4
     color: {r: 0.5921569, g: 0.8039216, b: 1, a: 0}
     enemyStats:
-      MaxHealth: 1000
+      MaxHealth: 20
       MoveSpeed: 2
       ATKDamage: 6
       ATKSpeed: 2
@@ -37,7 +38,7 @@ MonoBehaviour:
     EnemyID: 5
     color: {r: 1, g: 0.6342005, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 1000
+      MaxHealth: 30
       MoveSpeed: 3
       ATKDamage: 7
       ATKSpeed: 3

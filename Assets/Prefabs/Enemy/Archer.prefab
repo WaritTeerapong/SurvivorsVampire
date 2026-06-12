@@ -166,6 +166,7 @@ MonoBehaviour:
   Combat: {fileID: 8998301714788667492}
   BulletPrefab: {fileID: 3774078582942600365, guid: f33e895a80adc714d8ac7085d68907a9, type: 3}
   EnemyType: {fileID: 0}
+  _anim: {fileID: 0}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

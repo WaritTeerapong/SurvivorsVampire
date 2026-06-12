@@ -45,7 +45,7 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
-    private Animator _anim;
+    public Animator _anim;
     private Vector3 _lastPosition;
 
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
@@ -68,6 +68,7 @@ public class Enemy : NetworkBehaviour
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
     public readonly IEnemyState AttackState = new EnemyAttackState();
+    public readonly IEnemyState DieState = new EnemyDieState();
     private IEnemyState _currentState;
 
     private void Awake()
@@ -195,21 +196,25 @@ public class Enemy : NetworkBehaviour
 
     private void Despawn()
     {
+        SwitchState(DieState);
         if (!IsServer) return;
-
         // Spawn XP Orb
         if (XPDropManager.Instance != null && EnemyType != null)
         {
             XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
         }
 
-        // Despawn enemy obj
+        // Despawn enemy obj after 1.2 s
+        StartCoroutine(DelayDespawnRoutine(1.2f));
+    }
+    private IEnumerator DelayDespawnRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);
         }
     }
-
     private void ApplyTierColor(EnemyCurrentStats _stat)
     {
         if (_anim == null) return;

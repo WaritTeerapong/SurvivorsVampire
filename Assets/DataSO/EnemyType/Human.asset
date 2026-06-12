@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Human
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
   EnemyName: Human
+  EnemyPrefab: {fileID: 3942754042103540661, guid: fbd1e0aef8e19ff4bac7ed0baa5eaa2e, type: 3}
   IsRange: 0
   enemyTiers:
   - Tier: 1
     EnemyID: 3
     color: {r: 0.654902, g: 1, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 500
+      MaxHealth: 30
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -28,7 +29,7 @@ MonoBehaviour:
     EnemyID: 4
     color: {r: 0.5921569, g: 0.8039216, b: 1, a: 0}
     enemyStats:
-      MaxHealth: 15
+      MaxHealth: 40
       MoveSpeed: 2
       ATKDamage: 6
       ATKSpeed: 2
@@ -37,7 +38,7 @@ MonoBehaviour:
     EnemyID: 5
     color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 15
+      MaxHealth: 60
       MoveSpeed: 3
       ATKDamage: 7
       ATKSpeed: 3

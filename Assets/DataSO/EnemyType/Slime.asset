@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
   EnemyName: Slimes
+  EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
   IsRange: 0
   enemyTiers:
   - Tier: 1
     EnemyID: 0
     color: {r: 0.654902, g: 1, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 500
+      MaxHealth: 10
       MoveSpeed: 1
       ATKDamage: 5
       ATKSpeed: 1
@@ -28,7 +29,7 @@ MonoBehaviour:
     EnemyID: 1
     color: {r: 0.5921569, g: 0.8023434, b: 1, a: 0}
     enemyStats:
-      MaxHealth: 10
+      MaxHealth: 25
       MoveSpeed: 2
       ATKDamage: 10
       ATKSpeed: 2
@@ -37,7 +38,7 @@ MonoBehaviour:
     EnemyID: 2
     color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 10
+      MaxHealth: 40
       MoveSpeed: 3
       ATKDamage: 15
       ATKSpeed: 3

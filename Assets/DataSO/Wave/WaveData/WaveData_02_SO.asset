@@ -17,19 +17,14 @@ MonoBehaviour:
   SpawnCD: 0.25
   MaxActiveEnemies: 50
   AllowedEnemyTypes:
-  - EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
-    EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
-    Weight: 80
-  - EnemyPrefab: {fileID: 3942754042103540661, guid: fbd1e0aef8e19ff4bac7ed0baa5eaa2e, type: 3}
-    EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
-    Weight: 20
+  - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+    Weight: 50
+  - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
+    Weight: 50
   AllowedEnemyTiers:
   - Tier: 0
     Weight: 25.9
-    TierColor: {r: 0.30980393, g: 0.7921569, b: 0.3137255, a: 0}
   - Tier: 2
     Weight: 26.7
-    TierColor: {r: 0.26666668, g: 0.34901962, b: 0.8392157, a: 0}
   - Tier: 3
     Weight: 70
-    TierColor: {r: 0.9529412, g: 0.1764706, b: 0.1764706, a: 1}

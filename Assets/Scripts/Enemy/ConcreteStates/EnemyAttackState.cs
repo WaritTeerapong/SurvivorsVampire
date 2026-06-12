@@ -25,7 +25,7 @@ public class EnemyAttackState : IEnemyState
         {
             if (enemy.EnemyType.IsRange) enemy.Combat.PerformRangeAttack(enemy, enemy.Detector.NearestTarget);
             else if (!enemy.EnemyType.IsRange) enemy.Combat.PerformMeleeAttack(enemy, enemy.Detector.NearestTarget);
-
+            enemy._anim.Play("Attack");
             _hasAttacked = true;
         }
 
