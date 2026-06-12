@@ -9,7 +9,8 @@ public enum PoolCategory
     Projectiles,
     VFX,
     Enemies,
-    XP
+    XP,
+    DamagePopup
 }
 
 public class ObjectPoolManager : MonoBehaviour

@@ -165,6 +165,11 @@ public class Enemy : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        if (DamagePopupManager.Instance != null)
+        {
+            DamagePopupManager.Instance.ShowPopup(transform.position, damage, false);
+        }
+
         EnemyCurrentStats stats = CurrentStats.Value;
         stats.CurrentHealth -= damage;
         if (stats.CurrentHealth <= 0)

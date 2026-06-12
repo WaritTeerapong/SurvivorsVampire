@@ -149,8 +149,15 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void TakeDamageRpc(int damage) => _stats.ApplyDamage(damage);
+    public void TakeDamageRpc(int damage)
+    {
+        _stats.ApplyDamage(damage);
 
+        if (DamagePopupManager.Instance != null)
+        {
+            DamagePopupManager.Instance.ShowPopup(transform.position, damage, true);
+        }
+    }
 
     [Rpc(SendTo.Server)]
     private void RequestFireServerRpc(ulong targetNetworkId)
