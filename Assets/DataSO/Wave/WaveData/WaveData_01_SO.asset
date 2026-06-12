@@ -20,10 +20,10 @@ MonoBehaviour:
   - EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
     EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
     Weight: 0
-  - EnemyPrefab: {fileID: 0}
+  - EnemyPrefab: {fileID: 3942754042103540661, guid: fbd1e0aef8e19ff4bac7ed0baa5eaa2e, type: 3}
     EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
     Weight: 0
-  - EnemyPrefab: {fileID: 0}
+  - EnemyPrefab: {fileID: 3942754042103540661, guid: 71d564fb5d417f941a690277f48204eb, type: 3}
     EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
     Weight: 100
   AllowedEnemyTiers:

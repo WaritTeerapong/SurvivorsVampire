@@ -39,6 +39,7 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
+    private Animator _anim;
     private Vector3 _lastPosition;
 
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
@@ -57,6 +58,10 @@ public class Enemy : NetworkBehaviour
     public readonly IEnemyState AttackState = new EnemyAttackState();
     private IEnemyState _currentState;
 
+    private void Awake()
+    {
+        _anim = GetComponentInChildren<Animator>();
+    }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -185,6 +190,20 @@ public class Enemy : NetworkBehaviour
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);
+        }
+    }
+
+    private void ApplyTierColor(float r, float g, float b)
+    {
+        if (_anim != null)
+        {
+            SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>();
+            if (renderer == null) renderer = GetComponentInChildren<SpriteRenderer>();
+
+            if (renderer != null)
+            {
+                renderer.color = new Color(r, g, b, 1f);
+            }
         }
     }
 

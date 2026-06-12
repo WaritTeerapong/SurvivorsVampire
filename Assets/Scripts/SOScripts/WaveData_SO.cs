@@ -14,7 +14,6 @@ public struct EnemyTierWeight
 {
     [Range(1, 3)] public int Tier;
     [Range(0f, 100f)] public float Weight;
-    public Color TierColor;
 }
 
 [CreateAssetMenu(fileName = "WaveData_SO", menuName = "DataSO/WaveData_SO", order = 0)]
