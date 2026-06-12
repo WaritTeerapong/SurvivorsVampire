@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6849801764137899047}
   - component: {fileID: 5280175360996344786}
   - component: {fileID: 8998301714788667492}
+  - component: {fileID: 4572916901879668551}
   m_Layer: 6
   m_Name: Human
   m_TagString: Enemy
@@ -88,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3433741690
+  GlobalObjectIdHash: 2527659593
   InScenePlacedSourceGlobalObjectIdHash: 1111825701
   DeferredDespawnTick: 0
   Ownership: 1
@@ -206,6 +207,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fffe3a005af4db498dfa51d5b5e2ea2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
+--- !u!114 &4572916901879668551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3942754042103540661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkAnimatorExpanded: 0
+  AuthorityMode: 0
+  m_Animator: {fileID: 8110366650930720024}
+  TransitionStateInfoList: []
+  AnimatorParameterEntries:
+    ParameterEntries: []
+  AnimatorParametersExpanded: 0
 --- !u!1 &6190337516101859191
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,7 +239,7 @@ GameObject:
   - component: {fileID: 4380734651868557212}
   - component: {fileID: 8110366650930720024}
   m_Layer: 6
-  m_Name: Enemy Sprite
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
