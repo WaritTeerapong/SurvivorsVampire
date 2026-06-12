@@ -73,12 +73,16 @@ public class Enemy : NetworkBehaviour
     private void Awake()
     {
         _anim = GetComponentInChildren<Animator>();
+
+        OnEnemyStatsChanged += ApplyTierColor;
     }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
+
+        ApplyTierColor(CurrentStats.Value);
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
@@ -99,7 +103,7 @@ public class Enemy : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         CurrentStats.OnValueChanged -= OnEnemyStatsValueChanged;
-
+        OnEnemyStatsChanged -= ApplyTierColor;
         if (IsServer)
         {
             Detector?.StopDetect();
@@ -140,12 +144,7 @@ public class Enemy : NetworkBehaviour
         };
         CurrentStats.Value = initStats;
 
-        ApplyTierColor
-        (
-            CurrentStats.Value.ColorR,
-            CurrentStats.Value.ColorG,
-            CurrentStats.Value.ColorB
-         );
+        
     }
 
     public void SwitchState(IEnemyState newState)
@@ -211,18 +210,19 @@ public class Enemy : NetworkBehaviour
         }
     }
 
-    private void ApplyTierColor(float r, float g, float b)
+    private void ApplyTierColor(EnemyCurrentStats _stat)
     {
-        if (_anim != null)
-        {
-            SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>();
-            if (renderer == null) renderer = GetComponentInChildren<SpriteRenderer>();
+        if (_anim == null) return;
 
-            if (renderer != null)
-            {
-                renderer.color = new Color(r, g, b, 1f);
-            }
+        SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
+        if (renderer == null) return;
+
+        if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0) { 
+            renderer.color = new Color(0f,0f,0f,1f);
+            return;
         }
+        renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
+        
     }
 
     private void FacingToDirection()
