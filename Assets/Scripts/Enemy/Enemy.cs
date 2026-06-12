@@ -218,7 +218,7 @@ public class Enemy : NetworkBehaviour
         if (renderer == null) return;
 
         if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0) { 
-            renderer.color = new Color(0f,0f,0f,1f);
+            renderer.color = Color.white;
             return;
         }
         renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);

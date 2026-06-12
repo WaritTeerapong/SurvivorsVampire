@@ -122,11 +122,11 @@ public class EnemySpawnManager : NetworkBehaviour
 
                 EnemyTypeData_SO EnemyType = GetRandomEnemyType();
                 int tierLevel = GetRandomEnemyTier();
-                EnemyPrefab = EnemyType.EnemyPrefab;
-
+                GameObject selectedPrefab = EnemyType.EnemyPrefab;
+                
                 // Spawn with object pool
                 GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject(
-                    EnemyPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies
+                    selectedPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies
                 );
 
                 if (enemyObj != null && NetworkManager.Singleton.IsListening)
