@@ -76,7 +76,7 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            InitStats();
+            //InitStats();
 
             Detector?.StartDetect();
 
@@ -112,11 +112,10 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public void InitStats()
+    public void InitStats(EnemyTypeData_SO enemyType, int tierLevel)
     {
-        EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
-        int tierLevel = EnemySpawnManager.Instance.GetRandomEnemyTier(); // ได้เลข 1, 2, 3
-
+        EnemyType = enemyType;
+        
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
         EnemyStats _stats = currentTierData.enemyStats;
 

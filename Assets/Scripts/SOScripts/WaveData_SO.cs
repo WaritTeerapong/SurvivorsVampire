@@ -4,7 +4,6 @@ using UnityEngine;
 [System.Serializable]
 public struct EnemyTypeWeight
 {
-    public GameObject EnemyPrefab;
     public EnemyTypeData_SO EnemyType;
     [Range(0f, 100f)] public float Weight;
 }
