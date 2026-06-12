@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyTypeData_SO : ScriptableObject
 {
     public string EnemyName;
+    public GameObject EnemyPrefab;
     public bool IsRange;
     public EnemyTier[] enemyTiers;
     public int XPValue = 10;
@@ -33,7 +34,7 @@ public struct EnemyTier
 {
     public int Tier;
     public int EnemyID;
-    public Sprite sprite;
+    public Color color;
     public EnemyStats enemyStats;
 }
 

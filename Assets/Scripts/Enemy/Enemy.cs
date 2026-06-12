@@ -12,6 +12,9 @@ public struct EnemyCurrentStats : INetworkSerializable
     public int ATKDamage;
     public float ATKSpeed;
     public float ATKRange;
+    public float ColorR;
+    public float ColorG;
+    public float ColorB;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -22,6 +25,9 @@ public struct EnemyCurrentStats : INetworkSerializable
         serializer.SerializeValue(ref ATKDamage);
         serializer.SerializeValue(ref ATKSpeed);
         serializer.SerializeValue(ref ATKRange);
+        serializer.SerializeValue(ref ColorR);
+        serializer.SerializeValue(ref ColorG);
+        serializer.SerializeValue(ref ColorB);
     }
 
 }
@@ -39,10 +45,17 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
+    private Animator _anim;
     private Vector3 _lastPosition;
 
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
+    public NetworkVariable<float> FacingDirection = new NetworkVariable<float>(
+        1f,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
@@ -57,6 +70,10 @@ public class Enemy : NetworkBehaviour
     public readonly IEnemyState AttackState = new EnemyAttackState();
     private IEnemyState _currentState;
 
+    private void Awake()
+    {
+        _anim = GetComponentInChildren<Animator>();
+    }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -65,7 +82,6 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            InitStats();
 
             Detector?.StartDetect();
 
@@ -101,13 +117,13 @@ public class Enemy : NetworkBehaviour
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
-    public void InitStats()
+    public void InitStats(EnemyTypeData_SO enemyType, int tierLevel)
     {
-        EnemyType = EnemySpawnManager.Instance.GetRandomEnemyType();
-        int tierLevel = EnemySpawnManager.Instance.GetRandomEnemyTier(); // ได้เลข 1, 2, 3
-
+        EnemyType = enemyType;
+        
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
         EnemyStats _stats = currentTierData.enemyStats;
+        Color _color = currentTierData.color;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
@@ -117,9 +133,19 @@ public class Enemy : NetworkBehaviour
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
             ATKSpeed = _stats.ATKSpeed,
-            ATKRange = _stats.ATKRange
+            ATKRange = _stats.ATKRange,
+            ColorR = _color.r,
+            ColorG = _color.g,
+            ColorB = _color.b
         };
         CurrentStats.Value = initStats;
+
+        ApplyTierColor
+        (
+            CurrentStats.Value.ColorR,
+            CurrentStats.Value.ColorG,
+            CurrentStats.Value.ColorB
+         );
     }
 
     public void SwitchState(IEnemyState newState)
@@ -144,15 +170,7 @@ public class Enemy : NetworkBehaviour
 
     private void Update()
     {
-        Vector3 positionDelta = transform.position - _lastPosition;
-
-        if (positionDelta.x > 0.001f) transform.localScale = new Vector3(1, 1, 1);
-        else if (positionDelta.x < -0.001f) transform.localScale = new Vector3(-1, 1, 1);
-
-        _lastPosition = transform.position;
-
-        if (!IsServer) return;
-
+        FacingToDirection();
         _currentState?.OnUpdate(this);
     }
 
@@ -193,7 +211,44 @@ public class Enemy : NetworkBehaviour
         }
     }
 
+    private void ApplyTierColor(float r, float g, float b)
+    {
+        if (_anim != null)
+        {
+            SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>();
+            if (renderer == null) renderer = GetComponentInChildren<SpriteRenderer>();
 
+            if (renderer != null)
+            {
+                renderer.color = new Color(r, g, b, 1f);
+            }
+        }
+    }
+
+    private void FacingToDirection()
+    {
+        transform.localScale = new Vector3(FacingDirection.Value, 1, 1);
+
+        if (!IsServer) return;
+        Vector3 positionDelta = Vector3.zero;
+
+        // If found target, face to target 
+        if (Detector != null && Detector.NearestTarget != null)
+        {
+            positionDelta = Detector.NearestTarget.position - transform.position;
+        }
+
+        // If not found target, face to where you move
+        if ( Detector.NearestTarget == null)
+        {
+            positionDelta = transform.position - _lastPosition;
+        }
+
+        if (positionDelta.x > 0.001f) FacingDirection.Value = 1f;
+        else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
+        _lastPosition = transform.position;
+
+    }
 
     [Rpc(SendTo.Server)]
     public void DebugLogStatsRpc()

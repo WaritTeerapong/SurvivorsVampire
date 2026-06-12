@@ -17,7 +17,7 @@ MonoBehaviour:
   enemyTiers:
   - Tier: 1
     EnemyID: 3
-    sprite: {fileID: 0}
+    color: {r: 0.654902, g: 1, b: 0.5921569, a: 0}
     enemyStats:
       MaxHealth: 500
       MoveSpeed: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
       ATKRange: 1
   - Tier: 2
     EnemyID: 4
-    sprite: {fileID: 0}
+    color: {r: 0.5921569, g: 0.8039216, b: 1, a: 0}
     enemyStats:
       MaxHealth: 15
       MoveSpeed: 2
@@ -35,7 +35,7 @@ MonoBehaviour:
       ATKRange: 1
   - Tier: 3
     EnemyID: 5
-    sprite: {fileID: 0}
+    color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
     enemyStats:
       MaxHealth: 15
       MoveSpeed: 3

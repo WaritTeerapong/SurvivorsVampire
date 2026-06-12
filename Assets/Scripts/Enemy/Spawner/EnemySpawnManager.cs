@@ -120,6 +120,10 @@ public class EnemySpawnManager : NetworkBehaviour
                 // Random Position
                 Vector3 spawnPos = GetEdgeSpawnPosition();
 
+                EnemyTypeData_SO EnemyType = GetRandomEnemyType();
+                int tierLevel = GetRandomEnemyTier();
+                EnemyPrefab = EnemyType.EnemyPrefab;
+
                 // Spawn with object pool
                 GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject(
                     EnemyPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies
@@ -132,6 +136,8 @@ public class EnemySpawnManager : NetworkBehaviour
                     Enemy enemyScript = enemyObj.GetComponent<Enemy>();
                     if (enemyScript != null)
                     {
+                        enemyScript.InitStats(EnemyType, tierLevel);
+
                         ActiveEnemies.Add(enemyScript);
 
                         enemyScript.OnEnemyDespawned -= HandleEnemyDespawned;

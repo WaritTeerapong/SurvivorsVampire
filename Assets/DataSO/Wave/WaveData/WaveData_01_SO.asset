@@ -17,16 +17,22 @@ MonoBehaviour:
   SpawnCD: 1
   MaxActiveEnemies: 20
   AllowedEnemyTypes:
-  - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+  - EnemyPrefab: {fileID: 3942754042103540661, guid: 6d343d3f025d3244c8737f9373f88e5c, type: 3}
+    EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
     Weight: 0
-  - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
+  - EnemyPrefab: {fileID: 3942754042103540661, guid: fbd1e0aef8e19ff4bac7ed0baa5eaa2e, type: 3}
+    EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
     Weight: 0
-  - EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
+  - EnemyPrefab: {fileID: 3942754042103540661, guid: 71d564fb5d417f941a690277f48204eb, type: 3}
+    EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
     Weight: 100
   AllowedEnemyTiers:
   - Tier: 0
     Weight: 80
+    TierColor: {r: 0.31025273, g: 0.7924528, b: 0.31296372, a: 0}
   - Tier: 2
     Weight: 20
+    TierColor: {r: 0.2653524, g: 0.34930247, b: 0.8396226, a: 0}
   - Tier: 3
     Weight: 0
+    TierColor: {r: 0.9528302, g: 0.17528482, b: 0.17528482, a: 0}
