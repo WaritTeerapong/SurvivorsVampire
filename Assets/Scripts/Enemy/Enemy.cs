@@ -12,6 +12,9 @@ public struct EnemyCurrentStats : INetworkSerializable
     public int ATKDamage;
     public float ATKSpeed;
     public float ATKRange;
+    public float ColorR;
+    public float ColorG;
+    public float ColorB;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -22,6 +25,9 @@ public struct EnemyCurrentStats : INetworkSerializable
         serializer.SerializeValue(ref ATKDamage);
         serializer.SerializeValue(ref ATKSpeed);
         serializer.SerializeValue(ref ATKRange);
+        serializer.SerializeValue(ref ColorR);
+        serializer.SerializeValue(ref ColorG);
+        serializer.SerializeValue(ref ColorB);
     }
 
 }
@@ -76,7 +82,6 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            //InitStats();
 
             Detector?.StartDetect();
 
@@ -118,6 +123,7 @@ public class Enemy : NetworkBehaviour
         
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
         EnemyStats _stats = currentTierData.enemyStats;
+        Color _color = currentTierData.color;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
@@ -127,9 +133,19 @@ public class Enemy : NetworkBehaviour
             MoveSpeed = _stats.MoveSpeed,
             ATKDamage = _stats.ATKDamage,
             ATKSpeed = _stats.ATKSpeed,
-            ATKRange = _stats.ATKRange
+            ATKRange = _stats.ATKRange,
+            ColorR = _color.r,
+            ColorG = _color.g,
+            ColorB = _color.b
         };
         CurrentStats.Value = initStats;
+
+        ApplyTierColor
+        (
+            CurrentStats.Value.ColorR,
+            CurrentStats.Value.ColorG,
+            CurrentStats.Value.ColorB
+         );
     }
 
     public void SwitchState(IEnemyState newState)
@@ -232,16 +248,6 @@ public class Enemy : NetworkBehaviour
         else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
         _lastPosition = transform.position;
 
-    }
-
-    private void FacingToMoveDirection()
-    {
-        if (Detector != null && Detector.NearestTarget != null)
-        {
-            Vector3 positionDelta = Detector.NearestTarget.position - transform.position;
-            if (positionDelta.x > 0.001f) FacingDirection.Value = 1f;
-            else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
-        }
     }
 
     [Rpc(SendTo.Server)]
