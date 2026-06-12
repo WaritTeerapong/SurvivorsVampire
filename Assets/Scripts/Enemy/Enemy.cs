@@ -48,6 +48,12 @@ public class Enemy : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
+    public NetworkVariable<float> FacingDirection = new NetworkVariable<float>(
+        1f,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
     // C# event
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action<Enemy> OnEnemyDespawned;
@@ -149,15 +155,7 @@ public class Enemy : NetworkBehaviour
 
     private void Update()
     {
-        Vector3 positionDelta = transform.position - _lastPosition;
-
-        if (positionDelta.x > 0.001f) transform.localScale = new Vector3(1, 1, 1);
-        else if (positionDelta.x < -0.001f) transform.localScale = new Vector3(-1, 1, 1);
-
-        _lastPosition = transform.position;
-
-        if (!IsServer) return;
-
+        FacingToDirection();
         _currentState?.OnUpdate(this);
     }
 
@@ -212,7 +210,40 @@ public class Enemy : NetworkBehaviour
         }
     }
 
+    private void FacingToDirection()
+    {
+        transform.localScale = new Vector3(FacingDirection.Value, 1, 1);
 
+        if (!IsServer) return;
+        Vector3 positionDelta = Vector3.zero;
+
+        // If found target, face to target 
+        if (Detector != null && Detector.NearestTarget != null)
+        {
+            positionDelta = Detector.NearestTarget.position - transform.position;
+        }
+
+        // If not found target, face to where you move
+        if ( Detector.NearestTarget == null)
+        {
+            positionDelta = transform.position - _lastPosition;
+        }
+
+        if (positionDelta.x > 0.001f) FacingDirection.Value = 1f;
+        else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
+        _lastPosition = transform.position;
+
+    }
+
+    private void FacingToMoveDirection()
+    {
+        if (Detector != null && Detector.NearestTarget != null)
+        {
+            Vector3 positionDelta = Detector.NearestTarget.position - transform.position;
+            if (positionDelta.x > 0.001f) FacingDirection.Value = 1f;
+            else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
+        }
+    }
 
     [Rpc(SendTo.Server)]
     public void DebugLogStatsRpc()
