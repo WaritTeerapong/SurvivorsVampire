@@ -184,6 +184,8 @@ public class PlayerController : NetworkBehaviour
                 {
                     bulletScript.Initialize(targetObj.transform, _stats.CurrentStats.Value.ATKDamage);
                 }
+
+                AudioManager.Instance.PlaySFX("PlayerShoot", spawnPos);
             }
         }
     }
