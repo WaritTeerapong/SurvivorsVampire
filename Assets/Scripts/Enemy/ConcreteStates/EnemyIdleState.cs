@@ -4,8 +4,9 @@ public class EnemyIdleState : IEnemyState
 {
     public void OnEnter(Enemy enemy)
     {
-        
+
         Debug.Log("Enter Enemy Idle State");
+        enemy.PlayAnimation(Enemy.IDLE);
     }
 
     public void OnExit(Enemy enemy)
@@ -18,6 +19,6 @@ public class EnemyIdleState : IEnemyState
         {
             enemy.SwitchState(enemy.MoveState);
         }
-        enemy._anim.Play("Idle");
+
     }
 }
