@@ -20,7 +20,14 @@ MonoBehaviour:
     MinPitch: 0.61
     MaxPitch: 1.28
     MaxDistance: 15
-  UIList: []
+  UIList:
+  - SoundName: Click
+    Clip: {fileID: 8300000, guid: ca9aa9f7e4a079b49b43dc75f696120b, type: 3}
+    Volume: 0.343
+    UseRandomPitch: 1
+    MinPitch: 0.61
+    MaxPitch: 1.91
+    MaxDistance: 0
   BGMList:
   - SoundName: BGM01
     Clip: {fileID: 8300000, guid: d3b28c6e99c9a3f4cbfcec1e88a7ff44, type: 3}
