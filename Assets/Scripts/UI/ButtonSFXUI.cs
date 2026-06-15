@@ -10,7 +10,7 @@ public class ButtonSFXUI : MonoBehaviour
         _btn = GetComponent<Button>();
     }
 
-    void Start()
+    void OnEnable()
     {
         _btn.onClick.RemoveListener(PlaySFXOnClick);
         _btn.onClick.AddListener(PlaySFXOnClick);
