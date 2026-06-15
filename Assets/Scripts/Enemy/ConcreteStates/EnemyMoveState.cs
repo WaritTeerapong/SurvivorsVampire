@@ -4,7 +4,7 @@ public class EnemyMoveState : IEnemyState
 {
     public void OnEnter(Enemy enemy)
     {
-        
+        enemy.PlayAnimation(Enemy.RUN);
     }
 
     public void OnExit(Enemy enemy)
@@ -24,11 +24,11 @@ public class EnemyMoveState : IEnemyState
             enemy.SwitchState(enemy.AttackState);
             return;
         }
-        
+
         enemy.Movement.MoveToward(
             enemy.Detector.NearestTarget,
             enemy.CurrentStats.Value.MoveSpeed
         );
-        enemy._anim.Play("Move");
+
     }
 }

@@ -45,8 +45,9 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
-    public Animator _anim;
+    private Animator _anim;
     private Vector3 _lastPosition;
+    private bool _isDead = false;
 
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
@@ -65,11 +66,18 @@ public class Enemy : NetworkBehaviour
     public event Action<Enemy> OnEnemyDespawned;
 
     // === FSM ( Finite State-Machine ) ===
+    #region     FSM State-Machine
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
     public readonly IEnemyState AttackState = new EnemyAttackState();
     public readonly IEnemyState DieState = new EnemyDieState();
     private IEnemyState _currentState;
+    #endregion
+
+    public static readonly int IDLE = Animator.StringToHash("Idle");
+    public static readonly int RUN = Animator.StringToHash("Run");
+    public static readonly int ATK = Animator.StringToHash("Attack");
+    public static readonly int DIE = Animator.StringToHash("Die");
 
     private void Awake()
     {
@@ -125,7 +133,7 @@ public class Enemy : NetworkBehaviour
     public void InitStats(EnemyTypeData_SO enemyType, int tierLevel)
     {
         EnemyType = enemyType;
-        
+
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
         EnemyStats _stats = currentTierData.enemyStats;
         Color _color = currentTierData.color;
@@ -145,7 +153,7 @@ public class Enemy : NetworkBehaviour
         };
         CurrentStats.Value = initStats;
 
-        
+
     }
 
     public void SwitchState(IEnemyState newState)
@@ -170,6 +178,7 @@ public class Enemy : NetworkBehaviour
 
     private void Update()
     {
+        if (_isDead) return;
         FacingToDirection();
         _currentState?.OnUpdate(this);
     }
@@ -187,6 +196,7 @@ public class Enemy : NetworkBehaviour
         stats.CurrentHealth -= damage;
         if (stats.CurrentHealth <= 0)
         {
+            _isDead = true;
             stats.CurrentHealth = 0;
             Despawn();
         }
@@ -194,10 +204,16 @@ public class Enemy : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
+    public void PlayAnimation(int animation)
+    {
+        if (!IsServer) return;
+        _anim.Play(animation);
+    }
+
     private void Despawn()
     {
-        SwitchState(DieState);
         if (!IsServer) return;
+        SwitchState(DieState);
         // Spawn XP Orb
         if (XPDropManager.Instance != null && EnemyType != null)
         {
@@ -222,12 +238,13 @@ public class Enemy : NetworkBehaviour
         SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
         if (renderer == null) return;
 
-        if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0) { 
+        if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0)
+        {
             renderer.color = Color.white;
             return;
         }
         renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
-        
+
     }
 
     private void FacingToDirection()
@@ -244,7 +261,7 @@ public class Enemy : NetworkBehaviour
         }
 
         // If not found target, face to where you move
-        if ( Detector.NearestTarget == null)
+        if (Detector.NearestTarget == null)
         {
             positionDelta = transform.position - _lastPosition;
         }
@@ -271,31 +288,25 @@ public class Enemy : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void RequestFireRpc()
     {
-        // 1. ตรวจสอบก่อนว่า Server หาเป้าหมายเจอไหม
         if (Detector != null && Detector.NearestTarget != null)
         {
-            // 2. ดึง NetworkObject ของเป้าหมาย (Player)
             NetworkObject targetNetObj = Detector.NearestTarget.GetComponent<NetworkObject>();
             if (targetNetObj != null)
             {
-                // 3. ส่ง NetworkObjectId ของเป้าหมายไปให้ Client ทุกคน
                 EnemyFireRpc(targetNetObj.NetworkObjectId);
             }
         }
     }
 
     [Rpc(SendTo.Everyone)]
-    // 4. รับค่า NetworkObjectId เข้ามา
     private void EnemyFireRpc(ulong targetNetworkId)
     {
         if (BulletPrefab == null || ObjectPoolManager.Instance == null) return;
 
-        // 5. ให้ทุกเครื่องค้นหาตัว Player จาก NetworkObjectId ที่ Server สั่งมา
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
         {
             Vector3 spawnPos = transform.position;
 
-            // เบิกกระสุนจาก Pool
             GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
 
             if (bulletObj != null)
@@ -303,7 +314,7 @@ public class Enemy : NetworkBehaviour
                 Bullet bulletScript = bulletObj.GetComponent<Bullet>();
                 if (bulletScript != null)
                 {
-                    // 6. เล็งเป้าหมายไปที่ targetObj ที่หาเจอ
+                    bulletScript.IsEnemy = true;
                     bulletScript.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage);
                 }
             }

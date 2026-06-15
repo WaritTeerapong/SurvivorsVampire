@@ -4,7 +4,7 @@ public class EnemyDieState : IEnemyState
 {
     public void OnEnter(Enemy enemy)
     {
-        enemy._anim.Play("Die");
+        enemy.PlayAnimation(Enemy.DIE);
     }
 
     public void OnExit(Enemy enemy)
@@ -13,6 +13,6 @@ public class EnemyDieState : IEnemyState
 
     public void OnUpdate(Enemy enemy)
     {
-        
+
     }
 }
