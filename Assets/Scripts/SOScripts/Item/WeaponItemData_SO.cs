@@ -6,7 +6,7 @@ public struct WeaponStat
 {
     public float AtkDamage; 
     public float AtkRange;
-    public float AtkCooldown;
+    public float AtkSpeed;
 }
 
 [CreateAssetMenu(fileName = "WeaponItemData_So", menuName = "DataSO/Item/WeaponItemData_SO")]
