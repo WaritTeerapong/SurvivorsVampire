@@ -66,9 +66,7 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void HandleLevelChanged(int previousValue, int newValue)
     {
-
         OnLevelUp?.Invoke();
-
     }
 
     private void HandleXPChanged(int previousValue, int newValue)
@@ -102,7 +100,7 @@ public class PlayerLevelManager : NetworkBehaviour
             }
         }
     }
-    
+
     public Dictionary<StatType, int> RandomUpgradeStats(LevelCheckpoint statLevel)
     {
         Dictionary<StatType, int> selectedUpgradeStats = new Dictionary<StatType, int>();
@@ -119,7 +117,7 @@ public class PlayerLevelManager : NetworkBehaviour
 
             if (currentLevel >= maxLevel)
             {
-                poolToDrawFrom.RemoveAt(i); 
+                poolToDrawFrom.RemoveAt(i);
             }
         }
 
