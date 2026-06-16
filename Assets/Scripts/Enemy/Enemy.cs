@@ -97,9 +97,9 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
+            _isDead = false;
 
             Detector?.StartDetect();
-
             SwitchState(IdleState);
         }
         else if (IsServer) // Check if Manager not Instance

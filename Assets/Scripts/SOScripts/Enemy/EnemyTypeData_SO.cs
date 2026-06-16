@@ -18,6 +18,7 @@ public class EnemyTypeData_SO : ScriptableObject
     [Range(0f, 3f)] public float AlignmentWeight = 1f; // Alignment Force (เดินเรียงแถว)
     [Range(0f, 3f)] public float CohesionWeight = 1f; // Cohesion Force (เกาะกลุ่ม)
     [Range(0f, 3f)] public float TargetWeight = 2f; // Target Force (ความอยากในการเดินหา Player)
+
     public EnemyTier Setup(int tier)
     {
         if (enemyTiers == null || enemyTiers.Length == 0)

@@ -29,6 +29,9 @@ public class EnemyMovement : MonoBehaviour
         {
             _boidsTimer -= Time.deltaTime;
 
+            _useBoidsGizmos = true;
+            _debugRadius = enemy.EnemyType.BoidsDetectionRadius;
+
             if (_boidsTimer <= 0f)
             {
                 _currentBoidsForce = CalculateBoidsForce(enemy, directionToTarget, currentPos);
@@ -101,7 +104,7 @@ public class EnemyMovement : MonoBehaviour
         return targetDir;
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         if (_useBoidsGizmos && _debugRadius > 0)
         {
