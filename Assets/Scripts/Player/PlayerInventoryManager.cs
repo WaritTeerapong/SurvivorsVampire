@@ -46,21 +46,28 @@ public class PlayerInventoryManager : NetworkBehaviour
     public Dictionary<string, PassiveItemData_SO> PassiveItemInventory;
 
     // Local dictionary to keep track of instantiated weapon prefabs on each client
-    private Dictionary<string, GameObject> _instantiatedWeapons = new Dictionary<string, GameObject>();
-
+    public Dictionary<string, GameObject> InstantiatedWeapons { get; private set; }
+         
     private void Awake()
     {
-        OwnedWeapons = new NetworkList<CurrentItemEntry>(
+        OwnedWeapons = new NetworkList<CurrentItemEntry>
+        (
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server
         );
-        OwnedPassives = new NetworkList<CurrentItemEntry>(
+
+        OwnedPassives = new NetworkList<CurrentItemEntry>
+        (
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server
         );
+
 
         WeaponItemInventory = new Dictionary<string, WeaponItemData_SO>();
         PassiveItemInventory = new Dictionary<string, PassiveItemData_SO>();
+
+        InstantiatedWeapons = new Dictionary<string, GameObject>();
+
     }
 
     public override void OnNetworkSpawn()
@@ -168,33 +175,33 @@ public class PlayerInventoryManager : NetworkBehaviour
     private void InstantiateWeaponVisual(string id, int level)
     {
         if (WeaponDatabase == null) return;
-        if (_instantiatedWeapons.ContainsKey(id)) return;
+        if (InstantiatedWeapons.ContainsKey(id)) return;
 
         WeaponItemData_SO weaponData = WeaponDatabase.GetItemByID(id);
         if (weaponData != null && weaponData.WeaponPrefab != null)
         {
             // Find or create "Weapons" container under player to instantiate as grandchildren
-            Transform weaponsParent = transform.Find("Weapons");
-            if (weaponsParent == null)
+            Transform weaponsContainerTransform = transform.Find("Weapons");
+            if (weaponsContainerTransform == null)
             {
                 GameObject container = new GameObject("Weapons");
                 container.transform.SetParent(transform, false);
-                weaponsParent = container.transform;
+                weaponsContainerTransform = container.transform;
             }
 
-            GameObject weaponInstance = Instantiate(weaponData.WeaponPrefab, weaponsParent);
+            GameObject weaponInstance = Instantiate(weaponData.WeaponPrefab, weaponsContainerTransform);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
 
             NotifyWeaponUpgrade(weaponInstance, level);
 
-            _instantiatedWeapons[id] = weaponInstance;
+            InstantiatedWeapons[id] = weaponInstance;
         }
     }
 
     private void UpdateWeaponVisual(string id, int level)
     {
-        if (_instantiatedWeapons.TryGetValue(id, out GameObject weaponInstance))
+        if (InstantiatedWeapons.TryGetValue(id, out GameObject weaponInstance))
         {
             NotifyWeaponUpgrade(weaponInstance, level);
         }
@@ -206,26 +213,26 @@ public class PlayerInventoryManager : NetworkBehaviour
 
     private void DestroyWeaponVisual(string id)
     {
-        if (_instantiatedWeapons.TryGetValue(id, out GameObject weaponInstance))
+        if (InstantiatedWeapons.TryGetValue(id, out GameObject weaponInstance))
         {
             if (weaponInstance != null)
             {
                 Destroy(weaponInstance);
             }
-            _instantiatedWeapons.Remove(id);
+            InstantiatedWeapons.Remove(id);
         }
     }
 
     private void ClearAllWeaponVisuals()
     {
-        foreach (var kvp in _instantiatedWeapons)
+        foreach (var kvp in InstantiatedWeapons)
         {
             if (kvp.Value != null)
             {
                 Destroy(kvp.Value);
             }
         }
-        _instantiatedWeapons.Clear();
+        InstantiatedWeapons.Clear();
     }
 
     private void NotifyWeaponUpgrade(GameObject weaponInstance, int level)
