@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -155,7 +156,7 @@ public class LevelUpUI : NetworkBehaviour
 
         if (_pendingLevelUps > 0)
         {
-            ShowNextCards();
+            StartCoroutine(WaitServerSyncAndShowNextCard());
         }
         else
         {
@@ -174,6 +175,15 @@ public class LevelUpUI : NetworkBehaviour
                 PauseMenuUI.Instance.ResumeGame();
             }
         }
+    }
+
+    private IEnumerator WaitServerSyncAndShowNextCard()
+    {
+        foreach (var card in _upgradeCard) card.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.2f);
+
+        ShowNextCards();
     }
 
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Detector : MonoBehaviour
+public class PlayerDetector : MonoBehaviour
 {
     private CircleCollider2D _detectorCollider;
     private PlayerRunTimeStats _playerStats;
@@ -22,7 +22,7 @@ public class Detector : MonoBehaviour
 
     public void FindNearestTarget()
     {
-        _enemiesInRange.RemoveAll(enemy => enemy == null);
+        _enemiesInRange.RemoveAll(enemy => enemy == null || !enemy.gameObject.activeInHierarchy);
 
         if (_enemiesInRange.Count == 0)
         {
