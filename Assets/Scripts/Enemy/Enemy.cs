@@ -51,6 +51,8 @@ public class Enemy : NetworkBehaviour
     private Vector3 _lastPosition;
     private bool _isDead = false;
 
+    private Collider2D col;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -86,6 +88,8 @@ public class Enemy : NetworkBehaviour
         _anim = GetComponentInChildren<Animator>();
 
         OnEnemyStatsChanged += ApplyTierColor;
+
+        col = GetComponent<Collider2D>();
     }
     public override void OnNetworkSpawn()
     {
@@ -98,6 +102,7 @@ public class Enemy : NetworkBehaviour
         if (IsServer && EnemySpawnManager.Instance != null)
         {
             _isDead = false;
+            SetColliderTo(true);
 
             Detector?.StartDetect();
             SwitchState(IdleState);
@@ -126,6 +131,8 @@ public class Enemy : NetworkBehaviour
             _currentState = null;
         }
     }
+
+    public void SetColliderTo(bool isEnable) => col.enabled = isEnable;
 
     private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
