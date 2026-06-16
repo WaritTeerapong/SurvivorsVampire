@@ -52,6 +52,7 @@ public class EnemySpawnManager : NetworkBehaviour
             NetworkManager.Singleton.PrefabHandler.RemoveHandler(EnemyPrefab);
         }
 
+        ActiveEnemies.Clear();
         StopAllCoroutines();
     }
 
@@ -123,7 +124,7 @@ public class EnemySpawnManager : NetworkBehaviour
                 EnemyTypeData_SO EnemyType = GetRandomEnemyType();
                 int tierLevel = GetRandomEnemyTier();
                 GameObject selectedPrefab = EnemyType.EnemyPrefab;
-                
+
                 // Spawn with object pool
                 GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject(
                     selectedPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies

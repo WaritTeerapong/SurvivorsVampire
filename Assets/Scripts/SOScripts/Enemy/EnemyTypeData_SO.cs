@@ -8,6 +8,17 @@ public class EnemyTypeData_SO : ScriptableObject
     public bool IsRange;
     public EnemyTier[] enemyTiers;
     public int XPValue = 10;
+
+    [Header("Boids Flocking Settings")]
+    public bool UseBoids = true; // toggle boids
+    public LayerMask EnemyLayer; // for only enemy layer detection
+
+    public float BoidsDetectionRadius = 2.5f; // Radius for neighbour detection
+    [Range(0f, 3f)] public float SeparationWeight = 2f; // Separation Force (ดันออกจากกัน)
+    [Range(0f, 3f)] public float AlignmentWeight = 1f; // Alignment Force (เดินเรียงแถว)
+    [Range(0f, 3f)] public float CohesionWeight = 1f; // Cohesion Force (เกาะกลุ่ม)
+    [Range(0f, 3f)] public float TargetWeight = 2f; // Target Force (ความอยากในการเดินหา Player)
+
     public EnemyTier Setup(int tier)
     {
         if (enemyTiers == null || enemyTiers.Length == 0)
