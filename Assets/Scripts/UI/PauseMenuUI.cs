@@ -10,6 +10,10 @@ public enum PauseUIState { Closed, PauseMenu, SettingMenu, Overlay }
 
 public class PauseMenuUI : MonoBehaviour
 {
+    public static PauseMenuUI Instance { get; private set; }
+
+    public bool IsLevelUpActive = false;
+
     [Header("Audio Mixer")]
     public AudioMixer MainMixer;
 
@@ -32,6 +36,12 @@ public class PauseMenuUI : MonoBehaviour
     public Slider UISlider;
 
     private PauseUIState _currentState = PauseUIState.Closed;
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
     private void Start()
     {
@@ -69,6 +79,8 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Update()
     {
+        if (IsLevelUpActive) return;
+
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             switch (_currentState)
@@ -89,9 +101,29 @@ public class PauseMenuUI : MonoBehaviour
         SettingsPanel.SetActive(_currentState == PauseUIState.SettingMenu);
         OverlayPanel.SetActive(_currentState == PauseUIState.Overlay);
 
-        if (_currentState == PauseUIState.Overlay)
+        if (_currentState == PauseUIState.Overlay && PauseManager.Instance != null)
         {
-            OverlayText.text = "Waiting for other player...\n(Press ESC to open menu)";
+            if (PauseManager.Instance.PlayersSelectingUpgrade.Count > 0)
+            {
+                OverlayText.text = "Waiting for other player to select upgrade...";
+            }
+            else
+            {
+                OverlayText.text = "Waiting for other player...\n(Press ESC to open menu)";
+            }
+
+        }
+    }
+
+    public void ForceCloseMenu()
+    {
+        if (_currentState != PauseUIState.Closed && _currentState != PauseUIState.Overlay)
+        {
+            ChangeState(PauseUIState.Closed);
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+            {
+                PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
+            }
         }
     }
 
@@ -130,7 +162,7 @@ public class PauseMenuUI : MonoBehaviour
         }
         else
         {
-            if (_currentState == PauseUIState.Closed)
+            if (_currentState == PauseUIState.Closed && !IsLevelUpActive)
             {
                 ChangeState(PauseUIState.Overlay);
             }

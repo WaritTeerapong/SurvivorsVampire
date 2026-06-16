@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5542770765608862595}
-  - component: {fileID: 8537722266331223251}
   - component: {fileID: 603669010307118608}
   - component: {fileID: 3388925012026835816}
   - component: {fileID: -4202244241765752369}
@@ -17,6 +16,7 @@ GameObject:
   - component: {fileID: 5280175360996344786}
   - component: {fileID: 8998301714788667492}
   - component: {fileID: 6489711875663506349}
+  - component: {fileID: 8846670509636172637}
   m_Layer: 6
   m_Name: Slime
   m_TagString: Enemy
@@ -40,43 +40,6 @@ Transform:
   - {fileID: 6889146893109944961}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!70 &8537722266331223251
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3942754042103540661}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.3}
-  m_Size: {x: 1, y: 1}
-  m_Direction: 0
 --- !u!114 &603669010307118608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3875020284
+  GlobalObjectIdHash: 1111825701
   InScenePlacedSourceGlobalObjectIdHash: 1111825701
   DeferredDespawnTick: 0
   Ownership: 1
@@ -166,7 +129,6 @@ MonoBehaviour:
   Combat: {fileID: 8998301714788667492}
   BulletPrefab: {fileID: 3774078582942600365, guid: f33e895a80adc714d8ac7085d68907a9, type: 3}
   EnemyType: {fileID: 0}
-  _anim: {fileID: 0}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -233,6 +195,42 @@ MonoBehaviour:
   AnimatorParameterEntries:
     ParameterEntries: []
   AnimatorParametersExpanded: 0
+--- !u!58 &8846670509636172637
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3942754042103540661}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
 --- !u!1 &6190337516101859191
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,7 +258,7 @@ Transform:
   m_GameObject: {fileID: 6190337516101859191}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
