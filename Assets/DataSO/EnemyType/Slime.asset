@@ -49,7 +49,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   BoidsDetectionRadius: 1.5
-  SeparationWeight: 1
-  AlignmentWeight: 0.1
+  SeparationWeight: 1.8
+  AlignmentWeight: 0.2
   CohesionWeight: 0
   TargetWeight: 2
