@@ -34,6 +34,8 @@ public class PlayerInventoryManager : NetworkBehaviour
     public WeaponItemDatabase_SO WeaponDatabase;
     public PassiveItemDatabase_SO PassiveDatabase;
 
+    // Using NetworkList over NetworkVariable because the dynamic allocate weapon to client
+
     // Networked representation of inventory
     // For each clients see thier weapon correctly
     public NetworkList<CurrentItemEntry> OwnedWeapons;
@@ -69,8 +71,9 @@ public class PlayerInventoryManager : NetworkBehaviour
         OwnedPassives.OnListChanged += OnPassivesListChanged;
 
         // Perform initial synchronization
-        SyncWeaponsCache();
-        SyncPassivesCache();
+        // Sync the local and network inventory
+        SyncNetworkWeaponInventory();
+        SyncNetworkPassivesInventory();
         RecreateAllWeaponVisuals();
     }
 
@@ -84,7 +87,7 @@ public class PlayerInventoryManager : NetworkBehaviour
 
     private void OnWeaponsListChanged(NetworkListEvent<CurrentItemEntry> changeEvent)
     {
-        SyncWeaponsCache();
+        SyncNetworkWeaponInventory();
 
         switch (changeEvent.Type)
         {
@@ -105,7 +108,7 @@ public class PlayerInventoryManager : NetworkBehaviour
 
     private void OnPassivesListChanged(NetworkListEvent<CurrentItemEntry> changeEvent)
     {
-        SyncPassivesCache();
+        SyncNetworkPassivesInventory();
 
         if (IsServer)
         {
@@ -118,7 +121,7 @@ public class PlayerInventoryManager : NetworkBehaviour
     }
 
     // Sync OwnedList in Network with local Inventory
-    private void SyncWeaponsCache()
+    private void SyncNetworkWeaponInventory()
     {
         WeaponItemInventory.Clear();
         if (WeaponDatabase != null)
@@ -136,7 +139,7 @@ public class PlayerInventoryManager : NetworkBehaviour
     }
 
     // Sync OwnedList in Network with local Inventory
-    private void SyncPassivesCache()
+    private void SyncNetworkPassivesInventory()
     {
         PassiveItemInventory.Clear();
         if (PassiveDatabase != null)
