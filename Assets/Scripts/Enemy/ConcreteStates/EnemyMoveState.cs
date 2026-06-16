@@ -25,10 +25,6 @@ public class EnemyMoveState : IEnemyState
             return;
         }
 
-        enemy.Movement.MoveToward(
-            enemy.Detector.NearestTarget,
-            enemy.CurrentStats.Value.MoveSpeed
-        );
-
+        enemy.Movement.MoveToward(enemy);
     }
 }

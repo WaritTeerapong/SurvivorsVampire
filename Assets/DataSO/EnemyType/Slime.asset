@@ -44,3 +44,12 @@ MonoBehaviour:
       ATKSpeed: 3
       ATKRange: 1
   XPValue: 10
+  UseBoids: 1
+  EnemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  BoidsDetectionRadius: 2.5
+  SeparationWeight: 0.59
+  AlignmentWeight: 0.21
+  CohesionWeight: 0.59
+  TargetWeight: 1
