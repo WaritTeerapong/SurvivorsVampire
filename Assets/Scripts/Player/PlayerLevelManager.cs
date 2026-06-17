@@ -100,8 +100,8 @@ public class PlayerLevelManager : NetworkBehaviour
             }
         }
     }
-
-    public Dictionary<StatType, int> RandomUpgradeStats(LevelCheckpoint statLevel)
+    
+    public Dictionary<StatType, int> RandomUpgradeStats(StatLevel statLevel)
     {
         Dictionary<StatType, int> selectedUpgradeStats = new Dictionary<StatType, int>();
 

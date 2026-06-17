@@ -213,6 +213,8 @@ GameObject:
   - component: {fileID: 9187629195554782}
   - component: {fileID: 3881783426103610519}
   - component: {fileID: 1758929283135430198}
+  - component: {fileID: 3890707084803623922}
+  - component: {fileID: 3661570996434312906}
   m_Layer: 7
   m_Name: PlayerFoxPrefabs
   m_TagString: Player
@@ -486,6 +488,42 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0
+--- !u!114 &3890707084803623922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7980141209461320123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20b7e1a7da64c9c4e89f55d9b42500e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  WeaponDatabase: {fileID: 11400000, guid: 2643985103cf1b143a2c56810f24a7ef, type: 2}
+  PassiveDatabase: {fileID: 11400000, guid: f25c9346e509b124bb443f5d596dac17, type: 2}
+  OwnedWeapons:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+  OwnedPassives:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+--- !u!114 &3661570996434312906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7980141209461320123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64f7b58f3b87f6247bdf2375a92c109a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &515609308555571323
 PrefabInstance:
   m_ObjectHideFlags: 0

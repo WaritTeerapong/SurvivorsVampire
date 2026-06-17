@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -53,7 +55,7 @@ public struct PlayerStats : INetworkSerializable
         serializer.SerializeValue(ref ATKRange);
     }
 }
-public struct LevelCheckpoint : INetworkSerializable
+public struct StatLevel : INetworkSerializable
 {
     public int MaxHealth;
     public int MoveSpeed;
@@ -100,15 +102,16 @@ public class PlayerRunTimeStats : NetworkBehaviour
     public PlayerData_SO PlayerData;
     public StatUpgradeDatabase_SO StatUpgradeData;
     public event Action<PlayerStats> OnStatChanged;
+
     public NetworkVariable<PlayerStats> CurrentStats = new NetworkVariable<PlayerStats>
     (
         new PlayerStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
-    public NetworkVariable<LevelCheckpoint> CurrentStatsLevel = new NetworkVariable<LevelCheckpoint>
+    public NetworkVariable<StatLevel> CurrentStatsLevel = new NetworkVariable<StatLevel>
     (
-        new LevelCheckpoint(),
+        new StatLevel(),
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
@@ -121,8 +124,8 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         if (IsServer)
         {
-            InitStats();
             InitStatsLevel();
+            InitStats();
         }
     }
 
@@ -165,7 +168,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
             return;
         }
 
-        LevelCheckpoint initStats = new LevelCheckpoint
+        StatLevel initStats = new StatLevel
         {
             MaxHealth = PlayerData.StatLevel.MaxHealthLevel,
             MoveSpeed = PlayerData.StatLevel.MoveSpeedLevel,
@@ -188,6 +191,68 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         CurrentStats.Value = stats;
     }
+
+    
+
+    public void RecalculateStats()
+    {
+        if (!IsServer) return;
+        if (PlayerData == null)
+        {
+            Debug.LogWarning("PlayerData_SO is not assigned in PlayerRunTimeStats.");
+            return;
+        }
+
+        // 1.Get Base Stat
+        PlayerStats newStats = new PlayerStats
+        {
+            MaxHealth = PlayerData.Stat.MaxHealth,
+            MoveSpeed = PlayerData.Stat.MoveSpeed,
+            ATKDamage = PlayerData.Stat.ATKDamage,
+            ATKSpeed = PlayerData.Stat.ATKSpeed,
+            ATKRange = PlayerData.Stat.ATKRange
+        };
+
+        // 2. Apply Passive Items
+        PlayerInventoryManager inventory = GetComponent<PlayerInventoryManager>();
+        if (inventory != null)
+        {
+            foreach (var kvp in inventory.PassiveItemInventory)
+            {
+                PassiveItemData_SO passiveData = kvp.Value;
+                int itemLevel = inventory.GetPassiveItemLevel(passiveData.Id);
+                if (itemLevel > 0)
+                {
+                    BaseStat itemBonus = passiveData.GetBonusForLevel(itemLevel);
+                    newStats.MaxHealth += itemBonus.MaxHealth;
+                    newStats.MoveSpeed += itemBonus.MoveSpeed;
+                    newStats.ATKDamage += itemBonus.ATKDamage;
+                    newStats.ATKSpeed += itemBonus.ATKSpeed;
+                    newStats.ATKRange += itemBonus.ATKRange;
+                }
+            }
+        }
+
+        // Keep current health capped and valid
+        int prevCurrentHealth = CurrentStats.Value.CurrentHealth;
+        newStats.CurrentHealth = prevCurrentHealth > 0 ? Mathf.Min(prevCurrentHealth, newStats.MaxHealth) : newStats.MaxHealth;
+
+        CurrentStats.Value = newStats;
+    }
+
+    private float FindUpgradeStat(StatType chosenStat, int level)
+    { 
+        foreach(StatUpgrade stat in StatUpgradeData.Stats)
+        {
+            if(stat.StatType == chosenStat)
+            {
+                return stat.GetBonusForLevel(level);
+            }
+        }
+        Debug.LogWarning($"Stat {chosenStat} not found in database!");
+        return 0f;
+    }
+
 
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()
@@ -215,27 +280,11 @@ public class PlayerRunTimeStats : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void RequestUpgradeServerRpc(StatType chosenStat)
     {
-        PlayerStats currentStat = CurrentStats.Value;
-        LevelCheckpoint statLevel = CurrentStatsLevel.Value;
+        StatLevel statLevel = CurrentStatsLevel.Value;
 
-        int newLevel = statLevel.IncrementLevel(chosenStat);
-        float bonus = FindUpgradeStat(chosenStat, newLevel);
-        currentStat.ApplyStat(chosenStat, PlayerData.Stat, bonus);
-
-        CurrentStats.Value = currentStat;
+        statLevel.IncrementLevel(chosenStat);
         CurrentStatsLevel.Value = statLevel;
-    }
 
-    private float FindUpgradeStat(StatType chosenStat, int level)
-    {
-        foreach (StatUpgrade stat in StatUpgradeData.Stats)
-        {
-            if (stat.StatType == chosenStat)
-            {
-                return stat.GetBonusForLevel(level);
-            }
-        }
-        Debug.LogWarning($"Stat {chosenStat} not found in database!");
-        return 0f;
+        RecalculateStats();
     }
 }

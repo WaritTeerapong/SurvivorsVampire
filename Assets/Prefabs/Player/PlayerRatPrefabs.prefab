@@ -18,6 +18,8 @@ GameObject:
   - component: {fileID: 1743782935476531576}
   - component: {fileID: 6751145505360028454}
   - component: {fileID: 2191286591157497130}
+  - component: {fileID: 5798160621133252123}
+  - component: {fileID: 7068674054258289371}
   m_Layer: 7
   m_Name: PlayerRatPrefabs
   m_TagString: Player
@@ -55,7 +57,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4066562389
+  GlobalObjectIdHash: 3971789719
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -291,6 +293,42 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0
+--- !u!114 &5798160621133252123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3518339433968657662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20b7e1a7da64c9c4e89f55d9b42500e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  ShowTopMostFoldoutHeaderGroup: 1
+  WeaponDatabase: {fileID: 11400000, guid: 2643985103cf1b143a2c56810f24a7ef, type: 2}
+  PassiveDatabase: {fileID: 11400000, guid: f25c9346e509b124bb443f5d596dac17, type: 2}
+  OwnedWeapons:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+  OwnedPassives:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+--- !u!114 &7068674054258289371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3518339433968657662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64f7b58f3b87f6247bdf2375a92c109a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &4710579368523176271
 GameObject:
   m_ObjectHideFlags: 0
