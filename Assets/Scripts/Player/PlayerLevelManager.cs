@@ -66,9 +66,7 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void HandleLevelChanged(int previousValue, int newValue)
     {
-
         OnLevelUp?.Invoke();
-
     }
 
     private void HandleXPChanged(int previousValue, int newValue)
@@ -119,7 +117,7 @@ public class PlayerLevelManager : NetworkBehaviour
 
             if (currentLevel >= maxLevel)
             {
-                poolToDrawFrom.RemoveAt(i); 
+                poolToDrawFrom.RemoveAt(i);
             }
         }
 
