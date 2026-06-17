@@ -220,17 +220,17 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         int newLevel = statLevel.IncrementLevel(chosenStat);
         float bonus = FindUpgradeStat(chosenStat, newLevel);
-        currentStat.ApplyStat(chosenStat, PlayerData.Stat,bonus);
+        currentStat.ApplyStat(chosenStat, PlayerData.Stat, bonus);
 
         CurrentStats.Value = currentStat;
         CurrentStatsLevel.Value = statLevel;
     }
 
     private float FindUpgradeStat(StatType chosenStat, int level)
-    { 
-        foreach(StatUpgrade stat in StatUpgradeData.Stats)
+    {
+        foreach (StatUpgrade stat in StatUpgradeData.Stats)
         {
-            if(stat.StatType == chosenStat)
+            if (stat.StatType == chosenStat)
             {
                 return stat.GetBonusForLevel(level);
             }
