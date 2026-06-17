@@ -7,7 +7,6 @@ public class PlayerController : NetworkBehaviour
     // Component Refernce
     private Rigidbody2D _rb;
     private PlayerRunTimeStats _stats; // Data
-    private PlayerDetector _detector;
     private Animator _anim;
 
     private PlayerControls _inputs;
@@ -15,11 +14,6 @@ public class PlayerController : NetworkBehaviour
 
     private Vector2 _position;
 
-    [Header("Combat Setting")]
-    public GameObject BulletPrefab;
-    public Transform FirePoint;
-
-    private float _atkTimer = 0f;
 
     public NetworkVariable<float> FacingDirection = new NetworkVariable<float>(
         1f,
@@ -56,7 +50,6 @@ public class PlayerController : NetworkBehaviour
         _inputs = new PlayerControls();
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<PlayerRunTimeStats>();
-        _detector = GetComponentInChildren<PlayerDetector>();
         _anim = GetComponentInChildren<Animator>();
     }
 
@@ -80,11 +73,6 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner) return;
 
         _position = _moveAction.ReadValue<Vector2>();
-        _position.Normalize();
-
-        _detector.FindNearestTarget();
-
-        HandleAutoAttack();
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
@@ -101,6 +89,34 @@ public class PlayerController : NetworkBehaviour
             PlayerLevelManager.Instance.RequestGainXPRpc(100);
         }
 
+        // Add or upgrade gun
+        if (Keyboard.current.nKey.wasPressedThisFrame)
+        {
+            PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
+            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("1");
+        }
+
+        // Add or upgrade machine gun
+        if (Keyboard.current.mKey.wasPressedThisFrame)
+        {
+            PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
+            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("2");
+        }
+
+        // Add or upgrade armour
+        if (Keyboard.current.oKey.wasPressedThisFrame)
+        {
+            PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
+            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("1");
+        }
+
+        // Add or upgrade shoes
+        if (Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
+            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("2");
+        }
+
     }
 
     void FixedUpdate()
@@ -111,29 +127,7 @@ public class PlayerController : NetworkBehaviour
         Flip();
     }
 
-    void HandleAutoAttack()
-    {
-        if (_detector.NearestTarget == null) return;
-
-        float atkSpeed = _stats.CurrentStats.Value.ATKSpeed;
-
-        if (atkSpeed <= 0) return;
-
-        float atkCD = 1f / atkSpeed;
-
-        _atkTimer += Time.deltaTime;
-
-        if (_atkTimer >= atkCD)
-        {
-            _atkTimer = 0f;
-
-            NetworkObject targetNetObj = _detector.NearestTarget.GetComponent<NetworkObject>();
-            if (targetNetObj != null)
-            {
-                RequestFireServerRpc(targetNetObj.NetworkObjectId);
-            }
-        }
-    }
+    
 
     private void Move()
     {
@@ -156,37 +150,6 @@ public class PlayerController : NetworkBehaviour
         if (DamagePopupManager.Instance != null)
         {
             DamagePopupManager.Instance.ShowPopup(transform.position, damage, true);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void RequestFireServerRpc(ulong targetNetworkId)
-    {
-        FireClientRpc(targetNetworkId);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void FireClientRpc(ulong targetNetworkId)
-    {
-        if (BulletPrefab == null || ObjectPoolManager.Instance == null) return;
-
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
-        {
-            Vector3 spawnPos = FirePoint != null ? FirePoint.position : transform.position;
-
-            // Ask the manager for a bullet
-            GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
-
-            if (bulletObj != null)
-            {
-                Bullet bulletScript = bulletObj.GetComponent<Bullet>();
-                if (bulletScript != null)
-                {
-                    bulletScript.Initialize(targetObj.transform, _stats.CurrentStats.Value.ATKDamage);
-                }
-
-                AudioManager.Instance.PlaySFX("PlayerShoot", spawnPos);
-            }
         }
     }
 
