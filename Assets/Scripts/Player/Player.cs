@@ -25,6 +25,25 @@ public class Player : NetworkBehaviour
     // === Property that check player can attack or not ===
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
 
+    public NetworkVariable<float> DiedTimer = new NetworkVariable<float>(
+        10f,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+        );
+
+    public NetworkVariable<float> ReviveTimer = new NetworkVariable<float>(
+        3f,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
+    public NetworkVariable<bool> IsBeingRevived = new NetworkVariable<bool>
+    (
+        false,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
     public readonly int RUN = Animator.StringToHash("PLAYER_RUN");
@@ -90,6 +109,66 @@ public class Player : NetworkBehaviour
         if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemovePlayer(transform);
     }
 
+    public void SetPlayerInReviveRange(bool isTrue)
+    {
+        if (!IsServer) return;
+
+        IsBeingRevived.Value = isTrue;
+    }
+
+
+    public void ReviveCheck()
+    {
+        if (IsBeingRevived.Value)
+        {
+            ReviveTimer.Value -= Time.deltaTime;
+            if (ReviveTimer.Value <= 0)
+            {
+                SwitchToIdleClientRpc();
+            }
+        }
+        else
+        {
+            ReviveTimer.Value = 3f;
+
+            DiedTimer.Value -= Time.deltaTime;
+            if (DiedTimer.Value <= 0)
+            {
+                SwitchToGhostClientRpc();
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void TriggerReviveTimerRpc()
+    {
+        if (!IsServer) return;
+
+        if (!IsBeingRevived.Value) return;
+
+        ReviveTimer.Value -= Time.deltaTime;
+        if (ReviveTimer.Value <= 0)
+        {
+            SwitchToIdleClientRpc();
+            ReviveTimer.Value = 3f;
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void TriggerDiedTimerRpc()
+    {
+        if (!IsServer) return;
+
+        if (IsBeingRevived.Value) return;
+
+        DiedTimer.Value -= Time.deltaTime;
+        if (DiedTimer.Value <= 0)
+        {
+            SwitchToGhostClientRpc();
+            DiedTimer.Value = 10f;
+        }
+    }
+
     [Rpc(SendTo.Server)]
     public void TakeDamageRpc(int damage)
     {
@@ -102,13 +181,25 @@ public class Player : NetworkBehaviour
 
         if (Stats.CurrentStats.Value.CurrentHealth <= 0 && !IsDownOrDied)
         {
-            SwitchToGhostClientRpc();
+            SwitchToDownedClientRpc();
         }
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void SwitchToDownedClientRpc()
+    {
+        SwitchState(DownedState);
     }
 
     [Rpc(SendTo.Owner)]
     private void SwitchToGhostClientRpc()
     {
         SwitchState(DiedState);
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void SwitchToIdleClientRpc()
+    {
+        SwitchState(IdleState);
     }
 }
