@@ -2318,6 +2318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be68f5565285eb244b4fbfb25e618bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsUI
+  IsLevelUpActive: 0
   MainMixer: {fileID: 24100000, guid: ffdc6b5b0edb2c94cbc23737f91a4ac6, type: 2}
   PauseMenuPanel: {fileID: 1947048052}
   SettingsPanel: {fileID: 2105457135}
@@ -19209,6 +19210,10 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   PlayersInPause:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+  PlayersSelectingUpgrade:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
