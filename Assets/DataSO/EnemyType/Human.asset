@@ -48,8 +48,8 @@ MonoBehaviour:
   EnemyLayer:
     serializedVersion: 2
     m_Bits: 64
-  BoidsDetectionRadius: 2.5
-  SeparationWeight: 2
-  AlignmentWeight: 1
-  CohesionWeight: 1
+  BoidsDetectionRadius: 1.5
+  SeparationWeight: 1.5
+  AlignmentWeight: 0.2
+  CohesionWeight: 0
   TargetWeight: 2
