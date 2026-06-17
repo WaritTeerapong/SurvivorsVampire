@@ -5,7 +5,7 @@ public class RangeWeapon : BaseWeapon
     [Header("Range Weapon Settings")]
     public GameObject BulletPrefab;
 
-    public override void Fire(Transform target)
+    public override void Attack(Transform target)
     {
         if (WeaponData == null || ObjectPoolManager.Instance == null || BulletPrefab == null) return;
 

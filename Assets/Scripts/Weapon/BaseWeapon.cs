@@ -79,6 +79,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         float totalRange = _stat.AtkRange + playerAtkRange;
         bool isAttacked = false;
 
+        // Request Attack to all target(s)
         foreach (var target in _targets) { 
             float sqrDist = (target.position - transform.position).sqrMagnitude;
             
@@ -123,7 +124,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         _isCooldown = false;
     }
 
-    public virtual void Fire(Transform target)
+    public virtual void Attack(Transform target)
     {
         // Default Melee behavior: apply damage directly to the target on the server
         if (NetworkManager.Singleton.IsServer && target != null)

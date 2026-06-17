@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDetector : MonoBehaviour
+public class Detector : MonoBehaviour
 {
     private CircleCollider2D _detectorCollider;
     private PlayerRunTimeStats _playerStats;
