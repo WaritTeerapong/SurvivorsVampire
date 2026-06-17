@@ -47,7 +47,7 @@ public class PlayerCombat : NetworkBehaviour
                 {
                     if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
                     {
-                        weaponScript.Fire(targetObj.transform);
+                        weaponScript.Attack(targetObj.transform);
                     }
                 }
             }
