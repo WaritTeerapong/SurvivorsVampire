@@ -188,14 +188,14 @@ public class PlayerInventoryManager : NetworkBehaviour
                 container.transform.SetParent(transform, false);
                 weaponsContainerTransform = container.transform;
             }
-
+            
             GameObject weaponInstance = Instantiate(weaponData.WeaponPrefab, weaponsContainerTransform);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
 
-            NotifyWeaponUpgrade(weaponInstance, level);
-
             InstantiatedWeapons[id] = weaponInstance;
+
+            NotifyWeaponUpgrade(weaponInstance, level);
         }
     }
 

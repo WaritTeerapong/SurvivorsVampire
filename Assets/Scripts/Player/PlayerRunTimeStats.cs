@@ -213,6 +213,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
             ATKRange = PlayerData.Stat.ATKRange
         };
 
+
         // 2. Apply Passive Items
         PlayerInventoryManager inventory = GetComponent<PlayerInventoryManager>();
         if (inventory != null)
@@ -234,9 +235,8 @@ public class PlayerRunTimeStats : NetworkBehaviour
         }
 
         // Keep current health capped and valid
-        int prevCurrentHealth = CurrentStats.Value.CurrentHealth;
-        newStats.CurrentHealth = prevCurrentHealth > 0 ? Mathf.Min(prevCurrentHealth, newStats.MaxHealth) : newStats.MaxHealth;
-
+        newStats.CurrentHealth = CurrentStats.Value.CurrentHealth;
+        
         CurrentStats.Value = newStats;
     }
 
