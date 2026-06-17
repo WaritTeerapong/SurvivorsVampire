@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,6 +13,9 @@ public class LevelUpUI : NetworkBehaviour
     [SerializeField] private StatType[] IntStatArray;
 
     private PlayerRunTimeStats OwnerStat;
+
+    private int _pendingLevelUps = 0;
+    private bool _isChoosing = false;
 
     void Start()
     {
@@ -33,8 +37,35 @@ public class LevelUpUI : NetworkBehaviour
 
     private void UpdateUI()
     {
+        _pendingLevelUps++;
 
-        if(OwnerStat == null)
+        if (PauseMenuUI.Instance != null)
+        {
+            PauseMenuUI.Instance.ForceCloseMenu();
+            PauseMenuUI.Instance.IsLevelUpActive = true;
+        }
+
+        if (!_isChoosing)
+        {
+            StartChoosing();
+        }
+    }
+
+    private void StartChoosing()
+    {
+        _isChoosing = true;
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+        {
+            PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, true);
+        }
+
+        ShowNextCards();
+    }
+
+    private void ShowNextCards()
+    {
+        if (OwnerStat == null)
         {
             if (NetworkManager.Singleton != null &&
                 NetworkManager.Singleton.LocalClient != null &&
@@ -49,13 +80,12 @@ public class LevelUpUI : NetworkBehaviour
             return;
         }
 
-        
         CreateCards(PlayerLevelManager.Instance.RandomUpgradeStats(OwnerStat.CurrentStatsLevel.Value));
         _levelUpScreen.SetActive(true);
     }
 
 
-    private void CreateCards(Dictionary<StatType,int> statList)
+    private void CreateCards(Dictionary<StatType, int> statList)
     {
         foreach (UpgradeCard card in _upgradeCard)
         {
@@ -65,9 +95,12 @@ public class LevelUpUI : NetworkBehaviour
 
         foreach (KeyValuePair<StatType, int> kvp in statList)
         {
-            if (cardIndex >= _upgradeCard.Length) {
+            if (cardIndex >= _upgradeCard.Length)
+            {
                 Debug.LogWarning($"[LevelUpUI] Received more stats than available cards on screen! Skipping stat: {kvp.Key}");
-                break; };
+                break;
+            }
+            ;
 
             // Get Key,Value
             StatType stat = kvp.Key;
@@ -77,14 +110,14 @@ public class LevelUpUI : NetworkBehaviour
             // Get Data
             StatUpgrade info = PlayerLevelManager.Instance.StatUpgradeData.GetStatUpgradeInfo(stat);
             string statName = info.UpgradeName;
-            
+
             float currentLevelBonus = info.GetBonusForLevel(currentLevel);
             float nextLevelBonus = info.GetBonusForLevel(nextLevel);
             float increaseAmount = nextLevelBonus - currentLevelBonus;
 
             float currentStatValue = OwnerStat.CurrentStats.Value.GetCurrentStat(stat);
             float totalValue = currentStatValue + increaseAmount;
-            
+
             // Active Card Component
             UpgradeCard targetCard = _upgradeCard[cardIndex];
             targetCard.gameObject.SetActive(true);
@@ -109,19 +142,48 @@ public class LevelUpUI : NetworkBehaviour
             }
             targetCard.UpgradeButton.onClick.RemoveAllListeners();
             targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(stat); });
-            
+
             cardIndex++;
-        } 
+        }
     }
 
     private void OnUpgradeClicked(StatType chosenStat)
     {
         OwnerStat.RequestUpgradeServerRpc(chosenStat);
-        foreach (var card in _upgradeCard)
+        foreach (var card in _upgradeCard) card.UpgradeButton.onClick.RemoveAllListeners();
+
+        _pendingLevelUps--;
+
+        if (_pendingLevelUps > 0)
         {
-            card.UpgradeButton.onClick.RemoveAllListeners();
+            StartCoroutine(WaitServerSyncAndShowNextCard());
         }
-        _levelUpScreen.SetActive(false);
+        else
+        {
+            _isChoosing = false;
+            _levelUpScreen.SetActive(false);
+
+            if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
+
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+            {
+                PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
+            }
+
+            if (PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
+            {
+                PauseMenuUI.Instance.ResumeGame();
+            }
+        }
+    }
+
+    private IEnumerator WaitServerSyncAndShowNextCard()
+    {
+        foreach (var card in _upgradeCard) card.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.2f);
+
+        ShowNextCards();
     }
 
 }

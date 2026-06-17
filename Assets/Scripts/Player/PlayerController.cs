@@ -7,7 +7,7 @@ public class PlayerController : NetworkBehaviour
     // Component Refernce
     private Rigidbody2D _rb;
     private PlayerRunTimeStats _stats; // Data
-    private Detector _detector;
+    private PlayerDetector _detector;
     private Animator _anim;
 
     private PlayerControls _inputs;
@@ -56,7 +56,7 @@ public class PlayerController : NetworkBehaviour
         _inputs = new PlayerControls();
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<PlayerRunTimeStats>();
-        _detector = GetComponentInChildren<Detector>();
+        _detector = GetComponentInChildren<PlayerDetector>();
         _anim = GetComponentInChildren<Animator>();
     }
 

@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PauseManager : NetworkBehaviour
 {
@@ -7,8 +8,9 @@ public class PauseManager : NetworkBehaviour
 
     [Header("Pause State")]
     public NetworkVariable<bool> IsGamePaused = new NetworkVariable<bool>();
-
     public NetworkList<ulong> PlayersInPause = new NetworkList<ulong>();
+
+    public NetworkList<ulong> PlayersSelectingUpgrade = new NetworkList<ulong>();
 
     void Awake()
     {
@@ -21,6 +23,11 @@ public class PauseManager : NetworkBehaviour
         base.OnNetworkSpawn();
 
         IsGamePaused.OnValueChanged += OnPauseStateChanged;
+
+        if (!IsServer) return;
+
+        PlayersInPause.OnListChanged += CheckPauseState;
+        PlayersSelectingUpgrade.OnListChanged += CheckPauseState;
     }
 
     public override void OnNetworkDespawn()
@@ -28,6 +35,16 @@ public class PauseManager : NetworkBehaviour
         base.OnNetworkDespawn();
 
         IsGamePaused.OnValueChanged -= OnPauseStateChanged;
+
+        if (!IsServer) return;
+
+        PlayersInPause.OnListChanged -= CheckPauseState;
+        PlayersSelectingUpgrade.OnListChanged -= CheckPauseState;
+    }
+
+    private void CheckPauseState(NetworkListEvent<ulong> changeEvent)
+    {
+        IsGamePaused.Value = (PlayersInPause.Count > 0 || PlayersSelectingUpgrade.Count > 0);
     }
 
     private void OnPauseStateChanged(bool previousValue, bool newValue)
@@ -38,26 +55,15 @@ public class PauseManager : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void ToggleSettingServerRpc(ulong clientID, bool isPausing)
     {
-        if (isPausing)
-        {
-            if (!PlayersInPause.Contains(clientID))
-            {
-                PlayersInPause.Add(clientID);
-            }
-            IsGamePaused.Value = true;
-        }
-        else
-        {
-            if (PlayersInPause.Contains(clientID))
-            {
-                PlayersInPause.Remove(clientID);
-            }
+        if (isPausing && !PlayersInPause.Contains(clientID)) PlayersInPause.Add(clientID);
+        else if (!isPausing && PlayersInPause.Contains(clientID)) PlayersInPause.Remove(clientID);
+    }
 
-            if (PlayersInPause.Count == 0)
-            {
-                IsGamePaused.Value = false;
-            }
-        }
+    [Rpc(SendTo.Server)]
+    public void ToggleLevelUpPauseServerRpc(ulong clientID, bool isSelecting)
+    {
+        if (isSelecting && !PlayersSelectingUpgrade.Contains(clientID)) PlayersSelectingUpgrade.Add(clientID);
+        else if (!isSelecting && PlayersSelectingUpgrade.Contains(clientID)) PlayersSelectingUpgrade.Remove(clientID);
     }
 
 }

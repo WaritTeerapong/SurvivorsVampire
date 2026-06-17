@@ -45,9 +45,13 @@ public class Enemy : NetworkBehaviour
     [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
 
+    public Vector2 CurrentDirection { get; private set; }
+
     private Animator _anim;
     private Vector3 _lastPosition;
     private bool _isDead = false;
+
+    private Collider2D col;
 
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
@@ -84,6 +88,8 @@ public class Enemy : NetworkBehaviour
         _anim = GetComponentInChildren<Animator>();
 
         OnEnemyStatsChanged += ApplyTierColor;
+
+        col = GetComponent<Collider2D>();
     }
     public override void OnNetworkSpawn()
     {
@@ -95,9 +101,10 @@ public class Enemy : NetworkBehaviour
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
+            _isDead = false;
+            SetColliderTo(true);
 
             Detector?.StartDetect();
-
             SwitchState(IdleState);
         }
         else if (IsServer) // Check if Manager not Instance
@@ -124,6 +131,8 @@ public class Enemy : NetworkBehaviour
             _currentState = null;
         }
     }
+
+    public void SetColliderTo(bool isEnable) => col.enabled = isEnable;
 
     private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
@@ -268,8 +277,14 @@ public class Enemy : NetworkBehaviour
 
         if (positionDelta.x > 0.001f) FacingDirection.Value = 1f;
         else if (positionDelta.x < -0.001f) FacingDirection.Value = -1f;
-        _lastPosition = transform.position;
 
+        Vector2 moveDir = transform.position - _lastPosition;
+        if (moveDir != Vector2.zero)
+        {
+            CurrentDirection = moveDir.normalized;
+        }
+
+        _lastPosition = transform.position;
     }
 
     [Rpc(SendTo.Server)]
