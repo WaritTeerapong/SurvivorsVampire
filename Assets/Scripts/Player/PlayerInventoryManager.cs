@@ -259,7 +259,7 @@ public class PlayerInventoryManager : NetworkBehaviour
                 {
                     OwnedPassives[i] = new CurrentItemLevel(id, OwnedPassives[i].Level + 1);
                 }
-                Debug.LogWarning($"[AddOrUpgradePassive] {OwnedPassives[i].ItemId} {OwnedWeapons[i].Level}");
+                Debug.LogWarning($"[AddOrUpgradePassive] {OwnedPassives[i].ItemId} {OwnedPassives[i].Level}");
                 return;
             }
         }
