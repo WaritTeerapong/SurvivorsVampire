@@ -54,7 +54,10 @@ public class PlayerManager : NetworkBehaviour
         {
             foreach (Player p in AllPlayers)
             {
-                p.ForceGhostRpc();
+                if (p.IsSpawned)
+                {
+                    p.ForceGhostRpc();
+                }
             }
 
             OnWipeout?.Invoke();

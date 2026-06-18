@@ -51,6 +51,8 @@ public class Player : NetworkBehaviour
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
     public readonly int RUN = Animator.StringToHash("PLAYER_RUN");
+    // public readonly int DOWN = Animator.StringToHash("PLAYER_DOWN");
+    // public readonly int DIED = Animator.StringToHash("PLAYER_DIED");
 
     void Awake()
     {
@@ -77,7 +79,15 @@ public class Player : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
+        if (IsServer && PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.RemoveActiveTarget(transform);
+
+            if (PlayerManager.Instance.AllPlayers.Contains(this))
+            {
+                PlayerManager.Instance.AllPlayers.Remove(this);
+            }
+        }
     }
 
     void Update()
