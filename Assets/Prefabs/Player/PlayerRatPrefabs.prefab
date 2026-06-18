@@ -95,11 +95,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 3
-  IsBeingRevived:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
 --- !u!114 &7497425349793990518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,7 +419,7 @@ GameObject:
   - component: {fileID: 3929979093593410607}
   - component: {fileID: 8448093411385318983}
   - component: {fileID: 116740524100138771}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Player_Revive_Handler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -625,9 +620,25 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2055320408528628088, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2705859078415618943, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
       propertyPath: m_Name
       value: HealthBar_Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705859078415618943, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5047429285922215189, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5163705259463344378, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6857883008265146766, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
       propertyPath: m_Pivot.x
@@ -709,12 +720,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7041745460882719328, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7159139826767513316, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7541066924312333564, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7541066924312333564, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7872230126287843528, guid: a2fa4867f83993243b9bd981fd6546ff, type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

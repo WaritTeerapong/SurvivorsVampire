@@ -1,14 +1,16 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : NetworkBehaviour
 {
-    // === Component Reference ===
+    [Header("=== Component Reference ===")]
     public PlayerRunTimeStats Stats { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerMovement Movement { get; private set; }
     public PlayerCombat Combat { get; private set; }
     public PlayerDetector Detector { get; private set; }
+    public PlayerReviveHandler Revive { get; private set; }
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
 
@@ -22,14 +24,14 @@ public class Player : NetworkBehaviour
     public readonly IPlayerState DiedState = new PlayerDiedState();
     private IPlayerState _currentState;
 
-    // === Property that check player can attack or not ===
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
 
+    [Header("=== Revive & Die Settings ===")]
     public NetworkVariable<float> DiedTimer = new NetworkVariable<float>(
         10f,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
-        );
+    );
 
     public NetworkVariable<float> ReviveTimer = new NetworkVariable<float>(
         3f,
@@ -37,12 +39,8 @@ public class Player : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
-    public NetworkVariable<bool> IsBeingRevived = new NetworkVariable<bool>
-    (
-        false,
-        readPerm: NetworkVariableReadPermission.Everyone,
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    // Track how many active players are currently inside the revive zone
+    private int _playersInReviveZone = 0;
 
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
@@ -55,6 +53,7 @@ public class Player : NetworkBehaviour
         Movement = GetComponent<PlayerMovement>();
         Combat = GetComponent<PlayerCombat>();
         Detector = GetComponentInChildren<PlayerDetector>();
+        Revive = GetComponentInChildren<PlayerReviveHandler>();
         Anim = GetComponentInChildren<Animator>();
         SpriteRend = GetComponentInChildren<SpriteRenderer>();
     }
@@ -78,6 +77,22 @@ public class Player : NetworkBehaviour
     {
         if (!IsOwner) return;
         _currentState?.OnUpdate(this);
+
+        // === Debug Controls ===
+        if (Keyboard.current.tKey.wasPressedThisFrame)
+        {
+            TakeDamageRpc(10);
+        }
+        if (Keyboard.current.yKey.wasPressedThisFrame)
+        {
+            // Force down state by dealing massive damage
+            TakeDamageRpc(9999);
+        }
+        if (Keyboard.current.uKey.wasPressedThisFrame)
+        {
+            // Force revive to idle state
+            SwitchToIdleRpc();
+        }
     }
 
     void FixedUpdate()
@@ -88,8 +103,6 @@ public class Player : NetworkBehaviour
 
     public void SwitchState(IPlayerState newState)
     {
-        if (!IsOwner) return;
-
         _currentState?.OnExit(this);
         _currentState = newState;
         _currentState?.OnEnter(this);
@@ -103,69 +116,56 @@ public class Player : NetworkBehaviour
     public void BecomeGhostRpc()
     {
         if (Anim != null) Anim.enabled = false;
-
         if (SpriteRend != null && GhostSprite != null) SpriteRend.sprite = GhostSprite;
-
         if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemovePlayer(transform);
     }
 
-    public void SetPlayerInReviveRange(bool isTrue)
+    // Server-side revive progression check
+    public void ReviveCheck()
     {
         if (!IsServer) return;
 
-        IsBeingRevived.Value = isTrue;
-    }
-
-
-    public void ReviveCheck()
-    {
-        if (IsBeingRevived.Value)
+        if (_playersInReviveZone > 0)
         {
             ReviveTimer.Value -= Time.deltaTime;
+
+            // Log revive timer with 1 decimal place
+            Debug.Log($"[Debug] Reviving... Time left: {ReviveTimer.Value:F1}s");
+
             if (ReviveTimer.Value <= 0)
             {
-                SwitchToIdleClientRpc();
+                SwitchToIdleRpc();
+                ReviveTimer.Value = 3f;
+                _playersInReviveZone = 0; // Reset on successful revive
             }
         }
         else
         {
-            ReviveTimer.Value = 3f;
-
             DiedTimer.Value -= Time.deltaTime;
+
+            // Log die timer with 1 decimal place
+            Debug.Log($"[Debug] Dying... Time left: {DiedTimer.Value:F1}s");
+
             if (DiedTimer.Value <= 0)
             {
-                SwitchToGhostClientRpc();
+                SwitchToGhostRpc();
+                DiedTimer.Value = 10f;
             }
         }
     }
 
-    [Rpc(SendTo.Server)]
-    public void TriggerReviveTimerRpc()
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void UpdateReviverCountServerRpc(int amount)
     {
         if (!IsServer) return;
 
-        if (!IsBeingRevived.Value) return;
+        _playersInReviveZone += amount;
+        if (_playersInReviveZone < 0) _playersInReviveZone = 0;
 
-        ReviveTimer.Value -= Time.deltaTime;
-        if (ReviveTimer.Value <= 0)
+        // Immediately reset revive timer if the reviver steps out
+        if (_playersInReviveZone == 0)
         {
-            SwitchToIdleClientRpc();
             ReviveTimer.Value = 3f;
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    public void TriggerDiedTimerRpc()
-    {
-        if (!IsServer) return;
-
-        if (IsBeingRevived.Value) return;
-
-        DiedTimer.Value -= Time.deltaTime;
-        if (DiedTimer.Value <= 0)
-        {
-            SwitchToGhostClientRpc();
-            DiedTimer.Value = 10f;
         }
     }
 
@@ -181,24 +181,24 @@ public class Player : NetworkBehaviour
 
         if (Stats.CurrentStats.Value.CurrentHealth <= 0 && !IsDownOrDied)
         {
-            SwitchToDownedClientRpc();
+            SwitchToDownedRpc();
         }
     }
 
-    [Rpc(SendTo.Owner)]
-    private void SwitchToDownedClientRpc()
+    [Rpc(SendTo.Everyone)]
+    private void SwitchToDownedRpc()
     {
         SwitchState(DownedState);
     }
 
-    [Rpc(SendTo.Owner)]
-    private void SwitchToGhostClientRpc()
+    [Rpc(SendTo.Everyone)]
+    private void SwitchToGhostRpc()
     {
         SwitchState(DiedState);
     }
 
-    [Rpc(SendTo.Owner)]
-    private void SwitchToIdleClientRpc()
+    [Rpc(SendTo.Everyone)]
+    private void SwitchToIdleRpc()
     {
         SwitchState(IdleState);
     }

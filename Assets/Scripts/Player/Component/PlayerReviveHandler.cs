@@ -4,41 +4,57 @@ public class PlayerReviveHandler : MonoBehaviour
 {
     private Player _player;
     private CircleCollider2D _reviveCol;
+
+    [Header("=== Revive Settings ===")]
     public float ReviveZone = 2f;
+
+    private bool _isZoneOpen = false;
 
     void Awake()
     {
         _player = GetComponentInParent<Player>();
         _reviveCol = GetComponent<CircleCollider2D>();
+
         _reviveCol.radius = ReviveZone > 0 ? ReviveZone : 2f;
         if (!_reviveCol.isTrigger) _reviveCol.isTrigger = true;
         _reviveCol.enabled = false;
     }
 
-    void Start()
-    {
-    }
-
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player") && this.gameObject) return;
+        if (!other.CompareTag("Player")) return;
 
-        _player.SetPlayerInReviveRange(true);
+        Player reviver = other.GetComponent<Player>();
+
+        if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
+        {
+            _player.UpdateReviverCountServerRpc(1);
+        }
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (!other.CompareTag("Player") && this.gameObject) return;
+        if (!other.CompareTag("Player")) return;
 
-        _player.SetPlayerInReviveRange(false);
+        Player reviver = other.GetComponent<Player>();
+
+        if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
+        {
+            _player.UpdateReviverCountServerRpc(-1);
+        }
     }
 
     public void TriggerReviveZone()
     {
-        _reviveCol.enabled = true;
-        // Show Died Timer UI
-        // Show Noti Downed UI 
-        // Show Revive Circle
-        // Noti to other Player 
+        _isZoneOpen = !_isZoneOpen;
+        _reviveCol.enabled = _isZoneOpen;
+    }
+
+    // === Debug Gizmos ===
+    private void OnDrawGizmos()
+    {
+        // Draw green circle when open, red when closed
+        Gizmos.color = _isZoneOpen ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(transform.position, ReviveZone > 0 ? ReviveZone : 2f);
     }
 }
