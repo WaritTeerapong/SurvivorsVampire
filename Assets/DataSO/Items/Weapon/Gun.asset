@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0361e24e2376edf439476162100aa799, type: 3}
   m_Name: Gun
   m_EditorClassIdentifier: Assembly-CSharp::WeaponItemData_SO
-  Id: 1
+  Id: w1
   ItemName: Gun
   Icon: {fileID: 0}
   BonusPerLevel:
-  - AtkDamage: 5
-    AtkRange: 1
-    AtkSpeed: 0
-  - AtkDamage: 10
-    AtkRange: 1
-    AtkSpeed: 0
-  - AtkDamage: 15
-    AtkRange: 1
-    AtkSpeed: 0
+  - ATKDamage: 5
+    ATKRange: 1
+    ATKSpeed: 0
+  - ATKDamage: 10
+    ATKRange: 1
+    ATKSpeed: 0
+  - ATKDamage: 15
+    ATKRange: 1
+    ATKSpeed: 0
   WeaponPrefab: {fileID: 8609959353125987989, guid: f2ffd168eab58fd468a5bad8e364f7bc, type: 3}
