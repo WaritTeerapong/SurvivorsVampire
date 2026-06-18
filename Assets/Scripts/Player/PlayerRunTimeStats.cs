@@ -103,6 +103,8 @@ public class PlayerRunTimeStats : NetworkBehaviour
     public StatUpgradeDatabase_SO StatUpgradeData;
     public event Action<PlayerStats> OnStatChanged;
 
+    private PlayerInventoryManager _inventory;
+
     public NetworkVariable<PlayerStats> CurrentStats = new NetworkVariable<PlayerStats>
     (
         new PlayerStats(),
@@ -127,6 +129,8 @@ public class PlayerRunTimeStats : NetworkBehaviour
             InitStatsLevel();
             InitStats();
         }
+
+        _inventory = GetComponent<PlayerInventoryManager>();
     }
 
     public override void OnNetworkDespawn()
@@ -215,16 +219,17 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
 
         // 2. Apply Passive Items
-        PlayerInventoryManager inventory = GetComponent<PlayerInventoryManager>();
-        if (inventory != null)
+        
+        if (_inventory != null && _inventory.PassiveDatabase != null)
         {
-            foreach (var kvp in inventory.PassiveItemInventory)
+            // Get Bonus Stat from each Passive Items equiped
+            foreach (var entry in _inventory.OwnedPassives)
             {
-                PassiveItemData_SO passiveData = kvp.Value;
-                int itemLevel = inventory.GetPassiveItemLevel(passiveData.Id);
-                if (itemLevel > 0)
+                string id = entry.ItemId.ToString();
+                PassiveItemData_SO passiveData = _inventory.PassiveDatabase.GetItemByID(id);
+                if (passiveData != null && entry.Level > 0)
                 {
-                    BaseStat itemBonus = passiveData.GetBonusForLevel(itemLevel);
+                    BaseStat itemBonus = passiveData.GetBonusForLevel(entry.Level);
                     newStats.MaxHealth += itemBonus.MaxHealth;
                     newStats.MoveSpeed += itemBonus.MoveSpeed;
                     newStats.ATKDamage += itemBonus.ATKDamage;

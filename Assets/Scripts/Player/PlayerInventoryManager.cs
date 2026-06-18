@@ -3,13 +3,13 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
-public struct CurrentItemEntry : INetworkSerializable, System.IEquatable<CurrentItemEntry>
+public struct CurrentItemLevel : INetworkSerializable, System.IEquatable<CurrentItemLevel>
 {
     // FixedString32Bytes need for NetworkList<T> Generic Constrain : unmanage type
     public Unity.Collections.FixedString32Bytes ItemId; 
     public int Level;
 
-    public CurrentItemEntry(string id, int level)
+    public CurrentItemLevel(string id, int level)
     {
         ItemId = id;
         Level = level;
@@ -21,8 +21,8 @@ public struct CurrentItemEntry : INetworkSerializable, System.IEquatable<Current
         serializer.SerializeValue(ref Level);
     }
 
-    // System.IEquatable<CurrentItemEntry> need for NetworkList<T> Generic Constrain : Trigger OnListChanged Event
-    public bool Equals(CurrentItemEntry other)
+    // System.IEquatable<CurrentItemLevel> need for NetworkList<T> Generic Constrain : Trigger OnListChanged Event
+    public bool Equals(CurrentItemLevel other)
     {
         return ItemId.Equals(other.ItemId) && Level == other.Level;
     }
@@ -38,33 +38,25 @@ public class PlayerInventoryManager : NetworkBehaviour
 
     // Networked representation of inventory
     // For each clients see thier weapon correctly
-    public NetworkList<CurrentItemEntry> OwnedWeapons;
-    public NetworkList<CurrentItemEntry> OwnedPassives;
-
-    // Manage Client Item Equip ScriptableObject for easy O(1) lookups
-    public Dictionary<string, WeaponItemData_SO> WeaponItemInventory;
-    public Dictionary<string, PassiveItemData_SO> PassiveItemInventory;
+    public NetworkList<CurrentItemLevel> OwnedWeapons;
+    public NetworkList<CurrentItemLevel> OwnedPassives;
 
     // Local dictionary to keep track of instantiated weapon prefabs on each client
     public Dictionary<string, GameObject> InstantiatedWeapons { get; private set; }
          
     private void Awake()
     {
-        OwnedWeapons = new NetworkList<CurrentItemEntry>
+        OwnedWeapons = new NetworkList<CurrentItemLevel>
         (
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server
         );
 
-        OwnedPassives = new NetworkList<CurrentItemEntry>
+        OwnedPassives = new NetworkList<CurrentItemLevel>
         (
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server
         );
-
-
-        WeaponItemInventory = new Dictionary<string, WeaponItemData_SO>();
-        PassiveItemInventory = new Dictionary<string, PassiveItemData_SO>();
 
         InstantiatedWeapons = new Dictionary<string, GameObject>();
 
@@ -77,10 +69,6 @@ public class PlayerInventoryManager : NetworkBehaviour
         OwnedWeapons.OnListChanged += OnWeaponsListChanged;
         OwnedPassives.OnListChanged += OnPassivesListChanged;
 
-        // Perform initial synchronization
-        // Sync the local and network inventory
-        SyncNetworkWeaponInventory();
-        SyncNetworkPassivesInventory();
         RecreateAllWeaponVisuals();
     }
 
@@ -92,30 +80,28 @@ public class PlayerInventoryManager : NetworkBehaviour
         ClearAllWeaponVisuals();
     }
 
-    private void OnWeaponsListChanged(NetworkListEvent<CurrentItemEntry> changeEvent)
+    private void OnWeaponsListChanged(NetworkListEvent<CurrentItemLevel> changeEvent)
     {
-        SyncNetworkWeaponInventory();
 
         switch (changeEvent.Type)
         {
-            case NetworkListEvent<CurrentItemEntry>.EventType.Add:
+            case NetworkListEvent<CurrentItemLevel>.EventType.Add:
                 InstantiateWeaponVisual(changeEvent.Value.ItemId.ToString(), changeEvent.Value.Level);
                 break;
-            case NetworkListEvent<CurrentItemEntry>.EventType.Value:
+            case NetworkListEvent<CurrentItemLevel>.EventType.Value:
                 UpdateWeaponVisual(changeEvent.Value.ItemId.ToString(), changeEvent.Value.Level);
                 break;
-            case NetworkListEvent<CurrentItemEntry>.EventType.Remove:
+            case NetworkListEvent<CurrentItemLevel>.EventType.Remove:
                 DestroyWeaponVisual(changeEvent.Value.ItemId.ToString());
                 break;
-            case NetworkListEvent<CurrentItemEntry>.EventType.Clear:
+            case NetworkListEvent<CurrentItemLevel>.EventType.Clear:
                 ClearAllWeaponVisuals();
                 break;
         }
     }
 
-    private void OnPassivesListChanged(NetworkListEvent<CurrentItemEntry> changeEvent)
+    private void OnPassivesListChanged(NetworkListEvent<CurrentItemLevel> changeEvent)
     {
-        SyncNetworkPassivesInventory();
 
         if (IsServer)
         {
@@ -123,42 +109,6 @@ public class PlayerInventoryManager : NetworkBehaviour
             if (stats != null)
             {
                 stats.RecalculateStats();
-            }
-        }
-    }
-
-    // Sync OwnedList in Network with local Inventory
-    private void SyncNetworkWeaponInventory()
-    {
-        WeaponItemInventory.Clear();
-        if (WeaponDatabase != null)
-        {
-            foreach (var entry in OwnedWeapons)
-            {
-                string id = entry.ItemId.ToString();
-                WeaponItemData_SO weaponData = WeaponDatabase.GetItemByID(id);
-                if (weaponData != null)
-                {
-                    WeaponItemInventory[id] = weaponData;
-                }
-            }
-        }
-    }
-
-    // Sync OwnedList in Network with local Inventory
-    private void SyncNetworkPassivesInventory()
-    {
-        PassiveItemInventory.Clear();
-        if (PassiveDatabase != null)
-        {
-            foreach (var entry in OwnedPassives)
-            {
-                string id = entry.ItemId.ToString();
-                PassiveItemData_SO passiveData = PassiveDatabase.GetItemByID(id);
-                if (passiveData != null)
-                {
-                    PassiveItemInventory[id] = passiveData;
-                }
             }
         }
     }
@@ -285,13 +235,14 @@ public class PlayerInventoryManager : NetworkBehaviour
                 int maxLevel = weaponData != null ? weaponData.MaxLevel : 99;
                 if (OwnedWeapons[i].Level < maxLevel)
                 {
-                    OwnedWeapons[i] = new CurrentItemEntry(id, OwnedWeapons[i].Level + 1);
+                    OwnedWeapons[i] = new CurrentItemLevel(id, OwnedWeapons[i].Level + 1);
                 }
+                Debug.LogWarning($"[AddOrUpgradeWeapon] {OwnedWeapons[i].ItemId} {OwnedWeapons[i].Level}");
                 return;
             }
         }
 
-        OwnedWeapons.Add(new CurrentItemEntry(id, 1));
+        OwnedWeapons.Add(new CurrentItemLevel(id, 1));
     }
 
     public void AddOrUpgradePassive(string id)
@@ -306,13 +257,14 @@ public class PlayerInventoryManager : NetworkBehaviour
                 int maxLevel = passiveData != null ? passiveData.MaxLevel : 99;
                 if (OwnedPassives[i].Level < maxLevel)
                 {
-                    OwnedPassives[i] = new CurrentItemEntry(id, OwnedPassives[i].Level + 1);
+                    OwnedPassives[i] = new CurrentItemLevel(id, OwnedPassives[i].Level + 1);
                 }
+                Debug.LogWarning($"[AddOrUpgradePassive] {OwnedPassives[i].ItemId} {OwnedWeapons[i].Level}");
                 return;
             }
         }
 
-        OwnedPassives.Add(new CurrentItemEntry(id, 1));
+        OwnedPassives.Add(new CurrentItemLevel(id, 1));
     }
 
     public void RemoveWeapon(string id)

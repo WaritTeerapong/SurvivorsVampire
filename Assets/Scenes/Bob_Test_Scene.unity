@@ -2105,7 +2105,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLevelManager
   ShowTopMostFoldoutHeaderGroup: 1
   LevelData: {fileID: 11400000, guid: ec665eeeb7ef6374f8539b0d90c45773, type: 2}
-  StatUpgradeData: {fileID: 11400000, guid: 8b5bc69e86eb6d048a87056198938226, type: 2}
+  WeaponDatabase: {fileID: 11400000, guid: 2643985103cf1b143a2c56810f24a7ef, type: 2}
+  PassiveItemDatabase: {fileID: 11400000, guid: f25c9346e509b124bb443f5d596dac17, type: 2}
   SharedLevel:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -2121,7 +2122,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  _availableUpgradeStat: 
 --- !u!114 &549504186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2318,6 +2318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be68f5565285eb244b4fbfb25e618bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsUI
+  IsLevelUpActive: 0
   MainMixer: {fileID: 24100000, guid: ffdc6b5b0edb2c94cbc23737f91a4ac6, type: 2}
   PauseMenuPanel: {fileID: 1947048052}
   SettingsPanel: {fileID: 2105457135}
@@ -19209,6 +19210,10 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   PlayersInPause:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+  PlayersSelectingUpgrade:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0

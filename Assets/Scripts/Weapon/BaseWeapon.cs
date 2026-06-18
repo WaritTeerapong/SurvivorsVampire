@@ -11,7 +11,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
     protected WeaponStat _stat;
 
-    public float AtkRange => _stat.AtkRange;
+    public float AtkRange => _stat.ATKRange;
 
     protected PlayerInventoryManager _inventory;
     protected PlayerRunTimeStats _playerStats;
@@ -20,8 +20,6 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     protected bool _isCooldown = false;
     protected List<Transform> _targets;
     protected int _targetNumber = 1;
-
-
 
     protected void Awake()
     {
@@ -67,7 +65,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             return; // No target detected, silent return is expected
         }
         float playerAtkSpeed = _playerStats != null ? _playerStats.CurrentStats.Value.ATKSpeed : 0f;
-        float totalAtkSpeed = _stat.AtkSpeed + playerAtkSpeed;
+        float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
         if (totalAtkSpeed == 0)
         {
             Debug.LogWarning($"[BaseWeapon] PerformAttack: Total AtkSpeed is 0 on {gameObject.name}");
@@ -76,7 +74,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
         // Perform range check locally in the weapon against the nearest target
         float playerAtkRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;
-        float totalRange = _stat.AtkRange + playerAtkRange;
+        float totalRange = _stat.ATKRange + playerAtkRange;
         bool isAttacked = false;
 
         // Request Attack to all target(s)
@@ -113,12 +111,11 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
 
     #region Helper Function
-    // --- Helper Dunction ---
     public virtual IEnumerator Cooldown()
     {
         _isCooldown = true;
         float playerAtkSpeed = _playerStats != null ? _playerStats.CurrentStats.Value.ATKSpeed : 0f;
-        float totalAtkSpeed = _stat.AtkSpeed + playerAtkSpeed;
+        float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
         float cooldown = totalAtkSpeed > 0 ? 1f / totalAtkSpeed : 1f;
         yield return new WaitForSeconds(cooldown);
         _isCooldown = false;
@@ -145,7 +142,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         {
             playerAtk = _playerStats.CurrentStats.Value.ATKDamage;
         }
-        return Mathf.RoundToInt(_stat.AtkDamage + playerAtk);
+        return Mathf.RoundToInt(_stat.ATKDamage + playerAtk);
     }
     #endregion
 

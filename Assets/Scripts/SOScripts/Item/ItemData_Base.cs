@@ -1,18 +1,30 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-
-public abstract class ItemData_Base<T> : ScriptableObject
+public abstract class ItemData_Base : ScriptableObject, IItem
 {
     [Header("Base Info")]
     public string Id;
     public string ItemName;
     public Sprite Icon;
+
+    public abstract int MaxLevel { get; }
+
+    // Implement IItem interface properties
+    string IItem.Id => Id;
+    string IItem.ItemName => ItemName;
+    Sprite IItem.Icon => Icon;
+    int IItem.MaxLevel => MaxLevel;
+}
+
+[System.Serializable]
+public abstract class ItemData_Base<T> : ItemData_Base
+{
     public List<T> BonusPerLevel;
 
-    [Header("Upgrade Info")]
-    public int MaxLevel => BonusPerLevel != null ? BonusPerLevel.Count : 0;
+    public override int MaxLevel => BonusPerLevel != null ? BonusPerLevel.Count : 0;
+
     public T GetBonusForLevel(int level)
     {
         // Handle empty data in BonusPerLevel
@@ -31,6 +43,5 @@ public abstract class ItemData_Base<T> : ScriptableObject
 
         // Handle Normal case
         return BonusPerLevel[level - 1];
-
     }
 }

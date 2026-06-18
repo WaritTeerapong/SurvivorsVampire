@@ -93,28 +93,28 @@ public class PlayerController : NetworkBehaviour
         if (Keyboard.current.nKey.wasPressedThisFrame)
         {
             PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
-            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("1");
+            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("w1");
         }
 
         // Add or upgrade machine gun
         if (Keyboard.current.mKey.wasPressedThisFrame)
         {
             PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
-            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("2");
+            if (_inventory != null) _inventory.AddOrUpgradeWeaponServerRpc("w2");
         }
 
         // Add or upgrade armour
         if (Keyboard.current.oKey.wasPressedThisFrame)
         {
             PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
-            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("1");
+            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("p1");
         }
 
         // Add or upgrade shoes
         if (Keyboard.current.pKey.wasPressedThisFrame)
         {
             PlayerInventoryManager _inventory = GetComponent<PlayerInventoryManager>();
-            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("2");
+            if (_inventory != null) _inventory.AddOrUpgradePassiveServerRpc("p2");
         }
 
     }

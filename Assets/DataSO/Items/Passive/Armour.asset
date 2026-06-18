@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 356cc81b0cf9ad742bbcc1bead0c80b0, type: 3}
   m_Name: Armour
   m_EditorClassIdentifier: Assembly-CSharp::PassiveItemData_SO
-  Id: 1
+  Id: p1
   ItemName: Armour
   Icon: {fileID: 0}
   BonusPerLevel:

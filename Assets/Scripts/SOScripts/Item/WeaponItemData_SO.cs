@@ -4,9 +4,9 @@ using UnityEngine;
 [System.Serializable]
 public struct WeaponStat
 {
-    public float AtkDamage; 
-    public float AtkRange;
-    public float AtkSpeed;
+    public float ATKDamage; 
+    public float ATKRange;
+    public float ATKSpeed;
 }
 
 [CreateAssetMenu(fileName = "WeaponItemData_So", menuName = "DataSO/Item/WeaponItemData_SO")]
