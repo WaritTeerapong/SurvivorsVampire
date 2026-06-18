@@ -20,7 +20,7 @@ public class PlayerCombat : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        if (_player.IsDownOrDied) return;
+        if (_player.IsDowned) return;
 
         HandleAutoAttack();
     }

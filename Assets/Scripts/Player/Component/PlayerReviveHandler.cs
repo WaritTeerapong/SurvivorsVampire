@@ -26,7 +26,7 @@ public class PlayerReviveHandler : MonoBehaviour
 
         Player reviver = other.GetComponentInParent<Player>();
 
-        if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
+        if (reviver != null && reviver.IsOwner && !reviver.IsDowned)
         {
             _player.UpdateReviverCountServerRpc(1);
         }
@@ -38,7 +38,7 @@ public class PlayerReviveHandler : MonoBehaviour
 
         Player reviver = other.GetComponentInParent<Player>();
 
-        if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
+        if (reviver != null && reviver.IsOwner && !reviver.IsDowned)
         {
             _player.UpdateReviverCountServerRpc(-1);
         }

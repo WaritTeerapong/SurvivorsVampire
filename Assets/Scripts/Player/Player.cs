@@ -24,6 +24,7 @@ public class Player : NetworkBehaviour
     public readonly IPlayerState DiedState = new PlayerDiedState();
     private IPlayerState _currentState;
 
+    public bool IsDowned => _currentState == DownedState;
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
 
     [Header("=== Revive & Die Settings ===")]
@@ -118,6 +119,8 @@ public class Player : NetworkBehaviour
         if (Anim != null) Anim.enabled = false;
         if (SpriteRend != null && GhostSprite != null) SpriteRend.sprite = GhostSprite;
         if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
+
+        if (Revive != null) Revive.gameObject.SetActive(false);
     }
 
     public void ResetDownedState()
@@ -197,7 +200,7 @@ public class Player : NetworkBehaviour
             DamagePopupManager.Instance.ShowPopup(transform.position, damage, true);
         }
 
-        if (Stats.CurrentStats.Value.CurrentHealth <= 0 && !IsDownOrDied)
+        if (Stats.CurrentStats.Value.CurrentHealth <= 0 && !IsDowned)
         {
             SwitchToDownedRpc();
         }
