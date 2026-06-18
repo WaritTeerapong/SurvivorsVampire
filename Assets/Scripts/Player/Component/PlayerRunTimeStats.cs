@@ -189,6 +189,16 @@ public class PlayerRunTimeStats : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
+    public void ResetHealthToMax()
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        stats.CurrentHealth = stats.MaxHealth;
+
+        CurrentStats.Value = stats;
+    }
+
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()
     {

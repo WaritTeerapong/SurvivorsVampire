@@ -10,7 +10,6 @@ public class PlayerDownedState : IPlayerState
             player.Movement.Stop();
         }
 
-        // Only the Server dictates when the revive zone opens to keep it synced
         if (player.Revive != null)
         {
             player.Revive.TriggerReviveZone();

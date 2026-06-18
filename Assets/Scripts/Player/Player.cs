@@ -41,6 +41,7 @@ public class Player : NetworkBehaviour
 
     // Track how many active players are currently inside the revive zone
     private int _playersInReviveZone = 0;
+    public bool IsBeingRevived => _playersInReviveZone > 0;
 
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
@@ -134,6 +135,7 @@ public class Player : NetworkBehaviour
 
             if (ReviveTimer.Value <= 0)
             {
+                Stats.ResetHealthToMax();
                 SwitchToIdleRpc();
                 ReviveTimer.Value = 3f;
                 _playersInReviveZone = 0; // Reset on successful revive

@@ -12,6 +12,7 @@ public class PlayerHealthBarUI : MonoBehaviour
     public float SmoothSpeed = 5f;
 
     private Vector3 _originalScale;
+    private float _targetHealth;
 
     void Start()
     {
@@ -35,7 +36,7 @@ public class PlayerHealthBarUI : MonoBehaviour
         }
     }
 
-    private void OnHealthChanged(PlayerStats previoysValue, PlayerStats newValue)
+    private void OnHealthChanged(PlayerStats previousValue, PlayerStats newValue)
     {
         UpdateHealthBar(newValue.MaxHealth, newValue.CurrentHealth, false);
     }
@@ -45,29 +46,48 @@ public class PlayerHealthBarUI : MonoBehaviour
         FrontHealthSlider.maxValue = maxHealth;
         BackSmoothSlider.maxValue = maxHealth;
 
-        FrontHealthSlider.value = currentHealth;
+        _targetHealth = currentHealth;
 
         if (isInit)
         {
+            FrontHealthSlider.value = currentHealth;
             BackSmoothSlider.value = currentHealth;
+        }
+        else if (_targetHealth > FrontHealthSlider.value) // Healing / Reviving
+        {
+            BackSmoothSlider.value = _targetHealth; // Back slider jumps instantly
+        }
+        else if (_targetHealth < FrontHealthSlider.value) // Taking Damage
+        {
+            FrontHealthSlider.value = _targetHealth; // Front slider drops instantly
         }
     }
 
     private void LateUpdate()
     {
-        if (BackSmoothSlider.value > FrontHealthSlider.value)
+        // Healing Lerp (Front catches up to Back)
+        if (_targetHealth > FrontHealthSlider.value)
+        {
+            FrontHealthSlider.value = Mathf.Lerp(FrontHealthSlider.value, BackSmoothSlider.value, Time.deltaTime * SmoothSpeed);
+            if (Mathf.Abs(BackSmoothSlider.value - FrontHealthSlider.value) < 0.1f)
+            {
+                FrontHealthSlider.value = BackSmoothSlider.value;
+            }
+        }
+        // Damaged Lerp (Back catches up to Front)
+        else if (_targetHealth < BackSmoothSlider.value)
         {
             BackSmoothSlider.value = Mathf.Lerp(BackSmoothSlider.value, FrontHealthSlider.value, Time.deltaTime * SmoothSpeed);
-        }
-        else
-        {
-            BackSmoothSlider.value = FrontHealthSlider.value;
+            if (Mathf.Abs(BackSmoothSlider.value - FrontHealthSlider.value) < 0.1f)
+            {
+                BackSmoothSlider.value = FrontHealthSlider.value;
+            }
         }
 
+        // Handle character flipping
         if (CharacterTransform != null)
         {
             float parentSign = Mathf.Sign(CharacterTransform.localScale.x);
-
             transform.localScale = new Vector3(_originalScale.x * parentSign, _originalScale.y, _originalScale.z);
         }
     }
