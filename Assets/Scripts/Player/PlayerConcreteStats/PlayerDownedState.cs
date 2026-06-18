@@ -4,20 +4,14 @@ public class PlayerDownedState : IPlayerState
 {
     public void OnEnter(Player player)
     {
-        if (player.IsOwner && player.Movement != null)
-        {
-            player.Movement.Stop();
-        }
-
-        if (player.Revive != null)
-        {
-            player.Revive.TriggerReviveZone();
-        }
-
+        if (player.IsOwner && player.Movement != null) player.Movement.Stop();
+        if (player.Revive != null) player.Revive.TriggerReviveZone();
         player.ResetDownedState();
 
-        // Play Downed Animation
-        // Play Downed SFX
+        if (player.IsServer && PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.RemoveActiveTarget(player.transform);
+        }
     }
 
     public void OnExit(Player player)

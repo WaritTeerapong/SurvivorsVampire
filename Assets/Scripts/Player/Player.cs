@@ -66,7 +66,8 @@ public class Player : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(transform);
+        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
+
         if (!IsOwner) return;
         Camera.main.GetComponent<CameraController>().Target = transform;
         SwitchState(IdleState);
@@ -75,7 +76,7 @@ public class Player : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemovePlayer(transform);
+        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
     }
 
     void Update()
@@ -116,7 +117,7 @@ public class Player : NetworkBehaviour
     {
         if (Anim != null) Anim.enabled = false;
         if (SpriteRend != null && GhostSprite != null) SpriteRend.sprite = GhostSprite;
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemovePlayer(transform);
+        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
     }
 
     public void ResetDownedState()
@@ -157,6 +158,16 @@ public class Player : NetworkBehaviour
                 SwitchToGhostRpc();
                 DiedTimer.Value = 10f;
             }
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    public void ForceGhostRpc()
+    {
+        // ถ้ากำลังนอนรอคนมาชุบอยู่ (Downed) ให้เปลี่ยนเป็นตายจริง (Died/ผี) ทันที
+        if (_currentState == DownedState)
+        {
+            SwitchState(DiedState);
         }
     }
 

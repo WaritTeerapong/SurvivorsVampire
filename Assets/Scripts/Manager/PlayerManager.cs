@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -6,7 +7,10 @@ public class PlayerManager : NetworkBehaviour
 {
     public static PlayerManager Instance { get; private set; }
 
-    public List<Transform> ActivePlayer = new List<Transform>();
+    public List<Player> AllPlayers = new List<Player>();
+    public List<Transform> ActiveTargets = new List<Transform>();
+
+    public event Action OnWipeout;
 
     void Awake()
     {
@@ -14,19 +18,46 @@ public class PlayerManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
-    public void AddPlayer(Transform player)
+    public void AddPlayer(Player player)
     {
-        if (!ActivePlayer.Contains(player))
-        {
-            ActivePlayer.Add(player);
-        }
+        if (!AllPlayers.Contains(player)) AllPlayers.Add(player);
+        if (!ActiveTargets.Contains(player.transform)) ActiveTargets.Add(player.transform);
     }
 
-    public void RemovePlayer(Transform player)
+    public void RemoveActiveTarget(Transform playerTransform)
     {
-        if (ActivePlayer.Contains(player))
+        if (ActiveTargets.Contains(playerTransform))
         {
-            ActivePlayer.Remove(player);
+            ActiveTargets.Remove(playerTransform);
+        }
+
+        // เช็ก Game Over ทันทีที่มีคนล้ม
+        CheckWipeout();
+    }
+
+    private void CheckWipeout()
+    {
+        if (!IsServer) return;
+        if (AllPlayers.Count == 0) return;
+
+        bool allDeadOrDown = true;
+        foreach (Player p in AllPlayers)
+        {
+            if (!p.IsDownOrDied)
+            {
+                allDeadOrDown = false;
+                break;
+            }
+        }
+
+        if (allDeadOrDown)
+        {
+            foreach (Player p in AllPlayers)
+            {
+                p.ForceGhostRpc();
+            }
+
+            OnWipeout?.Invoke();
         }
     }
 }

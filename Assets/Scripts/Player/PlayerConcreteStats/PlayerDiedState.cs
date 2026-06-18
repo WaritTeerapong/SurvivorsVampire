@@ -3,8 +3,12 @@ public class PlayerDiedState : IPlayerState
 {
     public void OnEnter(Player player)
     {
-        // แปลงร่างเป็นผี (เปลี่ยนรูป, ปิดยิง, ให้ศัตรูเลิกตาม)
         player.BecomeGhostRpc();
+
+        if (player.IsServer && PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.RemoveActiveTarget(player.transform);
+        }
     }
 
     public void OnUpdate(Player player) { }
