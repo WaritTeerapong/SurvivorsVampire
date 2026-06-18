@@ -53,13 +53,11 @@ public class PlayerReviveUI : MonoBehaviour
             return;
         }
 
-        // Handle UI toggling based on revive status
-        if (PlayerTarget.IsBeingRevived)
+        if (PlayerTarget.IsBeingRevived.Value)
         {
             if (DieUIPanel.activeSelf) DieUIPanel.SetActive(false);
             if (!ReviveUIPanel.activeSelf) ReviveUIPanel.SetActive(true);
 
-            // Invert the value so the revive bar fills up (0 to 3)
             if (ReviveSlider != null) ReviveSlider.value = _maxReviveTime - PlayerTarget.ReviveTimer.Value;
             if (ReviveText != null) ReviveText.text = $"{PlayerTarget.ReviveTimer.Value:F1}s";
         }
@@ -68,7 +66,6 @@ public class PlayerReviveUI : MonoBehaviour
             if (!DieUIPanel.activeSelf) DieUIPanel.SetActive(true);
             if (ReviveUIPanel.activeSelf) ReviveUIPanel.SetActive(false);
 
-            // Deplete the die bar (10 to 0)
             if (DieSlider != null) DieSlider.value = PlayerTarget.DiedTimer.Value;
             if (DieText != null) DieText.text = $"{PlayerTarget.DiedTimer.Value:F1}s";
         }

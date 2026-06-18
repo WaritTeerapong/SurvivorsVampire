@@ -39,9 +39,13 @@ public class Player : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
-    // Track how many active players are currently inside the revive zone
+    public NetworkVariable<bool> IsBeingRevived = new NetworkVariable<bool>(
+        false,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
     private int _playersInReviveZone = 0;
-    public bool IsBeingRevived => _playersInReviveZone > 0;
 
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
@@ -76,24 +80,18 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
+        if (IsServer && _currentState == DownedState)
+        {
+            ReviveCheck();
+        }
+
         if (!IsOwner) return;
         _currentState?.OnUpdate(this);
 
         // === Debug Controls ===
-        if (Keyboard.current.tKey.wasPressedThisFrame)
-        {
-            TakeDamageRpc(10);
-        }
-        if (Keyboard.current.yKey.wasPressedThisFrame)
-        {
-            // Force down state by dealing massive damage
-            TakeDamageRpc(9999);
-        }
-        if (Keyboard.current.uKey.wasPressedThisFrame)
-        {
-            // Force revive to idle state
-            SwitchToIdleRpc();
-        }
+        if (Keyboard.current.tKey.wasPressedThisFrame) TakeDamageRpc(10);
+        if (Keyboard.current.yKey.wasPressedThisFrame) TakeDamageRpc(9999);
+        if (Keyboard.current.uKey.wasPressedThisFrame) SwitchToIdleRpc();
     }
 
     void FixedUpdate()
@@ -121,6 +119,15 @@ public class Player : NetworkBehaviour
         if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemovePlayer(transform);
     }
 
+    public void ResetDownedState()
+    {
+        if (!IsServer) return;
+        DiedTimer.Value = 10f;
+        ReviveTimer.Value = 3f;
+        IsBeingRevived.Value = false;
+        _playersInReviveZone = 0;
+    }
+
     // Server-side revive progression check
     public void ReviveCheck()
     {
@@ -129,23 +136,20 @@ public class Player : NetworkBehaviour
         if (_playersInReviveZone > 0)
         {
             ReviveTimer.Value -= Time.deltaTime;
-
-            // Log revive timer with 1 decimal place
             Debug.Log($"[Debug] Reviving... Time left: {ReviveTimer.Value:F1}s");
 
             if (ReviveTimer.Value <= 0)
             {
                 Stats.ResetHealthToMax();
-                SwitchToIdleRpc();
                 ReviveTimer.Value = 3f;
-                _playersInReviveZone = 0; // Reset on successful revive
+                _playersInReviveZone = 0;
+                IsBeingRevived.Value = false;
+                SwitchToIdleRpc();
             }
         }
         else
         {
             DiedTimer.Value -= Time.deltaTime;
-
-            // Log die timer with 1 decimal place
             Debug.Log($"[Debug] Dying... Time left: {DiedTimer.Value:F1}s");
 
             if (DiedTimer.Value <= 0)
@@ -164,7 +168,8 @@ public class Player : NetworkBehaviour
         _playersInReviveZone += amount;
         if (_playersInReviveZone < 0) _playersInReviveZone = 0;
 
-        // Immediately reset revive timer if the reviver steps out
+        IsBeingRevived.Value = _playersInReviveZone > 0;
+
         if (_playersInReviveZone == 0)
         {
             ReviveTimer.Value = 3f;
@@ -200,7 +205,7 @@ public class Player : NetworkBehaviour
     }
 
     [Rpc(SendTo.Everyone)]
-    private void SwitchToIdleRpc()
+    public void SwitchToIdleRpc()
     {
         SwitchState(IdleState);
     }

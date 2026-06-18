@@ -24,7 +24,7 @@ public class PlayerReviveHandler : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        Player reviver = other.GetComponent<Player>();
+        Player reviver = other.GetComponentInParent<Player>();
 
         if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
         {
@@ -36,7 +36,7 @@ public class PlayerReviveHandler : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        Player reviver = other.GetComponent<Player>();
+        Player reviver = other.GetComponentInParent<Player>();
 
         if (reviver != null && reviver.IsOwner && !reviver.IsDownOrDied)
         {
@@ -50,10 +50,8 @@ public class PlayerReviveHandler : MonoBehaviour
         _reviveCol.enabled = _isZoneOpen;
     }
 
-    // === Debug Gizmos ===
     private void OnDrawGizmos()
     {
-        // Draw green circle when open, red when closed
         Gizmos.color = _isZoneOpen ? Color.green : Color.red;
         Gizmos.DrawWireSphere(transform.position, ReviveZone > 0 ? ReviveZone : 2f);
     }
