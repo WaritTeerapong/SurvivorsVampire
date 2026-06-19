@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlayerUpgradePool : MonoBehaviour
 {
-    private PlayerInventoryManager _playerInventory;
+    private PlayerInventory _playerInventory;
     private Dictionary<string, int> _upgradableItemPool = new Dictionary<string, int>();
 
     private WeaponItemDatabase_SO WeaponDatabase => _playerInventory != null ? _playerInventory.WeaponDatabase : null;
     private PassiveItemDatabase_SO PassiveItemDatabase => _playerInventory != null ? _playerInventory.PassiveDatabase : null;
 
-    public void Initialize(PlayerInventoryManager inventory)
+    public void Initialize(PlayerInventory inventory)
     {
         _playerInventory = inventory;
 

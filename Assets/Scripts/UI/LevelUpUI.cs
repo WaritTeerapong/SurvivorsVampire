@@ -127,7 +127,7 @@ public class LevelUpUI : NetworkBehaviour
             int currentLevel = nextLevel - 1;
 
             // Retrieve the item definition from databases on the inventory
-            PlayerInventoryManager inventory = OwnerStat.GetComponent<PlayerInventoryManager>();
+            PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
             ItemData_Base itemData = null;
             if (inventory != null)
             {
