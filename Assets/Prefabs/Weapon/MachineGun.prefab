@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 933795786336112514}
   - component: {fileID: 7745988131658993694}
-  - component: {fileID: 5560521638496028864}
+  - component: {fileID: -8462225243850276622}
   - component: {fileID: 3871579937006814777}
   m_Layer: 0
   m_Name: MachineGun
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RangeWeapon
   WeaponData: {fileID: 11400000, guid: 67174e7cace62ec4fa42d68b89622c7a, type: 2}
   BulletPrefab: {fileID: 3774078582942600365, guid: 7b98e93537e88cb479888ccc09b6c8a5, type: 3}
---- !u!114 &5560521638496028864
+--- !u!114 &-8462225243850276622
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -57,7 +57,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8609959353125987989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0c6e765f2636c64abb85a413c47d973, type: 3}
+  m_Script: {fileID: 11500000, guid: b3835467bdf955f4687a2db8087773f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Detector
 --- !u!58 &3871579937006814777

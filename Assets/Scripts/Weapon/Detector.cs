@@ -6,7 +6,7 @@ public class Detector : MonoBehaviour
     private CircleCollider2D _detectorCollider;
     private PlayerRunTimeStats _playerStats;
     private PlayerInventoryManager _inventory;
-    private IWeapon _localWeapon; // If this detector is attached directly to a weapon prefab
+    private IWeapon _localWeapon; 
 
     private List<Transform> _enemiesInRange = new List<Transform>();
     private List<Transform> _nearestEnemies = new List<Transform>();
@@ -22,8 +22,8 @@ public class Detector : MonoBehaviour
         _inventory = GetComponentInParent<PlayerInventoryManager>();
         
         _localWeapon = GetComponent<IWeapon>();
-        if (_localWeapon == null) _localWeapon = GetComponentInParent<IWeapon>();
-        if (_localWeapon == null) _localWeapon = GetComponentInChildren<IWeapon>();
+        //if (_localWeapon == null) _localWeapon = GetComponentInParent<IWeapon>();
+        //if (_localWeapon == null) _localWeapon = GetComponentInChildren<IWeapon>();
     }
 
     void Start()
@@ -74,8 +74,6 @@ public class Detector : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log($"[Detector] UpdateRadius: playerRange={playerRange}, weaponRange={weaponRange}, finalRadius={playerRange + weaponRange}");
 
         if (_detectorCollider != null)
         {
