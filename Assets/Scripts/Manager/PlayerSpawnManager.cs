@@ -1,13 +1,13 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class PlayerSpawnManager : NetworkBehaviour
 {
-    public static PlayerSpawnManager Instance;
+    public static PlayerSpawnManager Instance { get; private set; }
 
-    [SerializeField] private GameObject[] _playerPrefabs;
-
-    private bool _hasSpawnedEnemies = false;
+    [SerializeField] private GameObject[] _characterPrefabs;
+    [SerializeField] private Transform[] _spawnPoints;
 
     private void Awake()
     {
@@ -15,26 +15,39 @@ public class PlayerSpawnManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
-    [Rpc(SendTo.Server)]
-    public void RequestSpawnPlayerRpc(int charaterIndex, ulong clinetId)
+    public override void OnNetworkSpawn()
     {
-        if (charaterIndex < 0 || charaterIndex >= _playerPrefabs.Length) return;
-
-        GameObject playerInstance = Instantiate(_playerPrefabs[charaterIndex], Vector3.zero, Quaternion.identity);
-
-        NetworkObject netObj = playerInstance.GetComponent<NetworkObject>();
-
-        netObj.SpawnAsPlayerObject(clinetId);
-
-        Debug.Log($"Spawned player for client {clinetId} with color index {charaterIndex}");
-
-        if (!_hasSpawnedEnemies)
+        if (IsServer)
         {
-            _hasSpawnedEnemies = true;
-            if (EnemySpawnManager.Instance != null)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
+        }
+    }
+
+    private void OnSceneLoaded(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        if (sceneName == "Bob_Test_Scene")
+        {
+            int spawnIndex = 0;
+            foreach (var kvp in GameSessionData.PlayerSelections)
             {
-                // EnemySpawnManager.Instance.SpawnEnemiesOnJoin();
-                EnemySpawnManager.Instance.SpawnLoop();
+                ulong clientId = kvp.Key;
+                int charIndex = kvp.Value;
+
+                Transform spawnPos = (_spawnPoints != null && _spawnPoints.Length > spawnIndex) ? _spawnPoints[spawnIndex] : transform;
+
+                GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, Quaternion.identity);
+
+                spawnedObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+
+                spawnIndex++;
             }
         }
     }
