@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 
-public class SelectCharacterUI : MonoBehaviour
+public class SelectCharacterUI : NetworkBehaviour
 {
     public GameObject SelectionCanvas;
     public Button FoxBtn;
