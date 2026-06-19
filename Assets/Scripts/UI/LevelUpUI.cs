@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -24,6 +24,7 @@ public class LevelUpUI : NetworkBehaviour
         {
             PlayerLevelManager.Instance.OnLevelUp += UpdateUI;
         }
+        IntStatArray = new StatType[3] { StatType.MaxHealth,StatType.MoveSpeed,StatType.ATKDamage};
     }
 
     public override void OnDestroy()
@@ -80,12 +81,11 @@ public class LevelUpUI : NetworkBehaviour
             return;
         }
 
-        CreateCards(PlayerLevelManager.Instance.RandomUpgradeStats(OwnerStat.CurrentStatsLevel.Value));
+        CreateCards(PlayerLevelManager.Instance.RandomUpgradeItem(3));
         _levelUpScreen.SetActive(true);
     }
 
-
-    private void CreateCards(Dictionary<StatType, int> statList)
+    private void CreateCards(Dictionary<string, int> itemList)
     {
         foreach (UpgradeCard card in _upgradeCard)
         {
@@ -93,63 +93,166 @@ public class LevelUpUI : NetworkBehaviour
         }
         int cardIndex = 0;
 
-        foreach (KeyValuePair<StatType, int> kvp in statList)
+        // if( otherPlayer.isDown){
+        //      randomCardIndex = Random.Range(0,_upgradeCard.Length)
+        // 
+        //  }
+
+        foreach (KeyValuePair<string, int> kvp in itemList)
         {
             if (cardIndex >= _upgradeCard.Length)
             {
-                Debug.LogWarning($"[LevelUpUI] Received more stats than available cards on screen! Skipping stat: {kvp.Key}");
+                Debug.LogWarning($"[LevelUpUI] Received more items than available cards on screen! Skipping item ID: {kvp.Key}");
                 break;
             }
-            ;
 
-            // Get Key,Value
-            StatType stat = kvp.Key;
-            int currentLevel = kvp.Value;
-            int nextLevel = currentLevel + 1;
+            // if (otherPlayer.isDown)
+            //  Draw a card
+            //      cardIndex++;
+            //}
 
-            // Get Data
-            StatUpgrade info = PlayerLevelManager.Instance.StatUpgradeData.GetStatUpgradeInfo(stat);
-            string statName = info.UpgradeName;
+            string itemId = kvp.Key;
+            int nextLevel = kvp.Value;
+            int currentLevel = nextLevel - 1;
 
-            float currentLevelBonus = info.GetBonusForLevel(currentLevel);
-            float nextLevelBonus = info.GetBonusForLevel(nextLevel);
-            float increaseAmount = nextLevelBonus - currentLevelBonus;
+            // Retrieve the item definition from databases
+            ItemData_Base itemData = (ItemData_Base)PlayerLevelManager.Instance.WeaponDatabase?.GetItemByID(itemId) ?? 
+                                     (ItemData_Base)PlayerLevelManager.Instance.PassiveItemDatabase?.GetItemByID(itemId);
 
-            float currentStatValue = OwnerStat.CurrentStats.Value.GetCurrentStat(stat);
-            float totalValue = currentStatValue + increaseAmount;
+            if (itemData == null)
+            {
+                Debug.LogWarning($"[LevelUpUI] Item with ID {itemId} not found in databases!");
+                continue;
+            }
 
-            // Active Card Component
+            string itemName = itemData.ItemName;
+            string statName = "";
+            float increaseAmount = 0f;
+            float totalValue = 0f;
+            StatType activeStatType = StatType.MaxHealth;
+
+            if (itemData is PassiveItemData_SO passiveItem)
+            {
+                BaseStat nextBonus = passiveItem.GetBonusForLevel(nextLevel);
+                BaseStat currentBonus = currentLevel > 0 ? passiveItem.GetBonusForLevel(currentLevel) : new BaseStat();
+
+                if (nextBonus.MaxHealth != currentBonus.MaxHealth)
+                {
+                    activeStatType = StatType.MaxHealth;
+                    statName = "Health";
+                    increaseAmount = nextBonus.MaxHealth - currentBonus.MaxHealth;
+                    totalValue = OwnerStat.CurrentStats.Value.MaxHealth + increaseAmount;
+                }
+                else if (nextBonus.MoveSpeed != currentBonus.MoveSpeed)
+                {
+                    activeStatType = StatType.MoveSpeed;
+                    statName = "Speed";
+                    increaseAmount = nextBonus.MoveSpeed - currentBonus.MoveSpeed;
+                    totalValue = OwnerStat.CurrentStats.Value.MoveSpeed + increaseAmount;
+                }
+                else if (nextBonus.ATKDamage != currentBonus.ATKDamage)
+                {
+                    activeStatType = StatType.ATKDamage;
+                    statName = "ATK Damage";
+                    increaseAmount = nextBonus.ATKDamage - currentBonus.ATKDamage;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKDamage + increaseAmount;
+                }
+                else if (nextBonus.ATKSpeed != currentBonus.ATKSpeed)
+                {
+                    activeStatType = StatType.ATKSpeed;
+                    statName = "ATK Speed";
+                    increaseAmount = nextBonus.ATKSpeed - currentBonus.ATKSpeed;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKSpeed + increaseAmount;
+                }
+                else if (nextBonus.ATKRange != currentBonus.ATKRange)
+                {
+                    activeStatType = StatType.ATKRange;
+                    statName = "ATK Range";
+                    increaseAmount = nextBonus.ATKRange - currentBonus.ATKRange;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKRange + increaseAmount;
+                }
+            }
+            else if (itemData is WeaponItemData_SO weaponItem)
+            {
+                WeaponStat nextBonus = weaponItem.GetBonusForLevel(nextLevel);
+                WeaponStat currentBonus = currentLevel > 0 ? weaponItem.GetBonusForLevel(currentLevel) : new WeaponStat();
+
+                if (nextBonus.ATKDamage != currentBonus.ATKDamage)
+                {
+                    activeStatType = StatType.ATKDamage;
+                    statName = "Damage";
+                    increaseAmount = nextBonus.ATKDamage - currentBonus.ATKDamage;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKDamage + nextBonus.ATKDamage;
+                }
+                else if (nextBonus.ATKRange != currentBonus.ATKRange)
+                {
+                    activeStatType = StatType.ATKRange;
+                    statName = "Range";
+                    increaseAmount = nextBonus.ATKRange - currentBonus.ATKRange;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKRange + nextBonus.ATKRange;
+                }
+                else if (nextBonus.ATKSpeed != currentBonus.ATKSpeed)
+                {
+                    activeStatType = StatType.ATKSpeed;
+                    statName = "Attack Speed";
+                    increaseAmount = nextBonus.ATKSpeed - currentBonus.ATKSpeed;
+                    totalValue = OwnerStat.CurrentStats.Value.ATKSpeed + nextBonus.ATKSpeed;
+                }
+            }
+
+            bool isFloat = true;
+            if (IntStatArray != null)
+            {
+                isFloat = !IntStatArray.Contains(activeStatType);
+            }
+
             UpgradeCard targetCard = _upgradeCard[cardIndex];
             targetCard.gameObject.SetActive(true);
-            // Draw Card
-            if (IntStatArray.Contains(stat))
+
+            if (isFloat)
             {
                 targetCard.SetupCard(
-                    statName,
+                    itemName,
                     nextLevel,
-                    Mathf.RoundToInt(increaseAmount),
-                    Mathf.RoundToInt(totalValue)
+                    statName,
+                    increaseAmount,
+                    totalValue
                 );
             }
             else
             {
                 targetCard.SetupCard(
-                    statName,
+                    itemName,
                     nextLevel,
-                    increaseAmount,
-                    totalValue
+                    statName,
+                    Mathf.RoundToInt(increaseAmount),
+                    Mathf.RoundToInt(totalValue)
                 );
             }
+
             targetCard.UpgradeButton.onClick.RemoveAllListeners();
-            targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(stat); });
+            targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(itemId); });
 
             cardIndex++;
         }
     }
 
-    private void OnUpgradeClicked(StatType chosenStat)
+    private void OnReviveClick() { return; }
+    private void OnUpgradeClicked(string itemId)
     {
-        OwnerStat.RequestUpgradeServerRpc(chosenStat);
+        PlayerInventoryManager inventory = OwnerStat.GetComponent<PlayerInventoryManager>();
+        if (inventory != null)
+        {
+            if (PlayerLevelManager.Instance.WeaponDatabase?.GetItemByID(itemId) != null)
+            {
+                inventory.AddOrUpgradeWeaponServerRpc(itemId);
+            }
+            else if (PlayerLevelManager.Instance.PassiveItemDatabase?.GetItemByID(itemId) != null)
+            {
+                inventory.AddOrUpgradePassiveServerRpc(itemId);
+            }
+        }
+
         foreach (var card in _upgradeCard) card.UpgradeButton.onClick.RemoveAllListeners();
 
         _pendingLevelUps--;
@@ -181,7 +284,7 @@ public class LevelUpUI : NetworkBehaviour
     {
         foreach (var card in _upgradeCard) card.gameObject.SetActive(false);
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSecondsRealtime(0.2f);
 
         ShowNextCards();
     }
