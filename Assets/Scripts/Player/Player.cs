@@ -66,10 +66,16 @@ public class Player : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
+        if (IsOwner) SwitchState(IdleState);
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "WaitingRoomScene")
+        {
+            var healthUI = GetComponentInChildren<PlayerHealthBarUI>();
+            if (healthUI != null) healthUI.gameObject.SetActive(false);
+        }
 
         if (!IsOwner) return;
         Camera.main.GetComponent<CameraController>().Target = transform;
-        SwitchState(IdleState);
     }
 
     public override void OnNetworkDespawn()
