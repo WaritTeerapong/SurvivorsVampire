@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Mathematics;
+using System.Collections.Generic;
 
 public class PlayerSpawnManager : NetworkBehaviour
 {
@@ -8,8 +8,6 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     [SerializeField] private GameObject[] _characterPrefabs;
     [SerializeField] private Transform[] _spawnPoints;
-
-    private bool _hasSpawnedEnemies = false;
 
     private void Awake()
     {
@@ -21,6 +19,22 @@ public class PlayerSpawnManager : NetworkBehaviour
     {
         if (IsServer)
         {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
+        }
+    }
+
+    private void OnSceneLoaded(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        if (sceneName == "Bob_Test_Scene")
+        {
             int spawnIndex = 0;
             foreach (var kvp in GameSessionData.PlayerSelections)
             {
@@ -29,7 +43,8 @@ public class PlayerSpawnManager : NetworkBehaviour
 
                 Transform spawnPos = (_spawnPoints != null && _spawnPoints.Length > spawnIndex) ? _spawnPoints[spawnIndex] : transform;
 
-                GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, quaternion.identity);
+                GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, Quaternion.identity);
+
                 spawnedObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
                 spawnIndex++;

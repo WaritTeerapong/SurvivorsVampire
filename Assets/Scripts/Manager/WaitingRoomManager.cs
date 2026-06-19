@@ -51,6 +51,15 @@ public class WaitingRoomManager : NetworkBehaviour
 
                 if (_countdownTimer.Value <= 0)
                 {
+                    foreach (var kvp in GameSessionData.SpawnedDummies)
+                    {
+                        if (kvp.Value != null && kvp.Value.IsSpawned)
+                        {
+                            kvp.Value.Despawn(true);
+                        }
+                    }
+                    GameSessionData.SpawnedDummies.Clear();
+
                     NetworkManager.Singleton.SceneManager.LoadScene("Bob_Test_Scene", UnityEngine.SceneManagement.LoadSceneMode.Single);
                     this.enabled = false;
                 }

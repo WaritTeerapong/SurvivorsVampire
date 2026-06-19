@@ -51,7 +51,7 @@ public class SelectCharacterUI : NetworkBehaviour
         GameObject spawnedObj = Instantiate(CharacterPrefabs[charIndex], spawnPos, Quaternion.identity);
         NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
 
-        netObj.SpawnAsPlayerObject(clientId, true);
+        netObj.SpawnWithOwnership(clientId, true);
         GameSessionData.SpawnedDummies[clientId] = netObj;
     }
 
