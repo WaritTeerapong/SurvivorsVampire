@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerCombat : NetworkBehaviour
+public class SPlayerCombat : NetworkBehaviour
 {
     private Player _player;
     public GameObject BulletPrefab;
