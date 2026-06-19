@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7518292653968515428}
   - component: {fileID: 6989073078809620634}
   - component: {fileID: 5884675046983733377}
-  - component: {fileID: 7497425349793990518}
   - component: {fileID: 7728076448846563532}
   - component: {fileID: 9177627123156058915}
   - component: {fileID: 1743782935476531576}
@@ -102,21 +101,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
---- !u!114 &7497425349793990518
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3518339433968657662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f72ade28e488955469cff5ed9d435cb8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  ShowTopMostFoldoutHeaderGroup: 1
-  BulletPrefab: {fileID: 3774078582942600365, guid: bb594c0f1be8b084e80fa71ce30c937e, type: 3}
-  FirePoint: {fileID: 7518292653968515428}
 --- !u!114 &7728076448846563532
 MonoBehaviour:
   m_ObjectHideFlags: 0

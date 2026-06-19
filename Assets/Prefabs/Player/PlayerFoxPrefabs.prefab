@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 6336445553516428301}
   - component: {fileID: 4014861603841275141}
   - component: {fileID: 1758929283135430198}
-  - component: {fileID: 6938783595730294221}
   - component: {fileID: 255321516019156723}
   - component: {fileID: 6176288803174306615}
   m_Layer: 7
@@ -172,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1335499864
+  GlobalObjectIdHash: 3186028204
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -400,21 +399,6 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0
---- !u!114 &6938783595730294221
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7980141209461320123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f72ade28e488955469cff5ed9d435cb8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  ShowTopMostFoldoutHeaderGroup: 1
-  BulletPrefab: {fileID: 3774078582942600365, guid: bb594c0f1be8b084e80fa71ce30c937e, type: 3}
-  FirePoint: {fileID: 2033561544125119969}
 --- !u!114 &255321516019156723
 MonoBehaviour:
   m_ObjectHideFlags: 0
