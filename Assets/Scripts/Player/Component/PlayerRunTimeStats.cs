@@ -103,7 +103,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
     public StatUpgradeDatabase_SO StatUpgradeData;
     public event Action<PlayerStats> OnStatChanged;
 
-    private PlayerInventoryManager _inventory;
+    private PlayerInventory _inventory;
 
     public NetworkVariable<PlayerStats> CurrentStats = new NetworkVariable<PlayerStats>
     (
@@ -130,7 +130,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
             InitStats();
         }
 
-        _inventory = GetComponent<PlayerInventoryManager>();
+        _inventory = GetComponent<PlayerInventory>();
     }
 
     public override void OnNetworkDespawn()

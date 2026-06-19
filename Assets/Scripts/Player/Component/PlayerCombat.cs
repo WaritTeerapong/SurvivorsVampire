@@ -3,11 +3,11 @@ using Unity.Netcode;
 
 public class PlayerCombat : NetworkBehaviour
 {
-    private PlayerInventoryManager _inventory;
+    private PlayerInventory _inventory;
 
     private void Awake()
     {
-        _inventory = GetComponent<PlayerInventoryManager>();
+        _inventory = GetComponent<PlayerInventory>();
     }
 
     private void Update()

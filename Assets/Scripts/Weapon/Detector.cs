@@ -5,7 +5,7 @@ public class Detector : MonoBehaviour
 {
     private CircleCollider2D _detectorCollider;
     private PlayerRunTimeStats _playerStats;
-    private PlayerInventoryManager _inventory;
+    private PlayerInventory _inventory;
     private IWeapon _localWeapon; 
 
     private List<Transform> _enemiesInRange = new List<Transform>();
@@ -19,7 +19,7 @@ public class Detector : MonoBehaviour
             _detectorCollider.isTrigger = true;
         }
         _playerStats = GetComponentInParent<PlayerRunTimeStats>();
-        _inventory = GetComponentInParent<PlayerInventoryManager>();
+        _inventory = GetComponentInParent<PlayerInventory>();
         
         _localWeapon = GetComponent<IWeapon>();
         //if (_localWeapon == null) _localWeapon = GetComponentInParent<IWeapon>();

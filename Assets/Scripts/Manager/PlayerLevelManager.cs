@@ -20,7 +20,7 @@ public class PlayerLevelManager : NetworkBehaviour
     public event Action OnLevelUp;
     public event Action OnGainXP;
 
-    private PlayerInventoryManager _playerInventory;
+    private PlayerInventory _playerInventory;
     [SerializeField] private Dictionary<string,int> _upgradableItemPool; // keep <id,nextLevel>
 
     
@@ -30,7 +30,7 @@ public class PlayerLevelManager : NetworkBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        _playerInventory = GetComponent<PlayerInventoryManager>();
+        _playerInventory = GetComponent<PlayerInventory>();
         _upgradableItemPool = new Dictionary<string, int>();
     }
 

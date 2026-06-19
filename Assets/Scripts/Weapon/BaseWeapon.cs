@@ -13,7 +13,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
     public float AtkRange => _stat.ATKRange;
 
-    protected PlayerInventoryManager _inventory;
+    protected PlayerInventory _inventory;
     protected PlayerRunTimeStats _playerStats;
     protected PlayerCombat _playerCombat;
     protected Detector _detector;
@@ -29,7 +29,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     public virtual void InitializeWeapon()
     {
         _detector = GetComponent<Detector>();
-        _inventory = GetComponentInParent<PlayerInventoryManager>();
+        _inventory = GetComponentInParent<PlayerInventory>();
         _playerStats = _inventory.GetComponent<PlayerRunTimeStats>();
         _playerCombat = GetComponentInParent<PlayerCombat>();
 

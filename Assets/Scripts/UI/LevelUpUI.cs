@@ -240,7 +240,7 @@ public class LevelUpUI : NetworkBehaviour
     private void OnReviveClick() { return; }
     private void OnUpgradeClicked(string itemId)
     {
-        PlayerInventoryManager inventory = OwnerStat.GetComponent<PlayerInventoryManager>();
+        PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
         if (inventory != null)
         {
             if (PlayerLevelManager.Instance.WeaponDatabase?.GetItemByID(itemId) != null)

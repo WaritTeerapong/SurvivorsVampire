@@ -28,7 +28,7 @@ public struct CurrentItemLevel : INetworkSerializable, System.IEquatable<Current
     }
 }
 
-public class PlayerInventoryManager : NetworkBehaviour
+public class PlayerInventory : NetworkBehaviour
 {
     [Header("Databases")]
     public WeaponItemDatabase_SO WeaponDatabase;
