@@ -19,8 +19,9 @@ public class XPBarUI : NetworkBehaviour
 
         if (PlayerLevelManager.Instance != null)
         {
-            PlayerLevelManager.Instance.OnLevelUp += UpdateUI;
-            PlayerLevelManager.Instance.OnGainXP += UpdateUI;
+            PlayerLevelManager.Instance.SharedLevel.OnValueChanged += OnXPChanged;
+            PlayerLevelManager.Instance.SharedXP.OnValueChanged += OnXPChanged;
+            PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged += OnXPChanged;
         }
 
         if (NetworkManager.Singleton != null)
@@ -36,8 +37,10 @@ public class XPBarUI : NetworkBehaviour
 
         if (PlayerLevelManager.Instance != null)
         {
-            PlayerLevelManager.Instance.OnLevelUp -= UpdateUI;
-            PlayerLevelManager.Instance.OnGainXP -= UpdateUI;
+            PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnXPChanged;
+            PlayerLevelManager.Instance.SharedXP.OnValueChanged -= OnXPChanged;
+            PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged -= OnXPChanged;
+
         }
 
         if (NetworkManager.Singleton != null)
@@ -47,6 +50,10 @@ public class XPBarUI : NetworkBehaviour
         }
     }
 
+    private void OnXPChanged(int previosValue, int newValue)
+    {
+        UpdateUI();
+    }
     void UpdateUI()
     {
         if (PlayerLevelManager.Instance == null) return;
@@ -88,6 +95,4 @@ public class XPBarUI : NetworkBehaviour
             _xpBar.SetActive(false);
         }
     }
-
-
 }

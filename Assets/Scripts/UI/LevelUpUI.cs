@@ -4,7 +4,6 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-
 public class LevelUpUI : NetworkBehaviour
 {
 
@@ -22,9 +21,9 @@ public class LevelUpUI : NetworkBehaviour
         _levelUpScreen.SetActive(false);
         if (PlayerLevelManager.Instance != null)
         {
-            PlayerLevelManager.Instance.OnLevelUp += UpdateUI;
+            PlayerLevelManager.Instance.SharedLevel.OnValueChanged += OnLevelChange;
         }
-        IntStatArray = new StatType[3] { StatType.MaxHealth,StatType.MoveSpeed,StatType.ATKDamage};
+        IntStatArray = new StatType[3] { StatType.MaxHealth, StatType.MoveSpeed, StatType.ATKDamage };
     }
 
     public override void OnDestroy()
@@ -32,10 +31,14 @@ public class LevelUpUI : NetworkBehaviour
         base.OnDestroy();
         if (PlayerLevelManager.Instance != null)
         {
-            PlayerLevelManager.Instance.OnLevelUp -= UpdateUI;
+            PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnLevelChange;
         }
     }
 
+    private void OnLevelChange(int previousValue, int newValue)
+    {
+        UpdateUI();
+    }
     private void UpdateUI()
     {
         _pendingLevelUps++;
@@ -81,7 +84,15 @@ public class LevelUpUI : NetworkBehaviour
             return;
         }
 
-        CreateCards(PlayerLevelManager.Instance.RandomUpgradeItem(3));
+        PlayerUpgradePool upgradePool = OwnerStat.GetComponent<PlayerUpgradePool>();
+        if (upgradePool != null)
+        {
+            CreateCards(upgradePool.RandomUpgradeItem(3));
+        }
+        else
+        {
+            Debug.LogError("[LevelUpUI] PlayerUpgradePool not found on local player!");
+        }
         _levelUpScreen.SetActive(true);
     }
 
@@ -115,9 +126,14 @@ public class LevelUpUI : NetworkBehaviour
             int nextLevel = kvp.Value;
             int currentLevel = nextLevel - 1;
 
-            // Retrieve the item definition from databases
-            ItemData_Base itemData = (ItemData_Base)PlayerLevelManager.Instance.WeaponDatabase?.GetItemByID(itemId) ?? 
-                                     (ItemData_Base)PlayerLevelManager.Instance.PassiveItemDatabase?.GetItemByID(itemId);
+            // Retrieve the item definition from databases on the inventory
+            PlayerInventoryManager inventory = OwnerStat.GetComponent<PlayerInventoryManager>();
+            ItemData_Base itemData = null;
+            if (inventory != null)
+            {
+                itemData = (ItemData_Base)inventory.WeaponDatabase?.GetItemByID(itemId) ??
+                           inventory.PassiveDatabase?.GetItemByID(itemId);
+            }
 
             if (itemData == null)
             {
@@ -243,11 +259,11 @@ public class LevelUpUI : NetworkBehaviour
         PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
         if (inventory != null)
         {
-            if (PlayerLevelManager.Instance.WeaponDatabase?.GetItemByID(itemId) != null)
+            if (inventory.WeaponDatabase?.GetItemByID(itemId) != null)
             {
                 inventory.AddOrUpgradeWeaponServerRpc(itemId);
             }
-            else if (PlayerLevelManager.Instance.PassiveItemDatabase?.GetItemByID(itemId) != null)
+            else if (inventory.PassiveDatabase?.GetItemByID(itemId) != null)
             {
                 inventory.AddOrUpgradePassiveServerRpc(itemId);
             }

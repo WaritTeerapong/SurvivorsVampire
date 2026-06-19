@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public struct CurrentItemLevel : INetworkSerializable, System.IEquatable<CurrentItemLevel>
 {
     // FixedString32Bytes need for NetworkList<T> Generic Constrain : unmanage type
-    public Unity.Collections.FixedString32Bytes ItemId; 
+    public Unity.Collections.FixedString32Bytes ItemId;
     public int Level;
 
     public CurrentItemLevel(string id, int level)
@@ -43,7 +43,9 @@ public class PlayerInventory : NetworkBehaviour
 
     // Local dictionary to keep track of instantiated weapon prefabs on each client
     public Dictionary<string, GameObject> InstantiatedWeapons { get; private set; }
-         
+
+    private PlayerUpgradePool _upgradePool;
+
     private void Awake()
     {
         OwnedWeapons = new NetworkList<CurrentItemLevel>
@@ -60,6 +62,12 @@ public class PlayerInventory : NetworkBehaviour
 
         InstantiatedWeapons = new Dictionary<string, GameObject>();
 
+        // Ensure PlayerUpgradePool component is attached
+        _upgradePool = GetComponent<PlayerUpgradePool>();
+        if (_upgradePool == null)
+        {
+            _upgradePool = gameObject.AddComponent<PlayerUpgradePool>();
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -70,6 +78,11 @@ public class PlayerInventory : NetworkBehaviour
         OwnedPassives.OnListChanged += OnPassivesListChanged;
 
         RecreateAllWeaponVisuals();
+
+        if (_upgradePool != null)
+        {
+            _upgradePool.Initialize(this);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -78,6 +91,11 @@ public class PlayerInventory : NetworkBehaviour
         OwnedWeapons.OnListChanged -= OnWeaponsListChanged;
         OwnedPassives.OnListChanged -= OnPassivesListChanged;
         ClearAllWeaponVisuals();
+
+        if (_upgradePool != null)
+        {
+            _upgradePool.ClearPool();
+        }
     }
 
     private void OnWeaponsListChanged(NetworkListEvent<CurrentItemLevel> changeEvent)
@@ -138,7 +156,7 @@ public class PlayerInventory : NetworkBehaviour
                 container.transform.SetParent(transform, false);
                 weaponsContainerTransform = container.transform;
             }
-            
+
             GameObject weaponInstance = Instantiate(weaponData.WeaponPrefab, weaponsContainerTransform);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
@@ -295,3 +313,4 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 }
+
