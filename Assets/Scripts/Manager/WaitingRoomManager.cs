@@ -1,41 +1,50 @@
-using System.Collections.Generic;
-using TMPro;
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
+using TMPro;
+using System.Collections.Generic;
 
 public class WaitingRoomManager : NetworkBehaviour
 {
+    [Header("UI")]
     public TMP_Text CountdownText;
 
     private NetworkVariable<float> _countdownTimer = new NetworkVariable<float>(3f);
     private NetworkVariable<bool> _isCountingDown = new NetworkVariable<bool>(false);
 
-    private HashSet<ulong> _playerInZone = new HashSet<ulong>();
+    private Collider2D _zoneCollider;
+    private ContactFilter2D _filter;
+    private List<Collider2D> _overlappedColliders = new List<Collider2D>();
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void Awake()
     {
-        if (!IsServer) return;
+        _zoneCollider = GetComponent<Collider2D>();
 
-        Player player = other.GetComponent<Player>();
-        if (player != null) _playerInZone.Add(player.OwnerClientId);
+        _filter = ContactFilter2D.noFilter;
     }
 
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (!IsServer) return;
-
-        Player player = GetComponent<Player>();
-        if (player != null) _playerInZone.Remove(player.OwnerClientId);
-    }
     private void Update()
     {
         if (IsServer)
         {
             int totalConnected = NetworkManager.Singleton.ConnectedClientsIds.Count;
             int totalSelected = GameSessionData.PlayerSelections.Count;
-            int playerReady = _playerInZone.Count;
 
-            if (totalConnected > 0 && totalSelected == totalConnected && playerReady == totalConnected)
+            _zoneCollider.Overlap(_filter, _overlappedColliders);
+
+            HashSet<ulong> playersInZone = new HashSet<ulong>();
+
+            foreach (var col in _overlappedColliders)
+            {
+                Player player = col.GetComponentInParent<Player>();
+                if (player != null && player.IsSpawned)
+                {
+                    playersInZone.Add(player.OwnerClientId);
+                }
+            }
+
+            int playersReady = playersInZone.Count;
+
+            if (totalConnected > 0 && totalSelected == totalConnected && playersReady == totalConnected)
             {
                 _isCountingDown.Value = true;
                 _countdownTimer.Value -= Time.deltaTime;

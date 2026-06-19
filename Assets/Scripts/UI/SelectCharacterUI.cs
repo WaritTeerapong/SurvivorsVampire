@@ -52,7 +52,7 @@ public class SelectCharacterUI : MonoBehaviour
         NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
 
         netObj.SpawnAsPlayerObject(clientId, true);
-        GameSessionData.SpawnDummise[clientId] = netObj;
+        GameSessionData.SpawnedDummies[clientId] = netObj;
     }
 
     [Rpc(SendTo.Server)]
@@ -61,10 +61,10 @@ public class SelectCharacterUI : MonoBehaviour
         if (FoxOwner.Value == clientId) FoxOwner.Value = ulong.MaxValue;
         if (RatOwner.Value == clientId) RatOwner.Value = ulong.MaxValue;
 
-        if (GameSessionData.SpawnDummise.TryGetValue(clientId, out NetworkObject netObj))
+        if (GameSessionData.SpawnedDummies.TryGetValue(clientId, out NetworkObject netObj))
         {
             if (netObj != null) netObj.Despawn(true);
-            GameSessionData.SpawnDummise.Remove(clientId);
+            GameSessionData.SpawnedDummies.Remove(clientId);
         }
 
         if (GameSessionData.PlayerSelections.ContainsKey(clientId))
