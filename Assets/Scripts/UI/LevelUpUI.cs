@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -104,10 +105,27 @@ public class LevelUpUI : NetworkBehaviour
         }
         int cardIndex = 0;
 
-        // if( otherPlayer.isDown){
-        //      randomCardIndex = Random.Range(0,_upgradeCard.Length)
-        // 
-        //  }
+        // Check if Teammate Died
+        Player deadPlayer = null;
+        if (PlayerManager.Instance != null)
+        {
+            foreach (Player otherPlayer in PlayerManager.Instance.AllPlayers)
+            {
+                if (otherPlayer.IsOwner) continue;
+                if (otherPlayer.CurrentState is PlayerDiedState)
+                {
+                    deadPlayer = otherPlayer;
+                    break;
+                }
+            }
+        }
+
+        // Random revive card index
+        int reviveCardIndex = -1;
+        if (deadPlayer != null && _upgradeCard.Length > 0)
+        {
+            reviveCardIndex = Random.Range(0, _upgradeCard.Length);
+        }
 
         foreach (KeyValuePair<string, int> kvp in itemList)
         {
@@ -117,10 +135,26 @@ public class LevelUpUI : NetworkBehaviour
                 break;
             }
 
-            // if (otherPlayer.isDown)
-            //  Draw a card
-            //      cardIndex++;
-            //}
+            // if there is deadPlayer
+            if (cardIndex == reviveCardIndex && deadPlayer != null)
+            {
+                UpgradeCard reviveCard = _upgradeCard[cardIndex];
+                reviveCard.gameObject.SetActive(true);
+                reviveCard.SetupCard(false);
+                
+                Player targetPlayer = deadPlayer;
+                TMP_Text Buttontext = reviveCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
+                if (Buttontext != null)
+                {
+                    Buttontext.text = "Revive";
+                }
+
+                reviveCard.UpgradeButton.onClick.RemoveAllListeners();
+                reviveCard.UpgradeButton.onClick.AddListener(() => { OnReviveClicked(targetPlayer); });
+                
+                cardIndex++;
+                continue;
+            }
 
             string itemId = kvp.Key;
             int nextLevel = kvp.Value;
@@ -248,12 +282,25 @@ public class LevelUpUI : NetworkBehaviour
 
             targetCard.UpgradeButton.onClick.RemoveAllListeners();
             targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(itemId); });
+            TMP_Text buttonText = targetCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.text = "Upgrade";
+            }
 
             cardIndex++;
         }
     }
 
-    private void OnReviveClick() { return; }
+    private void OnReviveClicked(Player playerToRevive)
+    {
+        if (playerToRevive != null)
+        {
+            playerToRevive.RevivePlayerServerRpc();
+        }
+
+        FinishChoosing();
+    }
     private void OnUpgradeClicked(string itemId)
     {
         PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
@@ -269,6 +316,11 @@ public class LevelUpUI : NetworkBehaviour
             }
         }
 
+        FinishChoosing();
+    }
+
+    private void FinishChoosing()
+    {
         foreach (var card in _upgradeCard) card.UpgradeButton.onClick.RemoveAllListeners();
 
         _pendingLevelUps--;

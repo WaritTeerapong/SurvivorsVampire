@@ -20,7 +20,9 @@ public class Player : NetworkBehaviour
     public readonly IPlayerState MoveState = new PlayerMoveState();
     public readonly IPlayerState DownedState = new PlayerDownedState();
     public readonly IPlayerState DiedState = new PlayerDiedState();
+
     private IPlayerState _currentState;
+    public IPlayerState CurrentState => _currentState;
 
     public bool IsDowned => _currentState == DownedState;
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
@@ -210,6 +212,21 @@ public class Player : NetworkBehaviour
         {
             SwitchToDownedRpc();
         }
+    }
+
+    // RpcInvokePermission.Everyone so that other player can revive this player
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void RevivePlayerServerRpc()
+    {
+        if (!IsServer) return;
+        Stats.ResetHealthToMax();
+
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.ActiveTargets.Contains(transform))
+        {
+            PlayerManager.Instance.ActiveTargets.Add(transform);
+        }
+
+        SwitchToIdleRpc();
     }
 
     [Rpc(SendTo.Everyone)]
