@@ -8,8 +8,6 @@ public class Player : NetworkBehaviour
     public PlayerRunTimeStats Stats { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerMovement Movement { get; private set; }
-    public SPlayerCombat Combat { get; private set; }
-    public PlayerDetector Detector { get; private set; }
     public PlayerReviveHandler Revive { get; private set; }
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
@@ -59,8 +57,6 @@ public class Player : NetworkBehaviour
         Stats = GetComponent<PlayerRunTimeStats>();
         InputHandler = GetComponent<PlayerInputHandler>();
         Movement = GetComponent<PlayerMovement>();
-        Combat = GetComponent<SPlayerCombat>();
-        Detector = GetComponentInChildren<PlayerDetector>();
         Revive = GetComponentInChildren<PlayerReviveHandler>();
         Anim = GetComponentInChildren<Animator>();
         SpriteRend = GetComponentInChildren<SpriteRenderer>();
