@@ -42,6 +42,8 @@ public class EnemySpawnManager : NetworkBehaviour
                 new NetworkObjectPoolHandler(EnemyPrefab, PoolCategory.Enemies)
             );
         }
+
+        if (IsServer) SpawnLoop();
     }
 
     public override void OnNetworkDespawn()
