@@ -36,7 +36,7 @@ public class EnemyDetector : MonoBehaviour
 
     private void FindNearestPlayer()
     {
-        if (PlayerManager.Instance == null || PlayerManager.Instance.ActivePlayer.Count == 0)
+        if (PlayerManager.Instance == null || PlayerManager.Instance.ActiveTargets.Count == 0)
         {
             NearestTarget = null;
             SqrDistanceToTarget = Mathf.Infinity;
@@ -46,7 +46,7 @@ public class EnemyDetector : MonoBehaviour
         float shortestDistanceSqr = Mathf.Infinity;
         Transform nearestPlayer = null;
 
-        foreach (Transform player in PlayerManager.Instance.ActivePlayer)
+        foreach (Transform player in PlayerManager.Instance.ActiveTargets)
         {
             if (player == null || !player.gameObject.activeInHierarchy) continue;
 

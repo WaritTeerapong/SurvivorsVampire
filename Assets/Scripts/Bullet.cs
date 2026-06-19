@@ -118,7 +118,7 @@ public class Bullet : MonoBehaviour
         }
         else if (IsEnemy && hitCollider.CompareTag("Player"))
         {
-            PlayerController player = hitCollider.GetComponent<PlayerController>();
+            Player player = hitCollider.GetComponent<Player>();
             if (player != null)
             {
                 if (NetworkManager.Singleton.IsServer) player.TakeDamageRpc(_damage);

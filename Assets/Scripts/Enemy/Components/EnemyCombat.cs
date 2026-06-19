@@ -13,7 +13,7 @@ public class EnemyCombat : MonoBehaviour
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            PlayerController player = target.GetComponent<PlayerController>();
+            Player player = target.GetComponent<Player>();
             if (player != null)
             {
                 player.TakeDamageRpc(enemy.CurrentStats.Value.ATKDamage);
@@ -36,7 +36,7 @@ public class EnemyCombat : MonoBehaviour
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            PlayerController player = target.GetComponent<PlayerController>();
+            Player player = target.GetComponent<Player>();
             if (player != null)
             {
                 // player.TakeDamageRpc(enemy.CurrentStats.Value.ATKDamage);

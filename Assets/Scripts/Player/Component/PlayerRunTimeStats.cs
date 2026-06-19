@@ -196,7 +196,15 @@ public class PlayerRunTimeStats : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
-    
+    public void ResetHealthToMax()
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        stats.CurrentHealth = stats.MaxHealth;
+
+        CurrentStats.Value = stats;
+    }
 
     public void RecalculateStats()
     {
@@ -219,7 +227,7 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
 
         // 2. Apply Passive Items
-        
+
         if (_inventory != null && _inventory.PassiveDatabase != null)
         {
             // Get Bonus Stat from each Passive Items equiped
@@ -241,15 +249,15 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         // Keep current health capped and valid
         newStats.CurrentHealth = CurrentStats.Value.CurrentHealth;
-        
+
         CurrentStats.Value = newStats;
     }
 
     private float FindUpgradeStat(StatType chosenStat, int level)
-    { 
-        foreach(StatUpgrade stat in StatUpgradeData.Stats)
+    {
+        foreach (StatUpgrade stat in StatUpgradeData.Stats)
         {
-            if(stat.StatType == chosenStat)
+            if (stat.StatType == chosenStat)
             {
                 return stat.GetBonusForLevel(level);
             }
@@ -257,7 +265,6 @@ public class PlayerRunTimeStats : NetworkBehaviour
         Debug.LogWarning($"Stat {chosenStat} not found in database!");
         return 0f;
     }
-
 
     [Rpc(SendTo.Owner)]
     public void DebugLogStatsRpc()

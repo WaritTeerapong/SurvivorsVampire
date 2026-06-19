@@ -16,9 +16,16 @@ public class SelectColorUI : MonoBehaviour
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnConnected;
-        }
 
-        _selectionCanvas.SetActive(false);
+            if (NetworkManager.Singleton.IsClient && NetworkManager.Singleton.IsConnectedClient)
+            {
+                _selectionCanvas.SetActive(true);
+            }
+            else
+            {
+                _selectionCanvas.SetActive(false);
+            }
+        }
     }
 
     void OnDestroy()
@@ -44,5 +51,4 @@ public class SelectColorUI : MonoBehaviour
         ulong myLocalId = NetworkManager.Singleton.LocalClientId;
         PlayerSpawnManager.Instance.RequestSpawnPlayerRpc(characterIndex, myLocalId);
     }
-
 }
