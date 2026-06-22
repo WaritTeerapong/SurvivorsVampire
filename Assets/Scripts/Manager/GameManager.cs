@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,6 +9,8 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance { get; private set; }
 
     public GameObject GameOverPanel;
+
+    public NetworkVariable<float> ReturnToLobbyTimer = new NetworkVariable<float>(3f);
 
     void Awake()
     {
@@ -57,10 +61,47 @@ public class GameManager : NetworkBehaviour
         });
     }
 
-    public void RestartGame()
+    public void StartReTimer()
     {
-        Debug.Log(" Restart Pressed");
-        // TODO: Put Restart Logic Here my bro!!
+        if (!IsServer) return;
+        StartCoroutine(StartReToLobbyTimer());
+    }
+
+    private IEnumerator StartReToLobbyTimer()
+    {
+        ReturnToLobbyTimer.Value = 3f;
+
+        while (ReturnToLobbyTimer.Value > 0)
+        {
+            ReturnToLobbyTimer.Value -= Time.deltaTime;
+            yield return null;
+        }
+
+        ReturnToLobbyTimer.Value = 0f;
+
+        yield return new WaitForSeconds(1f);
+
+        RequestReturnToLobby();
+    }
+
+    public void RequestReturnToLobby()
+    {
+        Debug.Log("[Game Manager] Return to Lobby!!!");
+
+        StopAllCoroutines();
+
+        ReturnToLobbyTimer.Value = 0f;
+
+        ReturnToLobbyRpc();
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ReturnToLobbyRpc()
+    {
+        if (NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoomScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        }
     }
 
     public void ReturnToMenu()
