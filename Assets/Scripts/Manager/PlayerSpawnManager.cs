@@ -77,6 +77,8 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     private void OnClientConnectedInTestMode(ulong clientId)
     {
+        if (clientId == NetworkManager.ServerClientId) return;
+
         SpawnPlayerForTestMode(clientId);
     }
 
