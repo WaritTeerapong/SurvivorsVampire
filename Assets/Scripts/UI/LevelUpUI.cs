@@ -308,11 +308,11 @@ public class LevelUpUI : NetworkBehaviour
         {
             if (inventory.WeaponDatabase?.GetItemByID(itemId) != null)
             {
-                inventory.AddOrUpgradeWeaponServerRpc(itemId);
+                inventory.AddOrUpgradeWeaponRpc(itemId);
             }
             else if (inventory.PassiveDatabase?.GetItemByID(itemId) != null)
             {
-                inventory.AddOrUpgradePassiveServerRpc(itemId);
+                inventory.AddOrUpgradePassiveRpc(itemId);
             }
         }
 

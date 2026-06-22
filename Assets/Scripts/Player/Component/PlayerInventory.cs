@@ -230,13 +230,13 @@ public class PlayerInventory : NetworkBehaviour
 
     // --- Server-authoritative APIs ---
     [Rpc(SendTo.Server)]
-    public void AddOrUpgradeWeaponServerRpc(string id)
+    public void AddOrUpgradeWeaponRpc(string id)
     {
         AddOrUpgradeWeapon(id);
     }
 
     [Rpc(SendTo.Server)]
-    public void AddOrUpgradePassiveServerRpc(string id)
+    public void AddOrUpgradePassiveRpc(string id)
     {
         AddOrUpgradePassive(id);
     }

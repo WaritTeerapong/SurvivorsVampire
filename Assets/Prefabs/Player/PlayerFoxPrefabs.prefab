@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1335499864
+  GlobalObjectIdHash: 3186028204
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -445,8 +445,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
-  WeaponDatabase: {fileID: 0}
-  PassiveDatabase: {fileID: 0}
+  WeaponDatabase: {fileID: 11400000, guid: 2643985103cf1b143a2c56810f24a7ef, type: 2}
+  PassiveDatabase: {fileID: 11400000, guid: f25c9346e509b124bb443f5d596dac17, type: 2}
   OwnedWeapons:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

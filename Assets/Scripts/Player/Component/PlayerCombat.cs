@@ -4,16 +4,19 @@ using Unity.Netcode;
 public class PlayerCombat : NetworkBehaviour
 {
     private PlayerInventory _inventory;
+    private Player _player;
 
     private void Awake()
     {
         _inventory = GetComponent<PlayerInventory>();
+        _player = GetComponent<Player>();
     }
 
     private void Update()
     {
         if (!IsOwner) return; // Only the local owner client should update weapon timers
-        if (_inventory == null) return;
+        if (_inventory == null || _player == null) return;
+        if (_player.IsDownOrDied) return;
 
         foreach (var weaponObj in _inventory.InstantiatedWeapons.Values)
         {

@@ -9,6 +9,7 @@ public class Player : NetworkBehaviour
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerMovement Movement { get; private set; }
     public PlayerReviveHandler Revive { get; private set; }
+    public PlayerInventory Inventory { get; private set; } // for debug
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
 
@@ -62,6 +63,7 @@ public class Player : NetworkBehaviour
         Revive = GetComponentInChildren<PlayerReviveHandler>();
         Anim = GetComponentInChildren<Animator>();
         SpriteRend = GetComponentInChildren<SpriteRenderer>();
+        Inventory = GetComponent<PlayerInventory>();
     }
 
     public override void OnNetworkSpawn()
@@ -118,6 +120,13 @@ public class Player : NetworkBehaviour
         if (Keyboard.current.tKey.wasPressedThisFrame) TakeDamageRpc(10);
         if (Keyboard.current.yKey.wasPressedThisFrame) TakeDamageRpc(9999);
         if (Keyboard.current.uKey.wasPressedThisFrame) SwitchToIdleRpc();
+
+        if (Keyboard.current.nKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w1");
+        if (Keyboard.current.mKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w2");
+        if (Keyboard.current.oKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p1");
+        if (Keyboard.current.pKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p2");
+
+        if (Keyboard.current.lKey.wasPressedThisFrame) PlayerLevelManager.Instance.SharedLevel.Value += 1;
     }
 
     void FixedUpdate()
