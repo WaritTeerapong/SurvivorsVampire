@@ -446,8 +446,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
-  WeaponDatabase: {fileID: 0}
-  PassiveDatabase: {fileID: 0}
+  WeaponDatabase: {fileID: 11400000, guid: 2643985103cf1b143a2c56810f24a7ef, type: 2}
+  PassiveDatabase: {fileID: 11400000, guid: f25c9346e509b124bb443f5d596dac17, type: 2}
   OwnedWeapons:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

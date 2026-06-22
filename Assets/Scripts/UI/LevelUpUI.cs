@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class LevelUpUI : NetworkBehaviour
     [SerializeField] private StatType[] IntStatArray;
 
     private PlayerRunTimeStats OwnerStat;
+    private Player _localPlayer;
 
     private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
@@ -33,16 +35,62 @@ public class LevelUpUI : NetworkBehaviour
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnLevelChange;
         }
+        
+    }
+
+    private Player GetLocalPlayer()
+    {
+        if (_localPlayer == null)
+        {
+            if (NetworkManager.Singleton != null &&
+                NetworkManager.Singleton.LocalClient != null &&
+                NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            {
+                _localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
+                if (_localPlayer != null)
+                {
+                    OwnerStat = _localPlayer.Stats;
+                }
+            }
+        }
+        return _localPlayer;
+    }
+
+    private void OnLocalPlayerStateChanged(IPlayerState newState)
+    {
+        if (!(newState is PlayerDiedState) && _pendingLevelUps > 0 && !_isChoosing)
+        {
+            OpenLevelUpScreen();
+        }
     }
 
     private void OnLevelChange(int previousValue, int newValue)
     {
         UpdateUI();
+        ReviveDownPlayer();
     }
     private void UpdateUI()
     {
         _pendingLevelUps++;
 
+        Player player = GetLocalPlayer();
+        if (player != null && player.CurrentState is PlayerDiedState)
+        {
+            return;
+        }
+
+        OpenLevelUpScreen();
+    }
+    private void ReviveDownPlayer()
+    {
+        foreach(Player player in PlayerManager.Instance.AllPlayers)
+        {
+            if(player != null && player.IsDowned) player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
+    
+        }
+    }
+    private void OpenLevelUpScreen()
+    {
         if (PauseMenuUI.Instance != null)
         {
             PauseMenuUI.Instance.ForceCloseMenu();
@@ -69,15 +117,7 @@ public class LevelUpUI : NetworkBehaviour
 
     private void ShowNextCards()
     {
-        if (OwnerStat == null)
-        {
-            if (NetworkManager.Singleton != null &&
-                NetworkManager.Singleton.LocalClient != null &&
-                NetworkManager.Singleton.LocalClient.PlayerObject != null)
-            {
-                OwnerStat = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerRunTimeStats>();
-            }
-        }
+        GetLocalPlayer();
         if (OwnerStat == null)
         {
             Debug.LogError("[LevelUpUI] Failed to open screen: Local Client's PlayerRunTimeStats not found!");
@@ -104,10 +144,27 @@ public class LevelUpUI : NetworkBehaviour
         }
         int cardIndex = 0;
 
-        // if( otherPlayer.isDown){
-        //      randomCardIndex = Random.Range(0,_upgradeCard.Length)
-        // 
-        //  }
+        // Check if Teammate Died
+        Player deadPlayer = null;
+        if (PlayerManager.Instance != null)
+        {
+            foreach (Player otherPlayer in PlayerManager.Instance.AllPlayers)
+            {
+                if (otherPlayer.IsOwner) continue;
+                if (otherPlayer.CurrentState is PlayerDiedState)
+                {
+                    deadPlayer = otherPlayer;
+                    break;
+                }
+            }
+        }
+
+        // Random revive card index
+        int respawnCardIndex = -1;
+        if (deadPlayer != null && _upgradeCard.Length > 0)
+        {
+            respawnCardIndex = Random.Range(0, _upgradeCard.Length);
+        }
 
         foreach (KeyValuePair<string, int> kvp in itemList)
         {
@@ -117,10 +174,26 @@ public class LevelUpUI : NetworkBehaviour
                 break;
             }
 
-            // if (otherPlayer.isDown)
-            //  Draw a card
-            //      cardIndex++;
-            //}
+            // if there is deadPlayer
+            if (cardIndex == respawnCardIndex && deadPlayer != null)
+            {
+                UpgradeCard respawnCard = _upgradeCard[cardIndex];
+                respawnCard.gameObject.SetActive(true);
+                respawnCard.SetupCard(false);
+                
+                Player targetPlayer = deadPlayer;
+                TMP_Text Buttontext = respawnCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
+                if (Buttontext != null)
+                {
+                    Buttontext.text = "Revive";
+                }
+
+                respawnCard.UpgradeButton.onClick.RemoveAllListeners();
+                respawnCard.UpgradeButton.onClick.AddListener(() => { OnReviveClicked(targetPlayer); });
+                
+                cardIndex++;
+                continue;
+            }
 
             string itemId = kvp.Key;
             int nextLevel = kvp.Value;
@@ -248,27 +321,46 @@ public class LevelUpUI : NetworkBehaviour
 
             targetCard.UpgradeButton.onClick.RemoveAllListeners();
             targetCard.UpgradeButton.onClick.AddListener(() => { OnUpgradeClicked(itemId); });
+            TMP_Text buttonText = targetCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.text = "Upgrade";
+            }
 
             cardIndex++;
         }
     }
 
-    private void OnReviveClick() { return; }
-    private void OnUpgradeClicked(string itemId)
+    private void OnReviveClicked(Player playerToRevive)
+    {
+        if (playerToRevive != null)
+        {
+            playerToRevive.RevivePlayerRpc(true);
+        }
+
+        FinishChoosing();
+    }
+
+     private void OnUpgradeClicked(string itemId)
     {
         PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
         if (inventory != null)
         {
             if (inventory.WeaponDatabase?.GetItemByID(itemId) != null)
             {
-                inventory.AddOrUpgradeWeaponServerRpc(itemId);
+                inventory.AddOrUpgradeWeaponRpc(itemId);
             }
             else if (inventory.PassiveDatabase?.GetItemByID(itemId) != null)
             {
-                inventory.AddOrUpgradePassiveServerRpc(itemId);
+                inventory.AddOrUpgradePassiveRpc(itemId);
             }
         }
 
+        FinishChoosing();
+    }
+
+    private void FinishChoosing()
+    {
         foreach (var card in _upgradeCard) card.UpgradeButton.onClick.RemoveAllListeners();
 
         _pendingLevelUps--;

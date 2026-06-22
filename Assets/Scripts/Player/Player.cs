@@ -9,6 +9,7 @@ public class Player : NetworkBehaviour
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerMovement Movement { get; private set; }
     public PlayerReviveHandler Revive { get; private set; }
+    public PlayerInventory Inventory { get; private set; } // for debug
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
 
@@ -20,7 +21,9 @@ public class Player : NetworkBehaviour
     public readonly IPlayerState MoveState = new PlayerMoveState();
     public readonly IPlayerState DownedState = new PlayerDownedState();
     public readonly IPlayerState DiedState = new PlayerDiedState();
+
     private IPlayerState _currentState;
+    public IPlayerState CurrentState => _currentState;
 
     public bool IsDowned => _currentState == DownedState;
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
@@ -60,12 +63,13 @@ public class Player : NetworkBehaviour
         Revive = GetComponentInChildren<PlayerReviveHandler>();
         Anim = GetComponentInChildren<Animator>();
         SpriteRend = GetComponentInChildren<SpriteRenderer>();
+        Inventory = GetComponent<PlayerInventory>();
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
+        if (PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
         if (IsOwner) SwitchState(IdleState);
 
         bool isWaitingRoom = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "WaitingRoomScene";
@@ -91,7 +95,7 @@ public class Player : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (IsServer && PlayerManager.Instance != null)
+        if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RemoveActiveTarget(transform);
 
@@ -116,6 +120,13 @@ public class Player : NetworkBehaviour
         if (Keyboard.current.tKey.wasPressedThisFrame) TakeDamageRpc(10);
         if (Keyboard.current.yKey.wasPressedThisFrame) TakeDamageRpc(9999);
         if (Keyboard.current.uKey.wasPressedThisFrame) SwitchToIdleRpc();
+
+        if (Keyboard.current.nKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w1");
+        if (Keyboard.current.mKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w2");
+        if (Keyboard.current.oKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p1");
+        if (Keyboard.current.pKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p2");
+
+        if (Keyboard.current.lKey.wasPressedThisFrame) PlayerLevelManager.Instance.SharedLevel.Value += 1;
     }
 
     void FixedUpdate()
@@ -124,11 +135,14 @@ public class Player : NetworkBehaviour
         _currentState?.OnFixedUpdate(this);
     }
 
+    public event System.Action<IPlayerState> OnStateChanged;
+
     public void SwitchState(IPlayerState newState)
     {
         _currentState?.OnExit(this);
         _currentState = newState;
         _currentState?.OnEnter(this);
+        OnStateChanged?.Invoke(newState);
     }
 
     public void PlayAnimation(int hash)
@@ -226,6 +240,28 @@ public class Player : NetworkBehaviour
         {
             SwitchToDownedRpc();
         }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void RevivePlayerRpc(bool isReviveOnFullHealth = false, float healAmount = 0.5f)
+    {
+        if (!IsServer) return;
+
+        if (isReviveOnFullHealth)
+        {
+            Stats.ResetHealthToMax();
+        }
+        else
+        {
+            Stats.ResetHealthToPercent(healAmount);
+        }
+
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.ActiveTargets.Contains(transform))
+        {
+            PlayerManager.Instance.ActiveTargets.Add(transform);
+        }
+
+        SwitchToIdleRpc();
     }
 
     [Rpc(SendTo.Everyone)]

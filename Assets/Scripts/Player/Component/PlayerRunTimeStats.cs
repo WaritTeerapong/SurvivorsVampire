@@ -206,6 +206,16 @@ public class PlayerRunTimeStats : NetworkBehaviour
         CurrentStats.Value = stats;
     }
 
+    public void ResetHealthToPercent(float healPercent)
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        float healAmount = stats.MaxHealth * healPercent;
+        stats.CurrentHealth = (int)healAmount;
+        CurrentStats.Value = stats;
+    }
+
     public void RecalculateStats()
     {
         if (!IsServer) return;
