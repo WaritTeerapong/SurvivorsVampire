@@ -242,12 +242,19 @@ public class Player : NetworkBehaviour
         }
     }
 
-    // RpcInvokePermission.Everyone so that other player can revive this player
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void RevivePlayerServerRpc()
+    public void RevivePlayerRpc(bool isReviveOnFullHealth = false, float healAmount = 0.5f)
     {
         if (!IsServer) return;
-        Stats.ResetHealthToMax();
+
+        if (isReviveOnFullHealth)
+        {
+            Stats.ResetHealthToMax();
+        }
+        else
+        {
+            Stats.ResetHealthToPercent(healAmount);
+        }
 
         if (PlayerManager.Instance != null && !PlayerManager.Instance.ActiveTargets.Contains(transform))
         {

@@ -331,12 +331,13 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (playerToRevive != null)
         {
-            playerToRevive.RevivePlayerServerRpc();
+            playerToRevive.RevivePlayerRpc(true);
         }
 
         FinishChoosing();
     }
-    private void OnUpgradeClicked(string itemId)
+
+     private void OnUpgradeClicked(string itemId)
     {
         PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
         if (inventory != null)
