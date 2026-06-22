@@ -7,7 +7,6 @@ public class XPBarUI : NetworkBehaviour
 {
     [SerializeField] private GameObject _xpBar;
 
-
     [Header("Interface")]
     [SerializeField] private TMP_Text _levelText; // Current Level
     [SerializeField] private TMP_Text _xpText; // Current XP
@@ -15,19 +14,11 @@ public class XPBarUI : NetworkBehaviour
 
     void Start()
     {
-        _xpBar.SetActive(false);
-
         if (PlayerLevelManager.Instance != null)
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged += OnXPChanged;
             PlayerLevelManager.Instance.SharedXP.OnValueChanged += OnXPChanged;
             PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged += OnXPChanged;
-        }
-
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnected;
         }
     }
 
@@ -43,11 +34,6 @@ public class XPBarUI : NetworkBehaviour
 
         }
 
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnDisconnected;
-        }
     }
 
     private void OnXPChanged(int previosValue, int newValue)
@@ -77,22 +63,6 @@ public class XPBarUI : NetworkBehaviour
             _xpText.text = xp;
             _xpSlider.maxValue = xpNeeded;
             _xpSlider.value = currentXP;
-        }
-    }
-
-    void OnConnected(ulong clientId)
-    {
-        if (clientId == NetworkManager.Singleton.LocalClientId)
-        {
-            _xpBar.SetActive(true);
-        }
-    }
-
-    void OnDisconnected(ulong clientId)
-    {
-        if (clientId == NetworkManager.Singleton.LocalClientId)
-        {
-            _xpBar.SetActive(false);
         }
     }
 }
