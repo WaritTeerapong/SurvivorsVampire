@@ -135,13 +135,14 @@ public class Player : NetworkBehaviour
         _currentState?.OnFixedUpdate(this);
     }
 
-    
+    public event System.Action<IPlayerState> OnStateChanged;
 
     public void SwitchState(IPlayerState newState)
     {
         _currentState?.OnExit(this);
         _currentState = newState;
         _currentState?.OnEnter(this);
+        OnStateChanged?.Invoke(newState);
     }
 
     public void PlayAnimation(int hash)

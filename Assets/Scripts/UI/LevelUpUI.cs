@@ -35,6 +35,10 @@ public class LevelUpUI : NetworkBehaviour
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnLevelChange;
         }
+        if (_localPlayer != null)
+        {
+            _localPlayer.OnStateChanged -= OnLocalPlayerStateChanged;
+        }
     }
 
     private Player GetLocalPlayer()
@@ -49,10 +53,19 @@ public class LevelUpUI : NetworkBehaviour
                 if (_localPlayer != null)
                 {
                     OwnerStat = _localPlayer.Stats;
+                    _localPlayer.OnStateChanged += OnLocalPlayerStateChanged;
                 }
             }
         }
         return _localPlayer;
+    }
+
+    private void OnLocalPlayerStateChanged(IPlayerState newState)
+    {
+        if (!(newState is PlayerDiedState) && _pendingLevelUps > 0 && !_isChoosing)
+        {
+            OpenLevelUpScreen();
+        }
     }
 
     private void OnLevelChange(int previousValue, int newValue)
