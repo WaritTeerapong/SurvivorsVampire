@@ -35,10 +35,7 @@ public class LevelUpUI : NetworkBehaviour
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnLevelChange;
         }
-        if (_localPlayer != null)
-        {
-            _localPlayer.OnStateChanged -= OnLocalPlayerStateChanged;
-        }
+        
     }
 
     private Player GetLocalPlayer()
@@ -53,7 +50,6 @@ public class LevelUpUI : NetworkBehaviour
                 if (_localPlayer != null)
                 {
                     OwnerStat = _localPlayer.Stats;
-                    _localPlayer.OnStateChanged += OnLocalPlayerStateChanged;
                 }
             }
         }
@@ -71,6 +67,7 @@ public class LevelUpUI : NetworkBehaviour
     private void OnLevelChange(int previousValue, int newValue)
     {
         UpdateUI();
+        ReviveDownPlayer();
     }
     private void UpdateUI()
     {
@@ -84,7 +81,14 @@ public class LevelUpUI : NetworkBehaviour
 
         OpenLevelUpScreen();
     }
-
+    private void ReviveDownPlayer()
+    {
+        foreach(Player player in PlayerManager.Instance.AllPlayers)
+        {
+            if(player != null && player.IsDowned) player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
+    
+        }
+    }
     private void OpenLevelUpScreen()
     {
         if (PauseMenuUI.Instance != null)
