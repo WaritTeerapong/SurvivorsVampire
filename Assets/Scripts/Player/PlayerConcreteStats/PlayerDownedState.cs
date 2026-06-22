@@ -5,7 +5,7 @@ public class PlayerDownedState : IPlayerState
     public void OnEnter(Player player)
     {
         if (player.IsOwner && player.Movement != null) player.Movement.Stop();
-        if (player.Revive != null) player.Revive.TriggerReviveZone();
+        if (player.Revive != null) player.Revive.SetReviveZoneActive(true);
         player.ResetDownedState();
 
         if (player.IsServer && PlayerManager.Instance != null)
@@ -16,10 +16,7 @@ public class PlayerDownedState : IPlayerState
 
     public void OnExit(Player player)
     {
-        if (player.Revive != null)
-        {
-            player.Revive.TriggerReviveZone();
-        }
+        if (player.Revive != null) player.Revive.SetReviveZoneActive(false);
 
         // Play Revived SFX
     }

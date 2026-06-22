@@ -20,6 +20,8 @@ public class XPBarUI : NetworkBehaviour
             PlayerLevelManager.Instance.SharedXP.OnValueChanged += OnXPChanged;
             PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged += OnXPChanged;
         }
+
+        UpdateUI();
     }
 
     public override void OnDestroy()

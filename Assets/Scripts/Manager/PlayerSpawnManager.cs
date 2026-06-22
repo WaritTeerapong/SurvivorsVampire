@@ -9,6 +9,10 @@ public class PlayerSpawnManager : NetworkBehaviour
     [SerializeField] private GameObject[] _characterPrefabs;
     [SerializeField] private Transform[] _spawnPoints;
 
+    // Test Mode Settings
+    private bool _isTestMode = false;
+    private int _testSpawnIndex = 0;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -19,7 +23,18 @@ public class PlayerSpawnManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
+            if (GameSessionData.PlayerSelections.Count == 0)
+            {
+                _isTestMode = true;
+                Debug.Log("[PlayerSpawnManager] Enter Test Mode");
+
+                SpawnPlayerForTestMode(NetworkManager.Singleton.LocalClientId);
+                NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedInTestMode;
+            }
+            else
+            {
+                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
+            }
         }
     }
 
@@ -27,7 +42,14 @@ public class PlayerSpawnManager : NetworkBehaviour
     {
         if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
         {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
+            if (_isTestMode)
+            {
+                NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedInTestMode;
+            }
+            else if (NetworkManager.Singleton.SceneManager != null)
+            {
+                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
+            }
         }
     }
 
@@ -51,4 +73,31 @@ public class PlayerSpawnManager : NetworkBehaviour
             }
         }
     }
+
+    private void OnClientConnectedInTestMode(ulong clientId)
+    {
+        if (clientId == NetworkManager.ServerClientId) return;
+
+        SpawnPlayerForTestMode(clientId);
+    }
+
+    private void SpawnPlayerForTestMode(ulong clientId)
+    {
+        if (_characterPrefabs == null || _characterPrefabs.Length == 0) return;
+
+        int charIndex = _testSpawnIndex % _characterPrefabs.Length;
+
+        Transform spawnPos = (_spawnPoints != null && _spawnPoints.Length > _testSpawnIndex) ? _spawnPoints[_testSpawnIndex] : transform;
+
+        GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, Quaternion.identity);
+        NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
+        if (netObj != null) netObj.SpawnAsPlayerObject(clientId, true);
+
+        GameSessionData.PlayerSelections[clientId] = charIndex;
+
+        Debug.Log($"[PlayerSpawnManager] Test Mode: spawn {_characterPrefabs[charIndex].name} toClient ID [{clientId}]");
+
+        _testSpawnIndex++;
+    }
+
 }
