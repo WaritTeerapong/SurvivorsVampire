@@ -31,7 +31,6 @@ public class PlayerManager : NetworkBehaviour
             ActiveTargets.Remove(playerTransform);
         }
 
-        // เช็ก Game Over ทันทีที่มีคนล้ม
         CheckWipeout();
     }
 
