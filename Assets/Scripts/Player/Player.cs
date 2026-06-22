@@ -69,7 +69,7 @@ public class Player : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
+        if (PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
         if (IsOwner) SwitchState(IdleState);
 
         bool isWaitingRoom = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "WaitingRoomScene";
@@ -95,7 +95,7 @@ public class Player : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (IsServer && PlayerManager.Instance != null)
+        if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RemoveActiveTarget(transform);
 
@@ -134,6 +134,8 @@ public class Player : NetworkBehaviour
         if (!IsOwner) return;
         _currentState?.OnFixedUpdate(this);
     }
+
+    
 
     public void SwitchState(IPlayerState newState)
     {

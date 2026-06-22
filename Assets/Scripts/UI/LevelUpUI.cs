@@ -13,6 +13,7 @@ public class LevelUpUI : NetworkBehaviour
     [SerializeField] private StatType[] IntStatArray;
 
     private PlayerRunTimeStats OwnerStat;
+    private Player _localPlayer;
 
     private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
@@ -36,6 +37,24 @@ public class LevelUpUI : NetworkBehaviour
         }
     }
 
+    private Player GetLocalPlayer()
+    {
+        if (_localPlayer == null)
+        {
+            if (NetworkManager.Singleton != null &&
+                NetworkManager.Singleton.LocalClient != null &&
+                NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            {
+                _localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
+                if (_localPlayer != null)
+                {
+                    OwnerStat = _localPlayer.Stats;
+                }
+            }
+        }
+        return _localPlayer;
+    }
+
     private void OnLevelChange(int previousValue, int newValue)
     {
         UpdateUI();
@@ -44,6 +63,17 @@ public class LevelUpUI : NetworkBehaviour
     {
         _pendingLevelUps++;
 
+        Player player = GetLocalPlayer();
+        if (player != null && player.CurrentState is PlayerDiedState)
+        {
+            return;
+        }
+
+        OpenLevelUpScreen();
+    }
+
+    private void OpenLevelUpScreen()
+    {
         if (PauseMenuUI.Instance != null)
         {
             PauseMenuUI.Instance.ForceCloseMenu();
@@ -70,15 +100,7 @@ public class LevelUpUI : NetworkBehaviour
 
     private void ShowNextCards()
     {
-        if (OwnerStat == null)
-        {
-            if (NetworkManager.Singleton != null &&
-                NetworkManager.Singleton.LocalClient != null &&
-                NetworkManager.Singleton.LocalClient.PlayerObject != null)
-            {
-                OwnerStat = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerRunTimeStats>();
-            }
-        }
+        GetLocalPlayer();
         if (OwnerStat == null)
         {
             Debug.LogError("[LevelUpUI] Failed to open screen: Local Client's PlayerRunTimeStats not found!");
@@ -121,10 +143,10 @@ public class LevelUpUI : NetworkBehaviour
         }
 
         // Random revive card index
-        int reviveCardIndex = -1;
+        int respawnCardIndex = -1;
         if (deadPlayer != null && _upgradeCard.Length > 0)
         {
-            reviveCardIndex = Random.Range(0, _upgradeCard.Length);
+            respawnCardIndex = Random.Range(0, _upgradeCard.Length);
         }
 
         foreach (KeyValuePair<string, int> kvp in itemList)
@@ -136,21 +158,21 @@ public class LevelUpUI : NetworkBehaviour
             }
 
             // if there is deadPlayer
-            if (cardIndex == reviveCardIndex && deadPlayer != null)
+            if (cardIndex == respawnCardIndex && deadPlayer != null)
             {
-                UpgradeCard reviveCard = _upgradeCard[cardIndex];
-                reviveCard.gameObject.SetActive(true);
-                reviveCard.SetupCard(false);
+                UpgradeCard respawnCard = _upgradeCard[cardIndex];
+                respawnCard.gameObject.SetActive(true);
+                respawnCard.SetupCard(false);
                 
                 Player targetPlayer = deadPlayer;
-                TMP_Text Buttontext = reviveCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
+                TMP_Text Buttontext = respawnCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
                 if (Buttontext != null)
                 {
                     Buttontext.text = "Revive";
                 }
 
-                reviveCard.UpgradeButton.onClick.RemoveAllListeners();
-                reviveCard.UpgradeButton.onClick.AddListener(() => { OnReviveClicked(targetPlayer); });
+                respawnCard.UpgradeButton.onClick.RemoveAllListeners();
+                respawnCard.UpgradeButton.onClick.AddListener(() => { OnReviveClicked(targetPlayer); });
                 
                 cardIndex++;
                 continue;

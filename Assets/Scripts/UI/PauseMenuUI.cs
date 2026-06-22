@@ -66,6 +66,7 @@ public class PauseMenuUI : MonoBehaviour
 
         PauseManager.Instance.IsGamePaused.OnValueChanged += HandleNetworkPauseState;
         PauseManager.Instance.PlayersInPause.OnListChanged += HandleNetworkListChanged;
+        PauseManager.Instance.PlayersSelectingUpgrade.OnListChanged += HandleNetworkListChanged;
     }
 
     private void OnDestroy()
@@ -74,6 +75,7 @@ public class PauseMenuUI : MonoBehaviour
         {
             PauseManager.Instance.IsGamePaused.OnValueChanged -= HandleNetworkPauseState;
             PauseManager.Instance.PlayersInPause.OnListChanged -= HandleNetworkListChanged;
+            PauseManager.Instance.PlayersSelectingUpgrade.OnListChanged -= HandleNetworkListChanged;
         }
     }
 
@@ -171,9 +173,15 @@ public class PauseMenuUI : MonoBehaviour
 
     private void HandleNetworkListChanged(NetworkListEvent<ulong> changeEvent)
     {
-        if (PauseManager.Instance.PlayersInPause.Count == 0 && _currentState == PauseUIState.Overlay)
+        if (PauseManager.Instance.PlayersInPause.Count == 0 && 
+            PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && 
+            _currentState == PauseUIState.Overlay)
         {
             ChangeState(PauseUIState.Closed);
+        }
+        else if (_currentState == PauseUIState.Overlay)
+        {
+            ChangeState(PauseUIState.Overlay);
         }
     }
 
