@@ -216,6 +216,9 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &6176288803174306615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,7 +330,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -570,7 +573,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5019429850439961323}
   - component: {fileID: 4184023371805941045}
-  - component: {fileID: 6405056159239255823}
   m_Layer: 0
   m_Name: Player_Revive_Handler
   m_TagString: Untagged
@@ -609,42 +611,6 @@ MonoBehaviour:
   ReviveZoneVisual: {fileID: 8099878091496891857}
   PulseDuration: 0.8
   PulseScaleMultiplier: 1.1
---- !u!58 &6405056159239255823
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8419586567475413493}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 2
 --- !u!1001 &515609308555571323
 PrefabInstance:
   m_ObjectHideFlags: 0
