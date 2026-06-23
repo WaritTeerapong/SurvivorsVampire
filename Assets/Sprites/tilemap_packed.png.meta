@@ -303,7 +303,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -1805,7 +1805,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_77
+      name: Mouse_Icon
       rect:
         serializedVersion: 2
         x: 80
@@ -4486,6 +4486,7 @@ TextureImporter:
       Button_Inside: 709914666
       Circle: -1453350334737186109
       HealthBar_Fill: 803125627
+      Mouse_Icon: -6063519145960861328
       P: 4268319000540810990
       Slider_Outline: 451902557
       tilemap_packed_1: -5773244093850934461
@@ -4656,7 +4657,6 @@ TextureImporter:
       tilemap_packed_74: 2853563901448420038
       tilemap_packed_75: -777192215358952243
       tilemap_packed_76: 2639991045785316579
-      tilemap_packed_77: -6063519145960861328
       tilemap_packed_78: 1925071315
       tilemap_packed_79: -765819925
       tilemap_packed_8: 6766204184792930467
