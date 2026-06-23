@@ -86,7 +86,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   ShowTopMostFoldoutHeaderGroup: 1
-  GhostSprite: {fileID: -8419292424465274708, guid: 849ea60b27ef6b941b45966a2dc762ba, type: 3}
+  GravestonePrefab: {fileID: 3358405691680599871, guid: 0bfe2ef48e17592479fe74b4d39ea769, type: 3}
   DiedTimer:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -118,6 +118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  GhostMoveSpeed: 7
   FacingDirection:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

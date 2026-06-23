@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class PlayerMovement : NetworkBehaviour
 {
+    [Header("=== Ghost Setting ===")]
+    public float GhostMoveSpeed = 7f;
+
     private Rigidbody2D _rb;
     public NetworkVariable<float> FacingDirection = new NetworkVariable<float>
     (
