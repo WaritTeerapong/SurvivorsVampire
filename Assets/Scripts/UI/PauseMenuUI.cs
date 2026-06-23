@@ -152,8 +152,7 @@ public class PauseMenuUI : MonoBehaviour
     {
         ChangeState(PauseUIState.Closed);
 
-        if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
-        // TODO : Load to main menu scene na ja
+        NetworkDisconnectHandler.ReturnToMainMenu();
     }
 
     private void HandleNetworkPauseState(bool previousValue, bool isPaused)

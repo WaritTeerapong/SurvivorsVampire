@@ -605,7 +605,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6aa23058297d1649a2f54d46e77b5c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerReviveHandler
-  ReviveZone: 2
+  ReviveZoneRadius: 2
   ReviveZoneVisual: {fileID: 8099878091496891857}
   PulseDuration: 0.8
   PulseScaleMultiplier: 1.1
@@ -803,6 +803,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2033561544125119969}
     m_Modifications:
+    - target: {fileID: 1282698769863480762, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3019096529650882932, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -883,9 +887,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4495083882923918113, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 4495083882923918113, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5491379475218135029, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 5491379475218135029, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.49
+      objectReference: {fileID: 0}
     - target: {fileID: 6000132192839850885, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
       propertyPath: m_Name
       value: Revive_Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7184966901236716965, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7184966901236716965, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
