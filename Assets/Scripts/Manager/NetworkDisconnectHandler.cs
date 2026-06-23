@@ -29,7 +29,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsServer && (clientId == NetworkManager.ServerClientId || clientId == NetworkManager.Singleton.LocalClientId))
         {
-            Debug.Log("[Network] สัญญาณจาก Host ขาดหาย! กำลังดีดกลับหน้า Main Menu...");
+            Debug.Log("[Network] Host is Gone for good!! Going to Main Menu...");
 
             Time.timeScale = 1f;
             SceneManager.LoadScene("MainMenuScene");
@@ -37,13 +37,22 @@ public class NetworkDisconnectHandler : MonoBehaviour
 
         if (NetworkManager.Singleton.IsServer && clientId != NetworkManager.Singleton.LocalClientId)
         {
-            Debug.Log($"[Network] Client [{clientId}] ได้ออกจากเกมไปแล้ว");
+            Debug.Log($"[Network] Client [{clientId}] is disconnected");
 
             if (GameSessionData.PlayerSelections.ContainsKey(clientId))
                 GameSessionData.PlayerSelections.Remove(clientId);
 
             if (GameSessionData.SpawnedDummies.ContainsKey(clientId))
                 GameSessionData.SpawnedDummies.Remove(clientId);
+
+            if (PauseManager.Instance != null)
+            {
+                if (PauseManager.Instance.PlayersInPause.Contains(clientId))
+                    PauseManager.Instance.PlayersInPause.Remove(clientId);
+
+                if (PauseManager.Instance.PlayersSelectingUpgrade.Contains(clientId))
+                    PauseManager.Instance.PlayersSelectingUpgrade.Remove(clientId);
+            }
         }
     }
 
