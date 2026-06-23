@@ -4,13 +4,8 @@ public class PlayerDiedState : IPlayerState
     private int _currentAnimHash;
     public void OnEnter(Player player)
     {
-        player.BecomeGhostRpc();
+        player.BecomeGhost();
         _currentAnimHash = player.GHOST_IDLE;
-
-        if (player.IsServer && PlayerManager.Instance != null)
-        {
-            PlayerManager.Instance.RemoveActiveTarget(player.transform);
-        }
     }
 
     public void OnUpdate(Player player)

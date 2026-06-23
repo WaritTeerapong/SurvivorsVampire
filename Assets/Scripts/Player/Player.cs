@@ -173,7 +173,7 @@ public class Player : NetworkBehaviour
         if (Anim.enabled) Anim.CrossFade(hash, 0.1f);
     }
 
-    public void BecomeGhostRpc()
+    public void BecomeGhost()
     {
         if (Anim != null)
         {
@@ -186,7 +186,7 @@ public class Player : NetworkBehaviour
         {
             if (PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
 
-            if (GravestonePrefab != null && _myGravestone != null)
+            if (GravestonePrefab != null && _myGravestone == null)
             {
                 _myGravestone = ObjectPoolManager.Instance.SpawnObject(GravestonePrefab, transform.position, Quaternion.identity);
 
