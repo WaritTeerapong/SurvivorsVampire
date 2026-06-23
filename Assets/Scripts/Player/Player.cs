@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 public class Player : NetworkBehaviour
 {
+    #region Component Reference
     [Header("=== Component Reference ===")]
     public PlayerRunTimeStats Stats { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
@@ -13,11 +14,15 @@ public class Player : NetworkBehaviour
     public PlayerInventory Inventory { get; private set; } // for debug
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
+    #endregion
 
-    [Header("=== Ghost Mode Sprite ===")]
-    public Sprite GhostSprite;
+    #region Ghost Mode
+    [Header("=== Ghost Mode ===")]
+    public GameObject GravestonePrefab;
+    private GameObject _myGravestone;
+    #endregion
 
-    // === FSM States ===
+    #region FSM States
     public readonly IPlayerState IdleState = new PlayerIdleState();
     public readonly IPlayerState MoveState = new PlayerMoveState();
     public readonly IPlayerState DownedState = new PlayerDownedState();
@@ -25,10 +30,14 @@ public class Player : NetworkBehaviour
 
     private IPlayerState _currentState;
     public IPlayerState CurrentState => _currentState;
+    #endregion
 
+    #region Downed Checker
     public bool IsDowned => _currentState == DownedState;
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
+    #endregion
 
+    #region NetworkVariable
     [Header("=== Revive & Die Settings ===")]
     public NetworkVariable<float> DiedTimer = new NetworkVariable<float>(
         10f,
@@ -47,7 +56,9 @@ public class Player : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
+    #endregion
 
+    #region Revive System
     private int _playersInReviveZone = 0;
 
     private float _reviveScanTimer = 0f;
@@ -58,12 +69,15 @@ public class Player : NetworkBehaviour
     private bool _isFilterInitialized = false;
 
     public LayerMask PlayerLayer;
+    #endregion
 
-    // === Animation Hashes ===
+    #region Animation Hash
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
     public readonly int RUN = Animator.StringToHash("PLAYER_RUN");
-    // public readonly int DOWN = Animator.StringToHash("PLAYER_DOWN");
-    // public readonly int DIED = Animator.StringToHash("PLAYER_DIED");
+    public readonly int DOWN = Animator.StringToHash("PLAYER_DOWNED");
+    public readonly int GHOST_IDLE = Animator.StringToHash("PLAYER_GHOST_IDLE");
+    public readonly int GHOST_RUN = Animator.StringToHash("PLAYER_GHOST_RUN");
+    #endregion
 
     void Awake()
     {
@@ -160,13 +174,29 @@ public class Player : NetworkBehaviour
         if (Anim.enabled) Anim.CrossFade(hash, 0.1f);
     }
 
-    public void BecomeGhostRpc()
+    public void BecomeGhost()
     {
-        if (Anim != null) Anim.enabled = false;
-        if (SpriteRend != null && GhostSprite != null) SpriteRend.sprite = GhostSprite;
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
-
+        if (Anim != null)
+        {
+            Anim.enabled = true;
+            PlayAnimation(GHOST_IDLE);
+        }
         if (Revive != null) Revive.gameObject.SetActive(false);
+
+        if (IsServer)
+        {
+            if (PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
+
+            if (GravestonePrefab != null && _myGravestone == null)
+            {
+                _myGravestone = ObjectPoolManager.Instance.SpawnObject(GravestonePrefab, transform.position, Quaternion.identity);
+
+                if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && !netObj.IsSpawned)
+                {
+                    netObj.Spawn(true);
+                }
+            }
+        }
     }
 
     public void ResetDownedState()
@@ -256,6 +286,26 @@ public class Player : NetworkBehaviour
         return count;
     }
 
+    // ดึง Function นี้ไปใช้กับ Card ได้เลย
+    public void RespawnFromCard()
+    {
+        if (!IsServer) return;
+
+        if (_myGravestone != null)
+        {
+            transform.position = _myGravestone.transform.position;
+
+            if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && netObj.IsSpawned)
+            {
+                netObj.Despawn(false);
+            }
+            ObjectPoolManager.Instance.ReturnObjectToPool(_myGravestone);
+            _myGravestone = null;
+        }
+
+        RevivePlayerRpc();
+    }
+
     [Rpc(SendTo.Everyone)]
     public void ForceGhostRpc()
     {
@@ -269,6 +319,8 @@ public class Player : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void TakeDamageRpc(int damage)
     {
+        if (IsDownOrDied) return;
+
         Stats.ApplyDamage(damage);
 
         if (DamagePopupManager.Instance != null)
