@@ -193,11 +193,10 @@ public class Player : NetworkBehaviour
 
                 if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && !netObj.IsSpawned)
                 {
-                    netObj.Spawn();
+                    netObj.Spawn(true);
                 }
             }
         }
-
     }
 
     public void ResetDownedState()
@@ -287,6 +286,7 @@ public class Player : NetworkBehaviour
         return count;
     }
 
+    // ดึง Function นี้ไปใช้กับ Card ได้เลย
     public void RespawnFromCard()
     {
         if (!IsServer) return;
