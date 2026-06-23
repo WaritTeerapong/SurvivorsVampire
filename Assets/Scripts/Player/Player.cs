@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -48,6 +49,15 @@ public class Player : NetworkBehaviour
     );
 
     private int _playersInReviveZone = 0;
+
+    private float _reviveScanTimer = 0f;
+    private const float REVIVE_SCAN_INTERVAL = 0.1f;
+    private Collider2D[] _reviveScanResults = new Collider2D[2];
+
+    private ContactFilter2D _playerScanFilter;
+    private bool _isFilterInitialized = false;
+
+    public LayerMask PlayerLayer;
 
     // === Animation Hashes ===
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
@@ -173,10 +183,17 @@ public class Player : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        _reviveScanTimer -= Time.deltaTime;
+        if (_reviveScanTimer <= 0)
+        {
+            _reviveScanTimer = REVIVE_SCAN_INTERVAL;
+            _playersInReviveZone = PreformReviveScan();
+            IsBeingRevived.Value = _playersInReviveZone > 0;
+        }
+
         if (_playersInReviveZone > 0)
         {
             ReviveTimer.Value -= Time.deltaTime;
-            Debug.Log($"[Debug] Reviving... Time left: {ReviveTimer.Value:F1}s");
 
             if (ReviveTimer.Value <= 0)
             {
@@ -189,8 +206,12 @@ public class Player : NetworkBehaviour
         }
         else
         {
+            if (ReviveTimer.Value < 3f)
+            {
+                ReviveTimer.Value = 3f;
+            }
+
             DiedTimer.Value -= Time.deltaTime;
-            Debug.Log($"[Debug] Dying... Time left: {DiedTimer.Value:F1}s");
 
             if (DiedTimer.Value <= 0)
             {
@@ -200,6 +221,41 @@ public class Player : NetworkBehaviour
         }
     }
 
+    private int PreformReviveScan()
+    {
+        if (Revive == null) return 0;
+
+        if (!_isFilterInitialized)
+        {
+            _playerScanFilter = new ContactFilter2D();
+            _playerScanFilter.useLayerMask = true;
+            _playerScanFilter.layerMask = PlayerLayer;
+            _playerScanFilter.useTriggers = true;
+
+            _isFilterInitialized = true;
+        }
+
+        int count = 0;
+
+        int hitCount = Physics2D.OverlapCircle(transform.position, Revive.ReviveZoneRadius, _playerScanFilter, _reviveScanResults);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = _reviveScanResults[i];
+
+            if (hit.CompareTag("Player"))
+            {
+                Player otherPlayer = hit.GetComponent<Player>();
+
+                if (otherPlayer != null && otherPlayer != this && !otherPlayer.IsDownOrDied)
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
     [Rpc(SendTo.Everyone)]
     public void ForceGhostRpc()
     {
@@ -207,22 +263,6 @@ public class Player : NetworkBehaviour
         if (_currentState == DownedState)
         {
             SwitchState(DiedState);
-        }
-    }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void UpdateReviverCountServerRpc(int amount)
-    {
-        if (!IsServer) return;
-
-        _playersInReviveZone += amount;
-        if (_playersInReviveZone < 0) _playersInReviveZone = 0;
-
-        IsBeingRevived.Value = _playersInReviveZone > 0;
-
-        if (_playersInReviveZone == 0)
-        {
-            ReviveTimer.Value = 3f;
         }
     }
 

@@ -216,6 +216,9 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &6176288803174306615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,7 +330,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0

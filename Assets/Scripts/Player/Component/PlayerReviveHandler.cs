@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class PlayerReviveHandler : MonoBehaviour
 {
-    private Player _player;
-    private CircleCollider2D _reviveCol;
-
     [Header("=== Revive Settings ===")]
     public float ReviveZoneRadius = 2f;
     private bool _isZoneOpen = false;
@@ -19,14 +16,6 @@ public class PlayerReviveHandler : MonoBehaviour
 
     void Awake()
     {
-        _player = GetComponentInParent<Player>();
-        _reviveCol = GetComponent<CircleCollider2D>();
-
-        _reviveCol.radius = ReviveZoneRadius > 0 ? ReviveZoneRadius : 2f;
-        if (!_reviveCol.isTrigger) _reviveCol.isTrigger = true;
-
-        _reviveCol.enabled = false;
-
         if (ReviveZoneVisual != null)
         {
             SpriteRenderer sr = ReviveZoneVisual.GetComponent<SpriteRenderer>();
@@ -46,7 +35,6 @@ public class PlayerReviveHandler : MonoBehaviour
         if (_isZoneOpen == isActive) return;
 
         _isZoneOpen = isActive;
-        _reviveCol.enabled = _isZoneOpen;
 
         if (ReviveZoneVisual != null)
         {
@@ -67,30 +55,6 @@ public class PlayerReviveHandler : MonoBehaviour
             {
                 ReviveZoneVisual.transform.DOKill();
             }
-        }
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player")) return;
-
-        Player reviver = other.GetComponentInParent<Player>();
-
-        if (reviver != null && reviver.IsOwner && !reviver.IsDowned)
-        {
-            _player.UpdateReviverCountServerRpc(1);
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player")) return;
-
-        Player reviver = other.GetComponentInParent<Player>();
-
-        if (reviver != null && reviver.IsOwner && !reviver.IsDowned)
-        {
-            _player.UpdateReviverCountServerRpc(-1);
         }
     }
 

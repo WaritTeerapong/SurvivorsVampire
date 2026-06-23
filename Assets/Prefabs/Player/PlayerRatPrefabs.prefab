@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3971789719
+  GlobalObjectIdHash: 4066562389
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -102,6 +102,9 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &7728076448846563532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,7 +216,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -491,7 +494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6aa23058297d1649a2f54d46e77b5c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerReviveHandler
-  ReviveZone: 2
+  ReviveZoneRadius: 2
   ReviveZoneVisual: {fileID: 4399644748424329040}
   PulseDuration: 0.8
   PulseScaleMultiplier: 1.1
