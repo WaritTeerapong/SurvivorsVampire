@@ -8,6 +8,8 @@ public class PlayerDownedState : IPlayerState
         if (player.Revive != null) player.Revive.SetReviveZoneActive(true);
         player.ResetDownedState();
 
+        player.PlayAnimation(player.DOWN);
+
         if (player.IsServer && PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RemoveActiveTarget(player.transform);

@@ -74,6 +74,7 @@ public class Player : NetworkBehaviour
     #region Animation Hash
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
     public readonly int RUN = Animator.StringToHash("PLAYER_RUN");
+    public readonly int DOWN = Animator.StringToHash("PLAYER_DOWNED");
     public readonly int GHOST_IDLE = Animator.StringToHash("PLAYER_GHOST_IDLE");
     public readonly int GHOST_RUN = Animator.StringToHash("PLAYER_GHOST_RUN");
     #endregion
