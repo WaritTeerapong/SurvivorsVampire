@@ -151,6 +151,7 @@ public class Player : NetworkBehaviour
         if (Keyboard.current.pKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p2");
 
         if (Keyboard.current.lKey.wasPressedThisFrame) PlayerLevelManager.Instance.SharedLevel.Value += 1;
+        if (Keyboard.current.kKey.wasPressedThisFrame) PlayerLevelManager.Instance.RequestGainXPRpc(100);
     }
 
     void FixedUpdate()
