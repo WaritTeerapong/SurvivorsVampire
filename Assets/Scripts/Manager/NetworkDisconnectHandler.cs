@@ -32,6 +32,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
             Debug.Log("[Network] Host is Gone for good!! Going to Main Menu...");
 
             Time.timeScale = 1f;
+            // TODO: Change to load "CoreScene" instead of "MainMenuScene" to safely reset managers and avoid destroying SceneController singleton
             SceneManager.LoadScene("MainMenuScene");
         }
 
@@ -67,6 +68,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
         else
         {
             if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
+            // TODO: Change to load "CoreScene" instead of "MainMenuScene" to safely reset managers and avoid destroying SceneController singleton
             SceneManager.LoadScene("MainMenuScene");
         }
     }
@@ -94,6 +96,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
         }
 
         Time.timeScale = 1f;
+        // TODO: Change to load "CoreScene" instead of "MainMenuScene" to safely reset managers and avoid destroying SceneController singleton
         SceneManager.LoadScene("MainMenuScene");
     }
 }

@@ -60,7 +60,8 @@ public class WaitingRoomManager : NetworkBehaviour
                     }
                     GameSessionData.SpawnedDummies.Clear();
 
-                    NetworkManager.Singleton.SceneManager.LoadScene("Bob_Test_Scene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                    // TODO: Replace with SceneController.Instance.NewTransition().Load(Session Slot, Session Scene).WithOverlay().Perform() to load additively and keep CoreScene alive
+                    NetworkManager.Singleton.SceneManager.LoadScene("SessionScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
                     this.enabled = false;
                 }
             }

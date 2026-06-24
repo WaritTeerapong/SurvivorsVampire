@@ -15,7 +15,14 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.SpawnedDummies.Clear();
 
         NetworkManager.Singleton.StartHost();
-        NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoomScene", LoadSceneMode.Single);
+        //NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoomScene", LoadSceneMode.Single);
+        SceneController.Instance
+            .NewTransition()
+            .Load(SceneDatabase.Slots.SESSION, SceneDatabase.Scenes.WAITING_ROOM)
+            .Unload(SceneDatabase.Slots.MAIN_MENU)
+            .WithOverlay()
+            .WithClearUnusedAssets()
+            .Perform();
     }
 
     public void OnJoinButtonClicked()

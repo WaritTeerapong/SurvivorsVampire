@@ -100,6 +100,7 @@ public class GameManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.SceneManager != null)
         {
+            // TODO: Use SceneController.Instance.NewTransition().Load(Session Slot, Waiting Room Scene).WithOverlay().Perform() to transition additively and preserve CoreScene
             NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoomScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
     }

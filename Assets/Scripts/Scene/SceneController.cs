@@ -17,11 +17,48 @@ public class SceneController : NetworkBehaviour
         else Destroy(gameObject);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if(NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
+        }
+    }
+    public override void OnNetworkDespawn()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
+        }
+    }
+
+
+    private void OnSceneEvent(SceneEvent sceneEvent)
+    {
+        switch (sceneEvent.SceneEventType)
+        {
+            case SceneEventType.Load:
+                break;
+            case SceneEventType.LoadComplete:
+                break;
+            case SceneEventType.Unload:
+                break;
+            case SceneEventType.UnloadComplete:
+                break;
+        }
+        return;
+    }
+
+    // Instantiates a new scene transition plan using the Builder Pattern
     public SceneTransitionPlan NewTransition()
     {
         return new SceneTransitionPlan();
     }
 
+    // TODO: Subscribe to Netcode scene events (OnSceneEvent) on Server/Client Start
+    // to automate loading overlay fading and client-side cleanup of the Main Menu scene.
+
+    // Internal entry point to execute the transition plan
     private Coroutine ExecutePlan(SceneTransitionPlan plan)
     {
         if (_isBusy)
@@ -33,21 +70,27 @@ public class SceneController : NetworkBehaviour
         _isBusy=true;
         return StartCoroutine(ChangeSceneRoutine(plan));
     }
+
+    // Coroutine that performs the sequential transition logic (overlay fade, unload, reload)
     private IEnumerator ChangeSceneRoutine(SceneTransitionPlan plan)
     {
+        // TODO: Bypass local overlay fade here when Netcode session is active (let OnSceneEvent handle it instead)
         if (plan.Overlay)
         {
             yield return _loadingOverlay.FadeInBlack();
             yield return new WaitForSeconds(0.5f);
         }
+
         foreach (var slotKey in plan.SceneToUnLoad)
         {
             yield return UnloadSceneRoutine(slotKey);
         }
+
         if (plan.ClearUnusedAssets)
         {
             yield return ClearUnusedAssetsRoutine();
         }
+
         foreach (var kvp in plan.SceneToLoad)
         {
             if (_loadedSceneBySlot.ContainsKey(kvp.Key))
@@ -67,6 +110,7 @@ public class SceneController : NetworkBehaviour
 
     private IEnumerator LoadAdditiveSceneRoutine(string slotKey, string sceneName, bool setActive)
     {
+        // TODO: If NetworkManager.Singleton.IsServer is true, use NetworkSceneManager to load scene additively
         AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName,LoadSceneMode.Additive);
         if (loadOp == null) yield break;
         loadOp.allowSceneActivation = false;
@@ -96,6 +140,7 @@ public class SceneController : NetworkBehaviour
     {
         if(!_loadedSceneBySlot.TryGetValue(slotKey, out string sceneName)) yield break;
         if (string.IsNullOrEmpty(sceneName)) yield break;
+        // TODO: If NetworkManager.Singleton.IsServer is true, use NetworkSceneManager to unload the scene
         AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(sceneName);
         if (unloadOp == null) yield break;
         while (!unloadOp.isDone)
@@ -144,6 +189,8 @@ public class SceneController : NetworkBehaviour
             ClearUnusedAssets = true;
             return this;
         }
+
+        // Terminal operation of the builder pattern; triggers the execution of the plan
         public Coroutine Perform()
         {
             return SceneController.Instance.ExecutePlan(this);
