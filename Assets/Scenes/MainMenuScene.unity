@@ -281,6 +281,11 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &138785492 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 1564663818}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &151358398
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,6 +436,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 176261043}
   m_CullTransparentMesh: 1
+--- !u!1 &258618006 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 2273782833887042672}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &278439398
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,6 +1209,22 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5020691958439973925, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 2273782833887042672}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &794096345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258618006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &804923706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1551,6 +1577,11 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1068718727 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 1819013712}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1075745999
 GameObject:
   m_ObjectHideFlags: 0
@@ -1719,6 +1750,11 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1214825721 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 1722459219}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1261304240
 GameObject:
   m_ObjectHideFlags: 0
@@ -2436,13 +2472,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1564663823}
   m_SourcePrefab: {fileID: 100100000, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
 --- !u!224 &1564663819 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5020691958439973925, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 1564663818}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1564663823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138785492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1565314950
 GameObject:
   m_ObjectHideFlags: 0
@@ -2592,6 +2647,7 @@ GameObject:
   - component: {fileID: 1653518922}
   - component: {fileID: 1653518921}
   - component: {fileID: 1653518920}
+  - component: {fileID: 1653518923}
   m_Layer: 5
   m_Name: Settings_Back_Button
   m_TagString: Untagged
@@ -2713,6 +2769,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1653518918}
   m_CullTransparentMesh: 1
+--- !u!114 &1653518923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653518918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1655347049
 GameObject:
   m_ObjectHideFlags: 0
@@ -3084,13 +3156,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1722459224}
   m_SourcePrefab: {fileID: 100100000, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
 --- !u!224 &1722459220 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5020691958439973925, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 1722459219}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1722459224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214825721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1750367285
 GameObject:
   m_ObjectHideFlags: 0
@@ -3504,13 +3595,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1819013717}
   m_SourcePrefab: {fileID: 100100000, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
 --- !u!224 &1819013713 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5020691958439973925, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 1819013712}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1819013717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068718727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1828915303
 GameObject:
   m_ObjectHideFlags: 0
@@ -4304,7 +4414,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 794096345}
   m_SourcePrefab: {fileID: 100100000, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

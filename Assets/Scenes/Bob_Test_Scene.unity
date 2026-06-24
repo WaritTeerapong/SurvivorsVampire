@@ -809,6 +809,7 @@ GameObject:
   - component: {fileID: 291135765}
   - component: {fileID: 291135764}
   - component: {fileID: 291135763}
+  - component: {fileID: 291135766}
   m_Layer: 5
   m_Name: Resume_Button
   m_TagString: Untagged
@@ -918,6 +919,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 291135761}
   m_CullTransparentMesh: 1
+--- !u!114 &291135766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 291135761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &350687944
 GameObject:
   m_ObjectHideFlags: 0
@@ -1719,10 +1736,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameplayUI_Canvas
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1562486065653260884, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+    - {fileID: 5761320895968380433, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+    - {fileID: 1131360617023423784, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2492170574011386367, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 521524032}
+    - targetCorrespondingSourceObject: {fileID: 8712771873470171049, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 521524031}
+    - targetCorrespondingSourceObject: {fileID: 1117590837923112226, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 521524030}
   m_SourcePrefab: {fileID: 100100000, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
 --- !u!114 &521524023 stripped
 MonoBehaviour:
@@ -1762,6 +1791,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!1 &521524027 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1117590837923112226, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &521524028 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8712771873470171049, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &521524029 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2492170574011386367, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+  m_PrefabInstance: {fileID: 521524022}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &521524030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521524027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
+--- !u!114 &521524031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521524028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
+--- !u!114 &521524032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521524029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &530714076
 GameObject:
   m_ObjectHideFlags: 0
@@ -17488,6 +17580,7 @@ GameObject:
   - component: {fileID: 1100413596}
   - component: {fileID: 1100413595}
   - component: {fileID: 1100413597}
+  - component: {fileID: 1100413598}
   m_Layer: 5
   m_Name: Restart_Button
   m_TagString: Untagged
@@ -17609,6 +17702,22 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1100413598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100413593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1231212288
 GameObject:
   m_ObjectHideFlags: 0
@@ -17761,6 +17870,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   Target: {fileID: 0}
   Offset: {x: 0, y: 0, z: -10}
+  FollowSpeed: 10
 --- !u!1 &1236145195
 GameObject:
   m_ObjectHideFlags: 0
@@ -18334,10 +18444,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1388754797}
-  - component: {fileID: 1388754801}
   - component: {fileID: 1388754800}
   - component: {fileID: 1388754799}
   - component: {fileID: 1388754798}
+  - component: {fileID: 1388754801}
   m_Layer: 5
   m_Name: Rat_Button
   m_TagString: Untagged
@@ -18459,6 +18569,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1390459638
 GameObject:
   m_ObjectHideFlags: 0
@@ -18661,6 +18775,7 @@ GameObject:
   - component: {fileID: 1506232095}
   - component: {fileID: 1506232094}
   - component: {fileID: 1506232093}
+  - component: {fileID: 1506232096}
   m_Layer: 5
   m_Name: Settings_Back_Button
   m_TagString: Untagged
@@ -18770,6 +18885,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1506232091}
   m_CullTransparentMesh: 1
+--- !u!114 &1506232096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506232091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1511111784
 GameObject:
   m_ObjectHideFlags: 0
@@ -19316,6 +19447,7 @@ GameObject:
   - component: {fileID: 1573148475}
   - component: {fileID: 1573148474}
   - component: {fileID: 1573148473}
+  - component: {fileID: 1573148476}
   m_Layer: 5
   m_Name: Quit_Button
   m_TagString: Untagged
@@ -19425,6 +19557,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1573148471}
   m_CullTransparentMesh: 1
+--- !u!114 &1573148476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1573148471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1602190078
 GameObject:
   m_ObjectHideFlags: 0
@@ -19784,6 +19932,7 @@ GameObject:
   - component: {fileID: 1720227115}
   - component: {fileID: 1720227114}
   - component: {fileID: 1720227113}
+  - component: {fileID: 1720227116}
   m_Layer: 5
   m_Name: Settings_Button
   m_TagString: Untagged
@@ -19893,6 +20042,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1720227111}
   m_CullTransparentMesh: 1
+--- !u!114 &1720227116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1720227111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1760767650
 GameObject:
   m_ObjectHideFlags: 0
@@ -20135,10 +20300,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1770124613}
-  - component: {fileID: 1770124617}
   - component: {fileID: 1770124615}
   - component: {fileID: 1770124614}
   - component: {fileID: 1770124616}
+  - component: {fileID: 1770124617}
   m_Layer: 5
   m_Name: Fox_Button
   m_TagString: Untagged
@@ -20260,6 +20425,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1787466318
 GameObject:
   m_ObjectHideFlags: 0

@@ -185,7 +185,7 @@ public class Player : NetworkBehaviour
         _currentState?.OnFixedUpdate(this);
     }
 
-    public event System.Action<IPlayerState> OnStateChanged;
+    public event Action<IPlayerState> OnStateChanged;
 
     public void SwitchState(IPlayerState newState)
     {
@@ -399,4 +399,6 @@ public class Player : NetworkBehaviour
     {
         SwitchState(IdleState);
     }
+
+
 }
