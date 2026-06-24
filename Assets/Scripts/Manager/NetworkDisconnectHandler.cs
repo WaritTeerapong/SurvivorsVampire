@@ -44,7 +44,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
 
             if (GameSessionData.SpawnedDummies.ContainsKey(clientId))
                 GameSessionData.SpawnedDummies.Remove(clientId);
-
+            
             if (PauseManager.Instance != null)
             {
                 if (PauseManager.Instance.PlayersInPause.Contains(clientId))
