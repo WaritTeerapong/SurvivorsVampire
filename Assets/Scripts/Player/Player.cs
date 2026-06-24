@@ -1,9 +1,11 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : NetworkBehaviour
 {
+    #region Component Reference
     [Header("=== Component Reference ===")]
     public PlayerRunTimeStats Stats { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
@@ -12,11 +14,15 @@ public class Player : NetworkBehaviour
     public PlayerInventory Inventory { get; private set; } // for debug
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
+    #endregion
 
-    [Header("=== Ghost Mode Sprite ===")]
-    public Sprite GhostSprite;
+    #region Ghost Mode
+    [Header("=== Ghost Mode ===")]
+    public GameObject GravestonePrefab;
+    private GameObject _myGravestone;
+    #endregion
 
-    // === FSM States ===
+    #region FSM States
     public readonly IPlayerState IdleState = new PlayerIdleState();
     public readonly IPlayerState MoveState = new PlayerMoveState();
     public readonly IPlayerState DownedState = new PlayerDownedState();
@@ -24,10 +30,14 @@ public class Player : NetworkBehaviour
 
     private IPlayerState _currentState;
     public IPlayerState CurrentState => _currentState;
+    #endregion
 
+    #region Downed Checker
     public bool IsDowned => _currentState == DownedState;
     public bool IsDownOrDied => _currentState == DownedState || _currentState == DiedState;
+    #endregion
 
+    #region NetworkVariable
     [Header("=== Revive & Die Settings ===")]
     public NetworkVariable<float> DiedTimer = new NetworkVariable<float>(
         10f,
@@ -46,14 +56,28 @@ public class Player : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server
     );
+    #endregion
 
+    #region Revive System
     private int _playersInReviveZone = 0;
 
-    // === Animation Hashes ===
+    private float _reviveScanTimer = 0f;
+    private const float REVIVE_SCAN_INTERVAL = 0.1f;
+    private Collider2D[] _reviveScanResults = new Collider2D[2];
+
+    private ContactFilter2D _playerScanFilter;
+    private bool _isFilterInitialized = false;
+
+    public LayerMask PlayerLayer;
+    #endregion
+
+    #region Animation Hash
     public readonly int IDLE = Animator.StringToHash("PLAYER_IDLE");
     public readonly int RUN = Animator.StringToHash("PLAYER_RUN");
-    // public readonly int DOWN = Animator.StringToHash("PLAYER_DOWN");
-    // public readonly int DIED = Animator.StringToHash("PLAYER_DIED");
+    public readonly int DOWN = Animator.StringToHash("PLAYER_DOWNED");
+    public readonly int GHOST_IDLE = Animator.StringToHash("PLAYER_GHOST_IDLE");
+    public readonly int GHOST_RUN = Animator.StringToHash("PLAYER_GHOST_RUN");
+    #endregion
 
     void Awake()
     {
@@ -150,13 +174,29 @@ public class Player : NetworkBehaviour
         if (Anim.enabled) Anim.CrossFade(hash, 0.1f);
     }
 
-    public void BecomeGhostRpc()
+    public void BecomeGhost()
     {
-        if (Anim != null) Anim.enabled = false;
-        if (SpriteRend != null && GhostSprite != null) SpriteRend.sprite = GhostSprite;
-        if (IsServer && PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
-
+        if (Anim != null)
+        {
+            Anim.enabled = true;
+            PlayAnimation(GHOST_IDLE);
+        }
         if (Revive != null) Revive.gameObject.SetActive(false);
+
+        if (IsServer)
+        {
+            if (PlayerManager.Instance != null) PlayerManager.Instance.RemoveActiveTarget(transform);
+
+            if (GravestonePrefab != null && _myGravestone == null)
+            {
+                _myGravestone = ObjectPoolManager.Instance.SpawnObject(GravestonePrefab, transform.position, Quaternion.identity);
+
+                if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && !netObj.IsSpawned)
+                {
+                    netObj.Spawn(true);
+                }
+            }
+        }
     }
 
     public void ResetDownedState()
@@ -173,10 +213,17 @@ public class Player : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        _reviveScanTimer -= Time.deltaTime;
+        if (_reviveScanTimer <= 0)
+        {
+            _reviveScanTimer = REVIVE_SCAN_INTERVAL;
+            _playersInReviveZone = PreformReviveScan();
+            IsBeingRevived.Value = _playersInReviveZone > 0;
+        }
+
         if (_playersInReviveZone > 0)
         {
             ReviveTimer.Value -= Time.deltaTime;
-            Debug.Log($"[Debug] Reviving... Time left: {ReviveTimer.Value:F1}s");
 
             if (ReviveTimer.Value <= 0)
             {
@@ -189,8 +236,12 @@ public class Player : NetworkBehaviour
         }
         else
         {
+            if (ReviveTimer.Value < 3f)
+            {
+                ReviveTimer.Value = 3f;
+            }
+
             DiedTimer.Value -= Time.deltaTime;
-            Debug.Log($"[Debug] Dying... Time left: {DiedTimer.Value:F1}s");
 
             if (DiedTimer.Value <= 0)
             {
@@ -198,6 +249,61 @@ public class Player : NetworkBehaviour
                 DiedTimer.Value = 10f;
             }
         }
+    }
+
+    private int PreformReviveScan()
+    {
+        if (Revive == null) return 0;
+
+        if (!_isFilterInitialized)
+        {
+            _playerScanFilter = new ContactFilter2D();
+            _playerScanFilter.useLayerMask = true;
+            _playerScanFilter.layerMask = PlayerLayer;
+            _playerScanFilter.useTriggers = true;
+
+            _isFilterInitialized = true;
+        }
+
+        int count = 0;
+
+        int hitCount = Physics2D.OverlapCircle(transform.position, Revive.ReviveZoneRadius, _playerScanFilter, _reviveScanResults);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = _reviveScanResults[i];
+
+            if (hit.CompareTag("Player"))
+            {
+                Player otherPlayer = hit.GetComponent<Player>();
+
+                if (otherPlayer != null && otherPlayer != this && !otherPlayer.IsDownOrDied)
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    // ดึง Function นี้ไปใช้กับ Card ได้เลย
+    public void RespawnFromCard()
+    {
+        if (!IsServer) return;
+
+        if (_myGravestone != null)
+        {
+            transform.position = _myGravestone.transform.position;
+
+            if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && netObj.IsSpawned)
+            {
+                netObj.Despawn(false);
+            }
+            ObjectPoolManager.Instance.ReturnObjectToPool(_myGravestone);
+            _myGravestone = null;
+        }
+
+        RevivePlayerRpc();
     }
 
     [Rpc(SendTo.Everyone)]
@@ -210,25 +316,11 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void UpdateReviverCountServerRpc(int amount)
-    {
-        if (!IsServer) return;
-
-        _playersInReviveZone += amount;
-        if (_playersInReviveZone < 0) _playersInReviveZone = 0;
-
-        IsBeingRevived.Value = _playersInReviveZone > 0;
-
-        if (_playersInReviveZone == 0)
-        {
-            ReviveTimer.Value = 3f;
-        }
-    }
-
     [Rpc(SendTo.Server)]
     public void TakeDamageRpc(int damage)
     {
+        if (IsDownOrDied) return;
+
         Stats.ApplyDamage(damage);
 
         if (DamagePopupManager.Instance != null)

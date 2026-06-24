@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1012698092599706865}
   - component: {fileID: 922621810477828583}
   - component: {fileID: 1981078790184670139}
+  - component: {fileID: -3453755583352135357}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -106,3 +107,15 @@ MonoBehaviour:
     PacketDelayMS: 0
     PacketJitterMS: 0
     PacketDropRate: 0
+--- !u!114 &-3453755583352135357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4062740200850209449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57737d3e3364c1444a0c6410608013d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkDisconnectHandler

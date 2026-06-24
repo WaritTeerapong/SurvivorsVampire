@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3971789719
+  GlobalObjectIdHash: 4066562389
   InScenePlacedSourceGlobalObjectIdHash: 3862946498
   DeferredDespawnTick: 0
   Ownership: 1
@@ -86,7 +86,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   ShowTopMostFoldoutHeaderGroup: 1
-  GhostSprite: {fileID: -8419292424465274708, guid: 849ea60b27ef6b941b45966a2dc762ba, type: 3}
+  GravestonePrefab: {fileID: 3358405691680599871, guid: 0bfe2ef48e17592479fe74b4d39ea769, type: 3}
   DiedTimer:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -102,6 +102,9 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &7728076448846563532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  GhostMoveSpeed: 7
   FacingDirection:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -213,7 +217,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -456,7 +460,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3929979093593410607}
   - component: {fileID: 8448093411385318983}
-  - component: {fileID: 116740524100138771}
   m_Layer: 0
   m_Name: Player_Revive_Handler
   m_TagString: Untagged
@@ -491,46 +494,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6aa23058297d1649a2f54d46e77b5c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerReviveHandler
-  ReviveZone: 2
+  ReviveZoneRadius: 2
   ReviveZoneVisual: {fileID: 4399644748424329040}
   PulseDuration: 0.8
   PulseScaleMultiplier: 1.1
---- !u!58 &116740524100138771
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5365350268616500865}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 2
 --- !u!1 &7533755673399002630
 GameObject:
   m_ObjectHideFlags: 0

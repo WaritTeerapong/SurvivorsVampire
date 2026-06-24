@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   ShowTopMostFoldoutHeaderGroup: 1
-  GhostSprite: {fileID: -4657764202658221571, guid: 849ea60b27ef6b941b45966a2dc762ba, type: 3}
+  GravestonePrefab: {fileID: 3358405691680599871, guid: 0bfe2ef48e17592479fe74b4d39ea769, type: 3}
   DiedTimer:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -216,6 +216,9 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &6176288803174306615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,6 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  GhostMoveSpeed: 7
   FacingDirection:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -327,7 +331,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -570,7 +574,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5019429850439961323}
   - component: {fileID: 4184023371805941045}
-  - component: {fileID: 6405056159239255823}
   m_Layer: 0
   m_Name: Player_Revive_Handler
   m_TagString: Untagged
@@ -605,46 +608,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6aa23058297d1649a2f54d46e77b5c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerReviveHandler
-  ReviveZone: 2
+  ReviveZoneRadius: 2
   ReviveZoneVisual: {fileID: 8099878091496891857}
   PulseDuration: 0.8
   PulseScaleMultiplier: 1.1
---- !u!58 &6405056159239255823
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8419586567475413493}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 2
 --- !u!1001 &515609308555571323
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -803,6 +770,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2033561544125119969}
     m_Modifications:
+    - target: {fileID: 1282698769863480762, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3019096529650882932, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -883,9 +854,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4495083882923918113, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 4495083882923918113, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5491379475218135029, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 5491379475218135029, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.49
+      objectReference: {fileID: 0}
     - target: {fileID: 6000132192839850885, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
       propertyPath: m_Name
       value: Revive_Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7184966901236716965, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7184966901236716965, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8788529049399601136, guid: 90e0d23c7ad3eb94193189dc334f9961, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

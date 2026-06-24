@@ -1,55 +1,55 @@
 fileFormatVersion: 2
-guid: 849ea60b27ef6b941b45966a2dc762ba
+guid: 5074a7bd33cb17345abe08bdb4027cc4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1453350334737186109
-    second: tilemap_packed_0
+      213: 7856380253114818302
+    second: ghost_tilemap_packed_0
   - first:
-      213: -5773244093850934461
-    second: tilemap_packed_1
+      213: 662500567509685322
+    second: ghost_tilemap_packed_1
   - first:
-      213: -7397652778513525935
-    second: tilemap_packed_2
+      213: 5644723580532379131
+    second: ghost_tilemap_packed_2
   - first:
-      213: -4657764202658221571
-    second: tilemap_packed_3
+      213: 3800126193420033293
+    second: ghost_tilemap_packed_3
   - first:
-      213: -3333449033900058284
-    second: tilemap_packed_4
+      213: -139344510761688930
+    second: ghost_tilemap_packed_4
   - first:
-      213: -6373955360715321419
-    second: tilemap_packed_5
+      213: -6169450556066577237
+    second: ghost_tilemap_packed_5
   - first:
-      213: 7454484266408833828
-    second: tilemap_packed_6
+      213: 2333910757149984088
+    second: ghost_tilemap_packed_6
   - first:
-      213: -1409608323598810497
-    second: tilemap_packed_7
+      213: 544490450194261936
+    second: ghost_tilemap_packed_7
   - first:
-      213: 6766204184792930467
-    second: tilemap_packed_8
+      213: -8500163994908045415
+    second: ghost_tilemap_packed_8
   - first:
-      213: -6825893594525092589
-    second: tilemap_packed_9
+      213: -1696289642210292246
+    second: ghost_tilemap_packed_9
   - first:
-      213: 8654281846431810975
-    second: tilemap_packed_10
+      213: 5033780032058557289
+    second: ghost_tilemap_packed_10
   - first:
-      213: -8419292424465274708
-    second: tilemap_packed_11
+      213: 9187680765918869562
+    second: ghost_tilemap_packed_11
   - first:
-      213: 3425605258711615321
-    second: tilemap_packed_12
+      213: 1465160147130451710
+    second: ghost_tilemap_packed_12
   - first:
-      213: -575958652271738017
-    second: tilemap_packed_13
+      213: 2633282731164142366
+    second: ghost_tilemap_packed_13
   - first:
-      213: -7486966618002133862
-    second: tilemap_packed_14
+      213: -8018273383721970901
+    second: ghost_tilemap_packed_14
   - first:
-      213: 7351026898981361674
-    second: tilemap_packed_15
+      213: 3752330253303824354
+    second: ghost_tilemap_packed_15
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -145,7 +145,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: P1_00
+      name: FOX_GHOST_00
       rect:
         serializedVersion: 2
         x: 0
@@ -160,14 +160,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3c28bcb1299a4dbe0800000000000000
-      internalID: -1453350334737186109
+      spriteID: efe5d4f1738770d60800000000000000
+      internalID: 7856380253114818302
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P1_01
+      name: FOX_GHOST_01
       rect:
         serializedVersion: 2
         x: 24
@@ -182,14 +182,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 343a468a51151efa0800000000000000
-      internalID: -5773244093850934461
+      spriteID: a44d8ed81cca13900800000000000000
+      internalID: 662500567509685322
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P1_02
+      name: FOX_GHOST_02
       rect:
         serializedVersion: 2
         x: 48
@@ -204,14 +204,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 153150d0ef1465990800000000000000
-      internalID: -7397652778513525935
+      spriteID: bfd47e08036165e40800000000000000
+      internalID: 5644723580532379131
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P1_03
+      name: FOX_GHOST_03
       rect:
         serializedVersion: 2
         x: 72
@@ -226,102 +226,102 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: df1b605b22c4c5fb0800000000000000
-      internalID: -4657764202658221571
+      spriteID: d0d557493a2ccb430800000000000000
+      internalID: 3800126193420033293
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_4
+      name: ghost_tilemap_packed_4
       rect:
         serializedVersion: 2
         x: 0
         y: 48
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4599489d3c53db1d0800000000000000
-      internalID: -3333449033900058284
+      spriteID: e9026aed7e2f01ef0800000000000000
+      internalID: -139344510761688930
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_5
+      name: ghost_tilemap_packed_5
       rect:
         serializedVersion: 2
         x: 24
         y: 48
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5bfcd5ebe592b87a0800000000000000
-      internalID: -6373955360715321419
+      spriteID: ba4c05a0865b16aa0800000000000000
+      internalID: -6169450556066577237
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_6
+      name: ghost_tilemap_packed_6
       rect:
         serializedVersion: 2
         x: 48
         y: 48
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 423790bd1f5a37760800000000000000
-      internalID: 7454484266408833828
+      spriteID: 8554361d777b36020800000000000000
+      internalID: 2333910757149984088
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_7
+      name: ghost_tilemap_packed_7
       rect:
         serializedVersion: 2
         x: 72
         y: 48
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f728577b2b0107ce0800000000000000
-      internalID: -1409608323598810497
+      spriteID: 0b7eb6bfd2b6e8700800000000000000
+      internalID: 544490450194261936
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P2_00
+      name: RAT_GHOST_00
       rect:
         serializedVersion: 2
         x: 0
@@ -336,14 +336,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3a818507bd266ed50800000000000000
-      internalID: 6766204184792930467
+      spriteID: 99fc0f6e1e9590a80800000000000000
+      internalID: -8500163994908045415
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P2_01
+      name: RAT_GHOST_01
       rect:
         serializedVersion: 2
         x: 24
@@ -358,14 +358,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 315b7bfd0fd8541a0800000000000000
-      internalID: -6825893594525092589
+      spriteID: aed81e7ce819578e0800000000000000
+      internalID: -1696289642210292246
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P2_02
+      name: RAT_GHOST_02
       rect:
         serializedVersion: 2
         x: 48
@@ -380,14 +380,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f950eaaac7f2a1870800000000000000
-      internalID: 8654281846431810975
+      spriteID: 9630e40e4449bd540800000000000000
+      internalID: 5033780032058557289
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: P2_03
+      name: RAT_GHOST_03
       rect:
         serializedVersion: 2
         x: 72
@@ -402,96 +402,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ca82c93b52aa82b80800000000000000
-      internalID: -8419292424465274708
+      spriteID: a38784a6af2318f70800000000000000
+      internalID: 9187680765918869562
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_12
+      name: ghost_tilemap_packed_12
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 957473a45d13a8f20800000000000000
-      internalID: 3425605258711615321
+      spriteID: ef605cc146b455410800000000000000
+      internalID: 1465160147130451710
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_13
+      name: ghost_tilemap_packed_13
       rect:
         serializedVersion: 2
         x: 24
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f53c70648a8c108f0800000000000000
-      internalID: -575958652271738017
+      spriteID: e1b853831bc4b8420800000000000000
+      internalID: 2633282731164142366
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_14
+      name: ghost_tilemap_packed_14
       rect:
         serializedVersion: 2
         x: 48
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a9c66c05783f81890800000000000000
-      internalID: -7486966618002133862
+      spriteID: b23584317de59b090800000000000000
+      internalID: -8018273383721970901
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tilemap_packed_15
+      name: ghost_tilemap_packed_15
       rect:
         serializedVersion: 2
         x: 72
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a0810286408140660800000000000000
-      internalID: 7351026898981361674
+      spriteID: 2ef30241c74f21430800000000000000
+      internalID: 3752330253303824354
       vertices: []
       indices: 
       edges: []
@@ -500,7 +500,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: dea43e0e8202d904f915700eca8963d5
+    spriteID: c191bedd99cfa6e48a30a39dc351eb58
     internalID: 0
     vertices: []
     indices: 
@@ -510,24 +510,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":24.0,"y":24.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":24.0,"y":24.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      P1_00: -1453350334737186109
-      P1_01: -5773244093850934461
-      P1_02: -7397652778513525935
-      P1_03: -4657764202658221571
-      P2_00: 6766204184792930467
-      P2_01: -6825893594525092589
-      P2_02: 8654281846431810975
-      P2_03: -8419292424465274708
-      tilemap_packed_12: 3425605258711615321
-      tilemap_packed_13: -575958652271738017
-      tilemap_packed_14: -7486966618002133862
-      tilemap_packed_15: 7351026898981361674
-      tilemap_packed_4: -3333449033900058284
-      tilemap_packed_5: -6373955360715321419
-      tilemap_packed_6: 7454484266408833828
-      tilemap_packed_7: -1409608323598810497
+      FOX_GHOST_00: 7856380253114818302
+      FOX_GHOST_01: 662500567509685322
+      FOX_GHOST_02: 5644723580532379131
+      FOX_GHOST_03: 3800126193420033293
+      RAT_GHOST_00: -8500163994908045415
+      RAT_GHOST_01: -1696289642210292246
+      RAT_GHOST_02: 5033780032058557289
+      RAT_GHOST_03: 9187680765918869562
+      ghost_tilemap_packed_12: 1465160147130451710
+      ghost_tilemap_packed_13: 2633282731164142366
+      ghost_tilemap_packed_14: -8018273383721970901
+      ghost_tilemap_packed_15: 3752330253303824354
+      ghost_tilemap_packed_4: -139344510761688930
+      ghost_tilemap_packed_5: -6169450556066577237
+      ghost_tilemap_packed_6: 2333910757149984088
+      ghost_tilemap_packed_7: 544490450194261936
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
