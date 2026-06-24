@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -136,6 +137,24 @@ public class Enemy : NetworkBehaviour
 
     private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
+        if (newValue.CurrentHealth < previousValue.CurrentHealth)
+        {
+            if (_anim != null)
+            {
+                SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>();
+                if (renderer != null)
+                {
+                    renderer.DOKill();
+                    renderer.color = Color.white;
+
+                    Color baseColor = new Color(newValue.ColorR, newValue.ColorG, newValue.ColorB, 1f);
+                    if (newValue.ColorR == 0 && newValue.ColorG == 0 && newValue.ColorB == 0) baseColor = Color.white;
+
+                    renderer.DOColor(baseColor, 0.15f);
+                }
+            }
+        }
+
         OnEnemyStatsChanged?.Invoke(newValue);
     }
 
