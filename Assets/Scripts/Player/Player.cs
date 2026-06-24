@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -114,6 +115,8 @@ public class Player : NetworkBehaviour
                 camController.Target = transform;
             }
         }
+
+        Stats.CurrentStats.OnValueChanged += OnPlayerStatsChanged;
     }
 
     public override void OnNetworkDespawn()
@@ -128,6 +131,26 @@ public class Player : NetworkBehaviour
                 PlayerManager.Instance.AllPlayers.Remove(this);
             }
         }
+
+        Stats.CurrentStats.OnValueChanged -= OnPlayerStatsChanged;
+    }
+
+    private void OnPlayerStatsChanged(PlayerStats previousValue, PlayerStats newValue)
+    {
+        if (newValue.CurrentHealth < previousValue.CurrentHealth)
+        {
+            if (SpriteRend != null && !IsDownOrDied)
+            {
+                SpriteRend.DOKill();
+                SpriteRend.color = Color.red;
+                SpriteRend.DOColor(Color.white, 0.15f);
+            }
+
+            if (IsOwner && CameraController.Instance != null)
+            {
+                CameraController.Instance.TriggerShake(0.2f, 0.4f);
+            }
+        }
     }
 
     void Update()
@@ -140,6 +163,7 @@ public class Player : NetworkBehaviour
         if (!IsOwner) return;
         _currentState?.OnUpdate(this);
 
+#if UNITY_EDITOR
         // === Debug Controls ===
         if (Keyboard.current.tKey.wasPressedThisFrame) TakeDamageRpc(10);
         if (Keyboard.current.yKey.wasPressedThisFrame) TakeDamageRpc(9999);
@@ -151,6 +175,8 @@ public class Player : NetworkBehaviour
         if (Keyboard.current.pKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p2");
 
         if (Keyboard.current.lKey.wasPressedThisFrame) PlayerLevelManager.Instance.SharedLevel.Value += 1;
+        if (Keyboard.current.kKey.wasPressedThisFrame) PlayerLevelManager.Instance.RequestGainXPRpc(100);
+#endif
     }
 
     void FixedUpdate()
