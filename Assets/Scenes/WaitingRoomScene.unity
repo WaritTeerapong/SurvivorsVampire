@@ -3501,7 +3501,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1556067696}
   m_SourcePrefab: {fileID: 100100000, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
 --- !u!224 &1556067693 stripped
 RectTransform:
@@ -3513,12 +3516,33 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3606825854475993670, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 1556067692}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1556067695}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &1556067695 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 1556067692}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1556067696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556067695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1586205045
 GameObject:
   m_ObjectHideFlags: 0
@@ -3980,6 +4004,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1826384319}
     - targetCorrespondingSourceObject: {fileID: 9140186819931453760, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1826384316}
@@ -4013,12 +4040,33 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3606825854475993670, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 1826384313}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1826384318}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &1826384318 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 1826384313}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1826384319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826384318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &1949203009
 GameObject:
   m_ObjectHideFlags: 0
@@ -4241,6 +4289,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2026674723}
     - targetCorrespondingSourceObject: {fileID: 9140186819931453760, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2026674720}
@@ -4274,12 +4325,33 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3606825854475993670, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
   m_PrefabInstance: {fileID: 2026674717}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2026674722}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &2026674722 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6111938138090233109, guid: b50e4674bb53131448330d7daaf32ec6, type: 3}
+  m_PrefabInstance: {fileID: 2026674717}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2026674723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026674722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
+  EnableJuice: 1
+  HoverScale: 1.1
+  ClickScale: 0.9
+  AnimationDuration: 0.2
 --- !u!1 &2096314970
 GameObject:
   m_ObjectHideFlags: 0

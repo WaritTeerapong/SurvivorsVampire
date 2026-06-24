@@ -36,7 +36,7 @@ public class MainMenuManager : MonoBehaviour
     public void OnCloseSettingClicked()
     {
         if (MainMenuPanel != null) MainMenuPanel.SetActive(true);
-        if (SettingsPanel != null) SettingsPanel.SetActive(false);
+        // if (SettingsPanel != null) SettingsPanel.SetActive(false);
     }
 
     public void OnQuitButtonClicked()
