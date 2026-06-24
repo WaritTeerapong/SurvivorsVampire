@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3433741690
+  GlobalObjectIdHash: 2527659593
   InScenePlacedSourceGlobalObjectIdHash: 1111825701
   DeferredDespawnTick: 0
   Ownership: 1
@@ -129,6 +129,7 @@ MonoBehaviour:
   Combat: {fileID: 8998301714788667492}
   BulletPrefab: {fileID: 3774078582942600365, guid: f33e895a80adc714d8ac7085d68907a9, type: 3}
   EnemyType: {fileID: 0}
+  HitFlashMaterial: {fileID: 2100000, guid: 6ea2444fb0cf77a4cb3ed690d1b23280, type: 2}
   CurrentStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

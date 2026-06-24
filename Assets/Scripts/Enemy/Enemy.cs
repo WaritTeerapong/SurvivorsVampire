@@ -54,6 +54,12 @@ public class Enemy : NetworkBehaviour
 
     private Collider2D col;
 
+    [Header("=== Hit Flash Material ===")]
+    public Material HitFlashMaterial;
+    private Material _originalMaterial;
+    private SpriteRenderer _spriteRenderer;
+    private Tween _flashTween;
+
     public NetworkVariable<EnemyCurrentStats> CurrentStats = new NetworkVariable<EnemyCurrentStats>(
         new EnemyCurrentStats(),
         readPerm: NetworkVariableReadPermission.Everyone,
@@ -87,10 +93,13 @@ public class Enemy : NetworkBehaviour
     private void Awake()
     {
         _anim = GetComponentInChildren<Animator>();
-
-        OnEnemyStatsChanged += ApplyTierColor;
-
         col = GetComponent<Collider2D>();
+
+        _spriteRenderer = _anim != null ? _anim.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
+        if (_spriteRenderer != null)
+        {
+            _originalMaterial = _spriteRenderer.material;
+        }
     }
     public override void OnNetworkSpawn()
     {
@@ -120,7 +129,7 @@ public class Enemy : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         CurrentStats.OnValueChanged -= OnEnemyStatsValueChanged;
-        OnEnemyStatsChanged -= ApplyTierColor;
+
         if (IsServer)
         {
             Detector?.StopDetect();
@@ -139,20 +148,24 @@ public class Enemy : NetworkBehaviour
     {
         if (newValue.CurrentHealth < previousValue.CurrentHealth)
         {
-            if (_anim != null)
+            if (_spriteRenderer != null && HitFlashMaterial != null)
             {
-                SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>();
-                if (renderer != null)
+                _flashTween?.Kill();
+
+                _spriteRenderer.material = HitFlashMaterial;
+
+                _flashTween = DOVirtual.DelayedCall(0.15f, () =>
                 {
-                    renderer.DOKill();
-                    renderer.color = Color.white;
-
-                    Color baseColor = new Color(newValue.ColorR, newValue.ColorG, newValue.ColorB, 1f);
-                    if (newValue.ColorR == 0 && newValue.ColorG == 0 && newValue.ColorB == 0) baseColor = Color.white;
-
-                    renderer.DOColor(baseColor, 0.15f);
-                }
+                    if (_spriteRenderer != null)
+                    {
+                        _spriteRenderer.material = _originalMaterial;
+                    }
+                });
             }
+        }
+        else if (previousValue.Tier != newValue.Tier || previousValue.EnemyID != newValue.EnemyID)
+        {
+            ApplyTierColor(newValue);
         }
 
         OnEnemyStatsChanged?.Invoke(newValue);
