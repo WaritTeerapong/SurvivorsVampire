@@ -40,7 +40,7 @@ public class XPDropManager : NetworkBehaviour
     public void DropXP(Vector3 position, int xpValue)
     {
         if (!IsServer || XPPrefab == null) return;
-        GameObject xpObj = ObjectPoolManager.Instance.SpawnObject(
+        GameObject xpObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
             XPPrefab, position, Quaternion.identity, PoolCategory.XP
         );
 

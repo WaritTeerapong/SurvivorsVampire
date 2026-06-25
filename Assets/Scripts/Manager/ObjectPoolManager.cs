@@ -7,7 +7,7 @@ public enum PoolCategory
 {
     Default,
     Projectiles,
-    VFX,
+    UIVFX,
     Enemies,
     XP,
     DamagePopup,
@@ -39,58 +39,99 @@ public class ObjectPoolManager : MonoBehaviour
         {
             GameObject folder = new GameObject($"{category}_Pool");
             folder.transform.SetParent(transform);
+
+            // ❌ เอา folder.AddComponent<NetworkObject>(); ออก เพื่อแก้บั๊ก Hash ID ซ้ำซ้อน
+
             _categoryFolders.Add(category, folder.transform);
         }
     }
 
-    public GameObject SpawnObject(GameObject prefab, Vector3 position, Quaternion rotation, PoolCategory category = PoolCategory.Default)
+    private void CreatePool(GameObject prefab, PoolCategory category)
+    {
+        _prefabToPoolMap[prefab] = new ObjectPool<GameObject>(
+            createFunc: () =>
+            {
+                bool wasActive = prefab.activeSelf;
+                prefab.SetActive(false);
+
+                GameObject obj = Instantiate(prefab);
+
+                prefab.SetActive(wasActive);
+                return obj;
+            },
+            actionOnGet: (obj) =>
+            {
+                // ปล่อยว่างไว้
+            },
+            actionOnRelease: (obj) =>
+            {
+                obj.SetActive(false); // ปิดการทำงาน
+
+                // 🌟 ลอจิกที่ถูกต้องและปลอดภัยที่สุดสำหรับ Netcode
+                if (obj.TryGetComponent<NetworkObject>(out _))
+                {
+                    // ถ้ามี NetworkObject ห้ามเอาเข้า Folder เด็ดขาด ให้ปล่อยลอยไว้ที่ Root (null)
+                    obj.transform.SetParent(null);
+                }
+                else
+                {
+                    // ถ้าเป็นของธรรมดา (เช่น Particle, เสียง, Damage Popup) จัดระเบียบเข้า Folder ได้เลย!
+                    obj.transform.SetParent(_categoryFolders[category]);
+                }
+            },
+            actionOnDestroy: (obj) => Destroy(obj),
+            collectionCheck: false,
+            defaultCapacity: DefaultCapacity,
+            maxSize: MaxSize
+        );
+    }
+
+    public T SpawnObject<T>(GameObject prefab, Vector3 position, Quaternion rotation, PoolCategory category = PoolCategory.Default, Transform parent = null) where T : UnityEngine.Object
     {
         if (prefab == null) return null;
 
-        // Create a new pool for this prefab if it doesn't exist yet
         if (!_prefabToPoolMap.ContainsKey(prefab))
         {
-            _prefabToPoolMap[prefab] = new ObjectPool<GameObject>(
-                createFunc: () =>
-                {
-                    GameObject obj = Instantiate(prefab);
-                    return obj;
-                },
-                actionOnGet: (obj) =>
-                {
-                    obj.transform.SetParent(null);
-                    obj.SetActive(true);
-                },
-                actionOnRelease: (obj) =>
-                {
-                    obj.SetActive(false);
-
-                    if (!obj.TryGetComponent<NetworkObject>(out _))
-                    {
-                        obj.transform.SetParent(_categoryFolders[category]);
-                    }
-                },
-                actionOnDestroy: (obj) => Destroy(obj),
-                collectionCheck: false,
-                defaultCapacity: DefaultCapacity,
-                maxSize: MaxSize
-            );
+            CreatePool(prefab, category);
         }
 
-        // Get object from pool
         GameObject spawnedObj = _prefabToPoolMap[prefab].Get();
 
-        if (spawnedObj == null || spawnedObj.Equals(null))
+        if (spawnedObj == null)
         {
-            return SpawnObject(prefab, position, rotation, category);
+            return SpawnObject<T>(prefab, position, rotation, category, parent);
+        }
+
+        // 🌟 ตอน Spawn ก็ต้องทำตามกฎของ NetworkObject เหมือนกัน
+        if (parent != null)
+        {
+            spawnedObj.transform.SetParent(parent, false);
+        }
+        else
+        {
+            spawnedObj.transform.SetParent(null);
         }
 
         spawnedObj.transform.position = position;
         spawnedObj.transform.rotation = rotation;
 
+        spawnedObj.SetActive(true);
+
         _instanceToPrefabMap[spawnedObj] = prefab;
 
-        return spawnedObj;
+        if (typeof(T) == typeof(GameObject))
+        {
+            return spawnedObj as T;
+        }
+
+        T component = spawnedObj.GetComponent<T>();
+        if (component == null)
+        {
+            Debug.LogError($"[ObjectPool] หา Component {typeof(T)} ไม่เจอใน {prefab.name}");
+            return null;
+        }
+
+        return component;
     }
 
     public void ReturnObjectToPool(GameObject instance)

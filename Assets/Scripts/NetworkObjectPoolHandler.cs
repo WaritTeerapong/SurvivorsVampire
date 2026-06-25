@@ -14,8 +14,8 @@ public class NetworkObjectPoolHandler : INetworkPrefabInstanceHandler
 
     public NetworkObject Instantiate(ulong ownerClientId, Vector3 position, Quaternion rotation)
     {
-        GameObject obj = ObjectPoolManager.Instance.SpawnObject(_prefab, position, rotation, _category);
-        return obj.GetComponent<NetworkObject>();
+        NetworkObject obj = ObjectPoolManager.Instance.SpawnObject<NetworkObject>(_prefab, position, rotation, _category);
+        return obj;
     }
     public void Destroy(NetworkObject networkObject)
     {

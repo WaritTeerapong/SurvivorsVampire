@@ -53,6 +53,12 @@ public class ButtonSFXUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         transform.DOKill();
         transform.DOScale(_originalScale * ClickScale, AnimationDuration / 2f).SetEase(Ease.OutQuad).SetUpdate(true);
 
+        if (UIVFXManager.Instance != null)
+        {
+            Debug.Log("Created VFX");
+            UIVFXManager.Instance.PlayClickVFX(eventData.position, transform);
+        }
+
         // PLAY CLICK SFX
     }
 

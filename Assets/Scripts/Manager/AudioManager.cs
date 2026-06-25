@@ -41,12 +41,11 @@ public class AudioManager : MonoBehaviour
         SoundData? data = AudioDatabase.GetSFX(soundName);
         if (data.HasValue)
         {
-            GameObject auidoObj = ObjectPoolManager.Instance.SpawnObject(AudioObjectPrefab, position, Quaternion.identity, PoolCategory.Audio);
+            AudioObject auidoObj = ObjectPoolManager.Instance.SpawnObject<AudioObject>(AudioObjectPrefab, position, Quaternion.identity, PoolCategory.Audio);
 
             if (auidoObj != null)
             {
-                AudioObject aObj = auidoObj.GetComponent<AudioObject>();
-                aObj.PlaySound(data.Value, SFXGroup);
+                auidoObj.PlaySound(data.Value, SFXGroup);
             }
         }
         else
