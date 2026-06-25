@@ -39,9 +39,6 @@ public class ObjectPoolManager : MonoBehaviour
         {
             GameObject folder = new GameObject($"{category}_Pool");
             folder.transform.SetParent(transform);
-
-            // ❌ เอา folder.AddComponent<NetworkObject>(); ออก เพื่อแก้บั๊ก Hash ID ซ้ำซ้อน
-
             _categoryFolders.Add(category, folder.transform);
         }
     }
@@ -61,21 +58,17 @@ public class ObjectPoolManager : MonoBehaviour
             },
             actionOnGet: (obj) =>
             {
-                // ปล่อยว่างไว้
             },
             actionOnRelease: (obj) =>
             {
-                obj.SetActive(false); // ปิดการทำงาน
+                obj.SetActive(false);
 
-                // 🌟 ลอจิกที่ถูกต้องและปลอดภัยที่สุดสำหรับ Netcode
                 if (obj.TryGetComponent<NetworkObject>(out _))
                 {
-                    // ถ้ามี NetworkObject ห้ามเอาเข้า Folder เด็ดขาด ให้ปล่อยลอยไว้ที่ Root (null)
                     obj.transform.SetParent(null);
                 }
                 else
                 {
-                    // ถ้าเป็นของธรรมดา (เช่น Particle, เสียง, Damage Popup) จัดระเบียบเข้า Folder ได้เลย!
                     obj.transform.SetParent(_categoryFolders[category]);
                 }
             },
@@ -102,7 +95,6 @@ public class ObjectPoolManager : MonoBehaviour
             return SpawnObject<T>(prefab, position, rotation, category, parent);
         }
 
-        // 🌟 ตอน Spawn ก็ต้องทำตามกฎของ NetworkObject เหมือนกัน
         if (parent != null)
         {
             spawnedObj.transform.SetParent(parent, false);
