@@ -22,7 +22,7 @@ public class PopupUI : MonoBehaviour
         transform.DOScale(_originalScale, OpenDuration).SetEase(OpenEase).SetUpdate(true);
     }
 
-    public void ClosePopup()
+    public void ClosePopup(GameObject targetPanel)
     {
         transform.DOKill();
 
@@ -31,6 +31,7 @@ public class PopupUI : MonoBehaviour
             {
                 gameObject.SetActive(false);
                 transform.localScale = _originalScale;
+                targetPanel.SetActive(true);
             });
     }
 }
