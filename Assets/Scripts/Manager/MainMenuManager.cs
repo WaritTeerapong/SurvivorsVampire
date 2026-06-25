@@ -31,6 +31,12 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.SpawnedDummies.Clear();
 
         NetworkManager.Singleton.StartClient();
+        SceneController.Instance
+            .NewTransition()
+            .Unload(Slots.MAIN_MENU)
+            .WithOverlay()
+            .WithClearUnusedAssets()
+            .Perform();
 
     }
 

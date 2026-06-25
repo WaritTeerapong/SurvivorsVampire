@@ -55,7 +55,7 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     private void OnSceneLoaded(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        if (sceneName == "Bob_Test_Scene")
+        if (sceneName == Scenes.SESSION)
         {
             int spawnIndex = 0;
             foreach (var kvp in GameSessionData.PlayerSelections)

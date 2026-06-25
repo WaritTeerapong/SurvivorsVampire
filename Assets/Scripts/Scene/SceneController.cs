@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+
 public class SceneController : NetworkBehaviour
 {
     public static SceneController Instance;
@@ -10,6 +11,12 @@ public class SceneController : NetworkBehaviour
     [SerializeField] private LoadingOverlay _loadingOverlay;
     private Dictionary<string, string> _loadedSceneBySlot = new();
     private bool _isBusy = false;
+
+    // Network synchronization states
+    private bool _networkSceneLoading = false;
+    private bool _networkSceneUnloading = false;
+    private HashSet<string> _networkLoadedScenes = new();
+    private bool IsNetworkActive => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
     private void Awake()
     {
@@ -19,44 +26,83 @@ public class SceneController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if(NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
-        }
+        if (NetworkManager.Singleton?.SceneManager == null) return;
+
+        var sm = NetworkManager.Singleton.SceneManager;
+        sm.OnLoad += OnLoadHandler;
+        sm.OnUnload += OnUnloadHandler;
+        sm.OnLoadEventCompleted += HandleOnLoadEventComplete;
+        sm.OnUnloadEventCompleted += HandleOnUnloadEventComplete;
     }
+
     public override void OnNetworkDespawn()
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
-        }
+        if (NetworkManager.Singleton?.SceneManager == null) return;
+
+        var sm = NetworkManager.Singleton.SceneManager;
+        sm.OnLoad -= OnLoadHandler;
+        sm.OnUnload -= OnUnloadHandler;
+        sm.OnLoadEventCompleted -= HandleOnLoadEventComplete;
+        sm.OnUnloadEventCompleted -= HandleOnUnloadEventComplete;
     }
 
+    #region Network Event Handlers
 
-    private void OnSceneEvent(SceneEvent sceneEvent)
+    private void OnLoadHandler(ulong clientId, string sceneName, LoadSceneMode loadSceneMode, AsyncOperation asyncOperation)
     {
-        switch (sceneEvent.SceneEventType)
+        if (!NetworkManager.Singleton.IsServer)
         {
-            case SceneEventType.Load:
-                break;
-            case SceneEventType.LoadComplete:
-                break;
-            case SceneEventType.Unload:
-                break;
-            case SceneEventType.UnloadComplete:
-                break;
+            StartCoroutine(FadeInOverlayRoutine());
         }
-        return;
     }
+
+    private void OnUnloadHandler(ulong clientId, string sceneName, AsyncOperation asyncOperation)
+    {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            StartCoroutine(FadeInOverlayRoutine());
+        }
+    }
+
+    private void HandleOnLoadEventComplete(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        _networkSceneLoading = false;
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            if (Scenes.GetSlotForScene(sceneName) == Slots.SESSION)
+            {
+                StartCoroutine(UnloadSceneRoutine(Slots.MAIN_MENU));
+            }
+            StartCoroutine(FadeOutOverlayRoutine());
+        }
+    }
+
+    private void HandleOnUnloadEventComplete(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        _networkSceneUnloading = false;
+    }
+
+    #endregion
+
+    #region Overlay Helpers
+
+    private IEnumerator FadeInOverlayRoutine()
+    {
+        if (_loadingOverlay != null) yield return _loadingOverlay.FadeInBlack();
+    }
+
+    private IEnumerator FadeOutOverlayRoutine()
+    {
+        if (_loadingOverlay != null) yield return _loadingOverlay.FadeOutBlack();
+    }
+
+    #endregion
 
     // Instantiates a new scene transition plan using the Builder Pattern
     public SceneTransitionPlan NewTransition()
     {
         return new SceneTransitionPlan();
     }
-
-    // TODO: Subscribe to Netcode scene events (OnSceneEvent) on Server/Client Start
-    // to automate loading overlay fading and client-side cleanup of the Main Menu scene.
 
     // Internal entry point to execute the transition plan
     private Coroutine ExecutePlan(SceneTransitionPlan plan)
@@ -67,17 +113,16 @@ public class SceneController : NetworkBehaviour
             return null;
         }
 
-        _isBusy=true;
+        _isBusy = true;
         return StartCoroutine(ChangeSceneRoutine(plan));
     }
 
     // Coroutine that performs the sequential transition logic (overlay fade, unload, reload)
     private IEnumerator ChangeSceneRoutine(SceneTransitionPlan plan)
     {
-        // TODO: Bypass local overlay fade here when Netcode session is active (let OnSceneEvent handle it instead)
         if (plan.Overlay)
         {
-            yield return _loadingOverlay.FadeInBlack();
+            yield return FadeInOverlayRoutine();
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -97,12 +142,12 @@ public class SceneController : NetworkBehaviour
             {
                 yield return UnloadSceneRoutine(kvp.Key);
             }
-            yield return LoadAdditiveSceneRoutine(kvp.Key,kvp.Value,plan.ActiveSceneName == kvp.Value);
+            yield return LoadAdditiveSceneRoutine(kvp.Key, kvp.Value, plan.ActiveSceneName == kvp.Value);
         }
 
         if (plan.Overlay)
         {
-            yield return _loadingOverlay.FadeOutBlack();
+            yield return FadeOutOverlayRoutine();
         }
 
         _isBusy = false;
@@ -110,55 +155,115 @@ public class SceneController : NetworkBehaviour
 
     private IEnumerator LoadAdditiveSceneRoutine(string slotKey, string sceneName, bool setActive)
     {
-        // TODO: If NetworkManager.Singleton.IsServer is true, use NetworkSceneManager to load scene additively
-        AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName,LoadSceneMode.Additive);
-        if (loadOp == null) yield break;
-        loadOp.allowSceneActivation = false;
-        while (loadOp.progress < 0.9f)
+        if (IsNetworkActive)
         {
-            yield return null;
+            yield return LoadNetworkSceneRoutine(sceneName);
+            _networkLoadedScenes.Add(sceneName);
         }
-
-        loadOp.allowSceneActivation = true;
-        while (!loadOp.isDone)
+        else
         {
-            yield return null;
+            yield return LoadLocalSceneRoutine(sceneName);
         }
 
         if (setActive)
         {
-            Scene newScene = SceneManager.GetSceneByName(sceneName);
-            if(newScene.IsValid() && newScene.isLoaded)
-            {
-                SceneManager.SetActiveScene(newScene);
-            }
+            SetSceneActive(sceneName);
         }
+
         _loadedSceneBySlot[slotKey] = sceneName;
     }
 
     private IEnumerator UnloadSceneRoutine(string slotKey)
     {
-        if(!_loadedSceneBySlot.TryGetValue(slotKey, out string sceneName)) yield break;
+        if (!_loadedSceneBySlot.TryGetValue(slotKey, out string sceneName)) yield break;
         if (string.IsNullOrEmpty(sceneName)) yield break;
-        // TODO: If NetworkManager.Singleton.IsServer is true, use NetworkSceneManager to unload the scene
-        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(sceneName);
-        if (unloadOp == null) yield break;
-        while (!unloadOp.isDone)
+
+        if (IsNetworkActive && _networkLoadedScenes.Contains(sceneName))
         {
-            yield return null;
+            yield return UnloadNetworkSceneRoutine(sceneName);
+            _networkLoadedScenes.Remove(sceneName);
         }
+        else
+        {
+            yield return UnloadLocalSceneRoutine(sceneName);
+            _networkLoadedScenes.Remove(sceneName);
+        }
+
         _loadedSceneBySlot.Remove(slotKey);
     }
 
-    private IEnumerator ClearUnusedAssetsRoutine()
-    { 
-        AsyncOperation cleanupOp = Resources.UnloadUnusedAssets();
-        while (!cleanupOp.isDone)
+    #region Scene Load/Unload Implementations
+
+    private IEnumerator LoadNetworkSceneRoutine(string sceneName)
+    {
+        if (!NetworkManager.Singleton.IsServer) yield break;
+
+        _networkSceneLoading = true;
+        var status = NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
+        if (status != SceneEventProgressStatus.Started)
         {
-            yield return null;
+            Debug.LogError($"[SceneController] Network LoadScene failed for {sceneName}: {status}");
+            _networkSceneLoading = false;
+            yield break;
         }
 
+        while (_networkSceneLoading) yield return null;
     }
+
+    private IEnumerator LoadLocalSceneRoutine(string sceneName)
+    {
+        AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        if (loadOp == null) yield break;
+
+        loadOp.allowSceneActivation = false;
+        while (loadOp.progress < 0.9f) yield return null;
+
+        loadOp.allowSceneActivation = true;
+        while (!loadOp.isDone) yield return null;
+    }
+
+    private IEnumerator UnloadNetworkSceneRoutine(string sceneName)
+    {
+        if (!NetworkManager.Singleton.IsServer) yield break;
+
+        Scene sceneToUnload = SceneManager.GetSceneByName(sceneName);
+        if (!sceneToUnload.IsValid() || !sceneToUnload.isLoaded) yield break;
+
+        _networkSceneUnloading = true;
+        var status = NetworkManager.Singleton.SceneManager.UnloadScene(sceneToUnload);
+        if (status != SceneEventProgressStatus.Started)
+        {
+            Debug.LogError($"[SceneController] Network UnloadScene failed for {sceneName}: {status}");
+            _networkSceneUnloading = false;
+            yield break;
+        }
+
+        while (_networkSceneUnloading) yield return null;
+    }
+
+    private IEnumerator UnloadLocalSceneRoutine(string sceneName)
+    {
+        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(sceneName);
+        if (unloadOp == null) yield break;
+        while (!unloadOp.isDone) yield return null;
+    }
+
+    private void SetSceneActive(string sceneName)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (scene.IsValid() && scene.isLoaded)
+        {
+            SceneManager.SetActiveScene(scene);
+        }
+    }
+
+    private IEnumerator ClearUnusedAssetsRoutine()
+    {
+        AsyncOperation cleanupOp = Resources.UnloadUnusedAssets();
+        while (!cleanupOp.isDone) yield return null;
+    }
+
+    #endregion
 
     // Builder Pattern : for transition plan
     public class SceneTransitionPlan
@@ -169,21 +274,25 @@ public class SceneController : NetworkBehaviour
         public bool ClearUnusedAssets { get; private set; } = false;
         public bool Overlay { get; private set; } = false;
 
-        public SceneTransitionPlan Load(string slotKey, string sceneName, bool setActive = false) {
-            SceneToLoad[slotKey] = sceneName; 
-            if(setActive)ActiveSceneName = sceneName;
+        public SceneTransitionPlan Load(string slotKey, string sceneName, bool setActive = false)
+        {
+            SceneToLoad[slotKey] = sceneName;
+            if (setActive) ActiveSceneName = sceneName;
             return this;
         }
+
         public SceneTransitionPlan Unload(string slotKey)
         {
             SceneToUnLoad.Add(slotKey);
             return this;
         }
+
         public SceneTransitionPlan WithOverlay()
         {
             Overlay = true;
             return this;
         }
+
         public SceneTransitionPlan WithClearUnusedAssets()
         {
             ClearUnusedAssets = true;

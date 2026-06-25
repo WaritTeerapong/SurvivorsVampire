@@ -62,6 +62,7 @@ public class WaitingRoomManager : NetworkBehaviour
 
                     SceneController.Instance.NewTransition()
                         .Load(Slots.SESSION, Scenes.SESSION, setActive: true)
+                        .Unload(Slots.SESSION)
                         .WithOverlay()
                         .Perform();
                     this.enabled = false;
