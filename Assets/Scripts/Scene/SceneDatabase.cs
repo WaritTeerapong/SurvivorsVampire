@@ -1,27 +1,36 @@
-using UnityEngine;
-
-
-// Using class to hold data like Scriptable object
-// But better Performance and Readability when access data
-public static class SceneDatabase
+public struct Slots
 {
-    public class Slots
-    {
-        public const string MAIN_MENU = "MainMenu";
-        public const string SESSION = "Session";                // for main game scene
-        public const string SESSION_CONTENT = "SessionContent"; // for event game scene (upgrade, special event)
-    }
-    
-    public class Scenes
-    {
-        //Main Menu
-        public const string MAIN_MENU = "MainMenuScene";
-        // Session
-        public const string WAITING_ROOM = "WaitingRoomScene";
-        public const string SESSION = "SessionScene";
-        // Session Content
-        public const string UPGRADE = "UpgradeScene";
-    }
-
-    // TODO: Add static string GetSlotForScene(string sceneName) helper to map Scenes to Slots.
+    public const string MAIN_MENU = "MainMenu";
+    public const string SESSION = "Session"; // for main game scene
+    public const string SESSION_CONTENT = "SessionContent"; // for event game scene (upgrade, special event)
 }
+
+public struct Scenes
+{
+    //Main Menu
+    public const string MAIN_MENU = "MainMenuScene";
+    // Session
+    public const string WAITING_ROOM = "WaitingRoomScene";
+    public const string SESSION = "SessionScene";
+    // Session Content
+    public const string UPGRADE = "UpgradeScene";
+
+    public static string GetSlotForScene(string sceneName)
+    {
+        switch (sceneName)
+        {
+            case MAIN_MENU:
+                return Slots.MAIN_MENU;
+            case WAITING_ROOM:
+            case SESSION:
+                return Slots.SESSION;
+            case UPGRADE:
+                return Slots.SESSION_CONTENT;
+            default:
+                return null;
+        }
+    }
+}
+
+
+

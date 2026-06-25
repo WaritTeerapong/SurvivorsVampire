@@ -60,8 +60,10 @@ public class WaitingRoomManager : NetworkBehaviour
                     }
                     GameSessionData.SpawnedDummies.Clear();
 
-                    // TODO: Replace with SceneController.Instance.NewTransition().Load(Session Slot, Session Scene).WithOverlay().Perform() to load additively and keep CoreScene alive
-                    NetworkManager.Singleton.SceneManager.LoadScene("SessionScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                    SceneController.Instance.NewTransition()
+                        .Load(Slots.SESSION, Scenes.SESSION, setActive: true)
+                        .WithOverlay()
+                        .Perform();
                     this.enabled = false;
                 }
             }
