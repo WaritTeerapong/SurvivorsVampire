@@ -5,6 +5,7 @@ public class UIVFXManager : MonoBehaviour
     public static UIVFXManager Instance { get; private set; }
 
     public GameObject ButtonClickVFXPrefab;
+    public Transform UIParticleCanvas;
 
     void Awake()
     {
@@ -16,17 +17,19 @@ public class UIVFXManager : MonoBehaviour
     {
         if (ButtonClickVFXPrefab == null || ObjectPoolManager.Instance == null) return;
 
-        ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(
+        GameObject ps = ObjectPoolManager.Instance.SpawnObject<GameObject>(
             ButtonClickVFXPrefab,
             screenPosition,
             Quaternion.identity,
-            PoolCategory.UIVFX
+            PoolCategory.UIVFX,
+            UIParticleCanvas
         );
 
         if (ps != null)
         {
-            ps.transform.SetAsLastSibling();
-            ps.Play();
+            ParticleSystem pss = ps.GetComponent<ParticleSystem>();
+            pss.transform.SetAsLastSibling();
+            pss.Play();
         }
     }
 }
