@@ -16,7 +16,7 @@ public class RangeWeapon : BaseWeapon
             spawnPos = firePoint.position;
         }
 
-        GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+        GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
         if (bulletObj != null)
         {
             Bullet bulletScript = bulletObj.GetComponent<Bullet>();

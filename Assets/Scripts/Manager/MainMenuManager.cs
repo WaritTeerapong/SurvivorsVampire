@@ -33,11 +33,11 @@ public class MainMenuManager : MonoBehaviour
         if (MainMenuPanel != null) MainMenuPanel.SetActive(false);
     }
 
-    public void OnCloseSettingClicked()
-    {
-        if (MainMenuPanel != null) MainMenuPanel.SetActive(true);
-        // if (SettingsPanel != null) SettingsPanel.SetActive(false);
-    }
+    // public void OnCloseSettingClicked()
+    // {
+    //     if (MainMenuPanel != null) MainMenuPanel.SetActive(true);
+    //     // if (SettingsPanel != null) SettingsPanel.SetActive(false);
+    // }
 
     public void OnQuitButtonClicked()
     {

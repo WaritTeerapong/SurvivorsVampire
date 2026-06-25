@@ -27,16 +27,12 @@ public class DamagePopupManager : NetworkBehaviour
     {
         if (DamagePopupPrefab == null || ObjectPoolManager.Instance == null) return;
 
-        GameObject popupObj = ObjectPoolManager.Instance.SpawnObject(DamagePopupPrefab, position, Quaternion.identity, PoolCategory.DamagePopup);
+        DamagePopup popupObj = ObjectPoolManager.Instance.SpawnObject<DamagePopup>(DamagePopupPrefab, position, Quaternion.identity, PoolCategory.DamagePopup);
 
         if (popupObj != null)
         {
-            DamagePopup popupScript = popupObj.GetComponent<DamagePopup>();
-            if (popupScript != null)
-            {
-                Color targetColor = isPlayerTarget ? PlayerHitColor : EnemyHitColor;
-                popupScript.Setup(damage, targetColor);
-            }
+            Color targetColor = isPlayerTarget ? PlayerHitColor : EnemyHitColor;
+            popupObj.Setup(damage, targetColor);
         }
     }
 }

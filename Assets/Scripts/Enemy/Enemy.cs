@@ -354,16 +354,12 @@ public class Enemy : NetworkBehaviour
         {
             Vector3 spawnPos = transform.position;
 
-            GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+            Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
 
             if (bulletObj != null)
             {
-                Bullet bulletScript = bulletObj.GetComponent<Bullet>();
-                if (bulletScript != null)
-                {
-                    bulletScript.IsEnemy = true;
-                    bulletScript.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage);
-                }
+                bulletObj.IsEnemy = true;
+                bulletObj.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage);
             }
         }
     }

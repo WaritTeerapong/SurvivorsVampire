@@ -215,7 +215,7 @@ public class Player : NetworkBehaviour
 
             if (GravestonePrefab != null && _myGravestone == null)
             {
-                _myGravestone = ObjectPoolManager.Instance.SpawnObject(GravestonePrefab, transform.position, Quaternion.identity);
+                _myGravestone = ObjectPoolManager.Instance.SpawnObject<GameObject>(GravestonePrefab, transform.position, Quaternion.identity);
 
                 if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && !netObj.IsSpawned)
                 {
