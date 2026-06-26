@@ -34,6 +34,9 @@ public class Bullet : MonoBehaviour
         _lifeTimer = 5f;
         _isFired = true;
 
+        if (_spriteRenderer != null) _spriteRenderer.enabled = true;
+        if (_collider != null) _collider.enabled = true;
+
         CircleCollider2D col = _collider as CircleCollider2D;
         if (col != null)
         {
