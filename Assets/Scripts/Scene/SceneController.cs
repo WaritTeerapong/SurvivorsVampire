@@ -16,7 +16,9 @@ public class SceneController : NetworkBehaviour
     private bool _isNetworkSceneLoading = false;
     private bool _isNetworkSceneUnloading = false;
     private HashSet<string> _networkLoadedScenes = new();
-    private bool IsNetworkActive => NetworkManager != null && NetworkManager.IsListening;
+    private bool _isNetworkActive => NetworkManager != null && NetworkManager.IsListening;
+    private NetworkVariable<bool> IsOverlayBuild = new NetworkVariable<bool>(false);
+    private NetworkVariable<bool> IsNetworkOverlayFadeIn = new NetworkVariable<bool>(false);
 
     private void Awake()
     {
@@ -48,29 +50,30 @@ public class SceneController : NetworkBehaviour
 
     #region Network Event Handlers
 
-
     private void OnLoadHandler(ulong clientId, string sceneName, LoadSceneMode loadSceneMode, AsyncOperation asyncOperation)
     {
-        
-        //StartCoroutine(FadeInOverlayRoutine());
-        
+        _isNetworkSceneLoading = true;
+        NetworkOverlayFadeIn();
     }
 
     private void OnUnloadHandler(ulong clientId, string sceneName, AsyncOperation asyncOperation)
     {
-        
-         StartCoroutine(FadeInOverlayRoutine());
+
+        _isNetworkSceneLoading = true;
+        NetworkOverlayFadeIn();
     }
 
     private void HandleOnLoadEventComplete(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
         _isNetworkSceneLoading = false;
-        StartCoroutine(FadeOutOverlayRoutine());
+        NetworkOverlayFadeOut();
     }
 
     private void HandleOnUnloadEventComplete(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
         _isNetworkSceneUnloading = false;
+        NetworkOverlayFadeOut();
+
     }
 
     #endregion
@@ -86,6 +89,24 @@ public class SceneController : NetworkBehaviour
     {
         if (_loadingOverlay != null) yield return _loadingOverlay.FadeOutBlack();
     }
+
+    private void NetworkOverlayFadeIn() 
+    {
+        if(IsOverlayBuild.Value && !IsNetworkOverlayFadeIn.Value)
+        {
+            FadeInOverlayRoutine();
+            if(IsServer)IsNetworkOverlayFadeIn.Value = true;
+        }
+    }
+    private void NetworkOverlayFadeOut() 
+    {
+        if (IsOverlayBuild.Value && IsNetworkOverlayFadeIn.Value)
+        {
+            FadeInOverlayRoutine();
+            if (IsServer) IsNetworkOverlayFadeIn.Value = false;
+        }
+    }
+
 
     #endregion
 
@@ -104,6 +125,7 @@ public class SceneController : NetworkBehaviour
             return null;
         }
 
+        if (plan.Overlay && IsServer) IsOverlayBuild.Value = true;
         _isBusy = true;
         return StartCoroutine(ChangeSceneRoutine(plan));
     }
@@ -141,12 +163,13 @@ public class SceneController : NetworkBehaviour
             yield return FadeOutOverlayRoutine();
         }
 
+        if(IsServer) IsOverlayBuild.Value = true;
         _isBusy = false;
     }
 
     private IEnumerator LoadAdditiveSceneRoutine(string slotKey, string sceneName, bool setActive)
     {
-        if (IsNetworkActive)
+        if (_isNetworkActive)
         {
             yield return LoadNetworkSceneRoutine(sceneName);
             _networkLoadedScenes.Add(sceneName);
@@ -169,7 +192,7 @@ public class SceneController : NetworkBehaviour
         if (!_loadedSceneBySlot.TryGetValue(slotKey, out string sceneName)) yield break;
         if (string.IsNullOrEmpty(sceneName)) yield break;
 
-        if (IsNetworkActive && _networkLoadedScenes.Contains(sceneName))
+        if (_isNetworkActive && _networkLoadedScenes.Contains(sceneName))
         {
             yield return UnloadNetworkSceneRoutine(sceneName);
             _networkLoadedScenes.Remove(sceneName);
@@ -189,7 +212,6 @@ public class SceneController : NetworkBehaviour
     {
         if (!NetworkManager.IsServer) yield break;
 
-        _isNetworkSceneLoading = true;
         var status = NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
         if (status != SceneEventProgressStatus.Started)
         {
@@ -220,7 +242,6 @@ public class SceneController : NetworkBehaviour
         Scene sceneToUnload = SceneManager.GetSceneByName(sceneName);
         if (!sceneToUnload.IsValid() || !sceneToUnload.isLoaded) yield break;
 
-        _isNetworkSceneUnloading = true;
         var status = NetworkManager.SceneManager.UnloadScene(sceneToUnload);
         if (status != SceneEventProgressStatus.Started)
         {

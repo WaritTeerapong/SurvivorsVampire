@@ -33,20 +33,51 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedXP.Value = 0;
                 SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
             }
+
+            if (PauseManager.Instance != null)
+            {
+                PauseManager.Instance.PlayersSelectingUpgrade.OnListChanged += OnPlayersSelectingUpgradeChanged;
+            }
         }
 
         SharedLevel.OnValueChanged += OnLevelChange;
     }
 
-    
     public override void OnNetworkDespawn()
-    { 
+    {
+        base.OnNetworkDespawn();
         SharedLevel.OnValueChanged -= OnLevelChange;
+
+        if (IsServer && PauseManager.Instance != null)
+        {
+            PauseManager.Instance.PlayersSelectingUpgrade.OnListChanged -= OnPlayersSelectingUpgradeChanged;
+        }
+    }
+
+    private void OnPlayersSelectingUpgradeChanged(NetworkListEvent<ulong> changeEvent)
+    {
+        if (IsServer && PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && changeEvent.Type == NetworkListEvent<ulong>.EventType.Remove)
+        {
+            if (SceneController.Instance != null)
+            {
+                SceneController.Instance
+                    .NewTransition()
+                    .Load(Slots.SESSION, Scenes.SESSION, setActive: true)
+                    .Unload(Slots.SESSION_CONTENT)
+                    .WithClearUnusedAssets()
+                    .Perform();
+            }
+        }
     }
 
     private void OnLevelChange(int previousValue, int newValue)
     {
         ReviveDownedPlayers();
+        SceneController.Instance
+            .NewTransition()
+            .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+            .Perform();
+        
     }
 
     [Rpc(SendTo.Server)]

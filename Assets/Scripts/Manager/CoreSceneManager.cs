@@ -7,7 +7,7 @@ public class CoreSceneManager : MonoBehaviour
     {
         SceneController.Instance
             .NewTransition()
-            .Load(Slots.MAIN_MENU, Scenes.MAIN_MENU)
+            .Load(Slots.MAIN_MENU, Scenes.MAIN_MENU,setActive: true)
             .WithOverlay()
             .Perform();
     }

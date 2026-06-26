@@ -15,13 +15,16 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.SpawnedDummies.Clear();
 
         NetworkManager.Singleton.StartHost();
-        SceneController.Instance
-            .NewTransition()
-            .Load(Slots.SESSION, Scenes.WAITING_ROOM)
-            .Unload(Slots.MAIN_MENU)
-            .WithOverlay()
-            .WithClearUnusedAssets()
-            .Perform();
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance
+                .NewTransition()
+                .Load(Slots.SESSION, Scenes.WAITING_ROOM, setActive: true)
+                .Unload(Slots.MAIN_MENU)
+                .WithOverlay()
+                .WithClearUnusedAssets()
+                .Perform();
+        }
     }
 
     public void OnJoinButtonClicked()
@@ -30,14 +33,13 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.PlayerSelections.Clear();
         GameSessionData.SpawnedDummies.Clear();
 
-        NetworkManager.Singleton.StartClient();
+        NetworkManager.Singleton.StartClient(); 
         SceneController.Instance
             .NewTransition()
             .Unload(Slots.MAIN_MENU)
             .WithOverlay()
             .WithClearUnusedAssets()
             .Perform();
-
     }
 
     public void OnSettingsButtonClicked()
