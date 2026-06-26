@@ -20,10 +20,13 @@ public class Bullet : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Collider2D _collider;
 
+    private TrailRenderer _trail;
+
     void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _collider = GetComponent<Collider2D>();
+        _trail = GetComponent<TrailRenderer>();
     }
 
     public void Initialize(Transform target, int damage, GameObject hitVFX)
@@ -36,6 +39,8 @@ public class Bullet : MonoBehaviour
 
         if (_spriteRenderer != null) _spriteRenderer.enabled = true;
         if (_collider != null) _collider.enabled = true;
+
+        if (_trail != null) _trail.Clear();
 
         CircleCollider2D col = _collider as CircleCollider2D;
         if (col != null)
