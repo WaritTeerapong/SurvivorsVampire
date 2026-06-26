@@ -13,35 +13,42 @@ public class Bullet : MonoBehaviour
     private bool _isFired;
 
     private LayerMask _targetLayer;
-
     private Vector3 _shootDirection;
     private float _lifeTimer = 5f;
 
-    public void Initialize(Transform target, int damage)
+    private GameObject _hitVFXPrefab;
+    private SpriteRenderer _spriteRenderer;
+    private Collider2D _collider;
+
+    void Awake()
+    {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _collider = GetComponent<Collider2D>();
+    }
+
+    public void Initialize(Transform target, int damage, GameObject hitVFX)
     {
         _target = target;
         _damage = damage;
+        _hitVFXPrefab = hitVFX;
         _lifeTimer = 5f;
         _isFired = true;
 
-        CircleCollider2D col = GetComponent<CircleCollider2D>();
+        CircleCollider2D col = _collider as CircleCollider2D;
         if (col != null)
         {
             col.radius = HitDistance;
         }
 
-        // ✅ คำนวณ "ทิศทาง (Direction)" เอาไว้ตั้งแต่ตอนกดยิง (สำหรับ Non-Lock)
         if (target != null)
         {
             _shootDirection = (target.position - transform.position).normalized;
-
-            // (Optional) หันหัวกระสุนให้ตรงกับทิศทางที่พุ่งไป
             float angle = Mathf.Atan2(_shootDirection.y, _shootDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
         }
         else
         {
-            _shootDirection = Vector3.right; // เผื่อเหนียวกรณีเป้าหมายหายไปกระทันหัน
+            _shootDirection = Vector3.right;
         }
 
         if (IsEnemy) _targetLayer = LayerMask.GetMask("Player");
@@ -59,45 +66,11 @@ public class Bullet : MonoBehaviour
             return;
         }
 
-        // ✅ 1. จดจำตำแหน่ง "ก่อนเดิน" เอาไว้
         Vector3 previousPosition = transform.position;
+        float distanceMoveThisFrame = Speed * Time.deltaTime;
+        transform.position += _shootDirection * distanceMoveThisFrame;
 
-        // --- การเคลื่อนที่ ---
-        if (!IsEnemy)
-        {
-            if (_target == null || !_target.gameObject.activeInHierarchy)
-            {
-                ReturnToPool();
-                return;
-            }
-            transform.position = Vector3.MoveTowards(transform.position, _target.position, Speed * Time.deltaTime);
-        }
-        else
-        {
-            transform.position += _shootDirection * Speed * Time.deltaTime;
-        }
-
-        // ✅ 2. ส่งตำแหน่งเก่าไปให้ฟังก์ชันเช็กการชนแบบลากเส้น
-        CheckCollision(previousPosition);
-    }
-
-    private void CheckCollision(Vector3 previousPosition)
-    {
-        Vector3 currentPosition = transform.position;
-        Vector3 direction = currentPosition - previousPosition;
-        float distanceMoveThisFrame = direction.magnitude;
-
-        // ดักบั๊กกรณีที่เฟรมนี้กระสุนยังไม่ได้ขยับ ให้ใช้ OverlapCircle แบบเดิม
-        if (distanceMoveThisFrame == 0)
-        {
-            Collider2D hitCollider = Physics2D.OverlapCircle(currentPosition, HitDistance, _targetLayer);
-            if (hitCollider != null) ProcessHit(hitCollider);
-            return;
-        }
-
-        // ✅ 3. อัปเกรด: ใช้ CircleCast! (กวาดวงกลมจากจุดเก่า ไปยังจุดใหม่)
-        // มันจะกวาดเช็กตลอดทางเดินของกระสุนในเฟรมนั้นๆ ทำให้ไม่มีทางทะลุเป้าหมายได้เลย
-        RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, direction.normalized, distanceMoveThisFrame, _targetLayer);
+        RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, _shootDirection, distanceMoveThisFrame, _targetLayer);
 
         if (hit.collider != null)
         {
@@ -107,38 +80,51 @@ public class Bullet : MonoBehaviour
 
     private void ProcessHit(Collider2D hitCollider)
     {
-        if (!IsEnemy && hitCollider.CompareTag("Enemy"))
+        _isFired = false;
+
+        if (_spriteRenderer != null) _spriteRenderer.enabled = false;
+        if (_collider != null) _collider.enabled = false;
+
+        if (_hitVFXPrefab != null && ObjectPoolManager.Instance != null)
         {
-            Enemy enemy = hitCollider.GetComponent<Enemy>();
-            if (enemy != null)
+            ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(
+                _hitVFXPrefab,
+                transform.position,
+                Quaternion.identity,
+                PoolCategory.Default
+            );
+            if (ps != null) ps.Play();
+        }
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            if (!IsEnemy && hitCollider.CompareTag("Enemy"))
             {
-                if (NetworkManager.Singleton.IsServer) enemy.TakeDamage(_damage);
-                ReturnToPool();
+                Enemy enemy = hitCollider.GetComponent<Enemy>();
+                if (enemy != null) enemy.TakeDamage(_damage);
+            }
+            else if (IsEnemy && hitCollider.CompareTag("Player"))
+            {
+                Player player = hitCollider.GetComponent<Player>();
+                if (player != null) player.TakeDamageRpc(_damage);
             }
         }
-        else if (IsEnemy && hitCollider.CompareTag("Player"))
-        {
-            Player player = hitCollider.GetComponent<Player>();
-            if (player != null)
-            {
-                if (NetworkManager.Singleton.IsServer) player.TakeDamageRpc(_damage);
-                ReturnToPool();
-            }
-        }
+
+        Invoke(nameof(ReturnToPool), 0.1f);
     }
 
     private void ReturnToPool()
     {
         _isFired = false;
+        CancelInvoke(nameof(ReturnToPool));
 
-        // Return this game object to the global pool manager
         if (ObjectPoolManager.Instance != null)
         {
             ObjectPoolManager.Instance.ReturnObjectToPool(gameObject);
         }
         else
         {
-            Destroy(gameObject); // Fallback if manager is destroyed
+            Destroy(gameObject);
         }
     }
 

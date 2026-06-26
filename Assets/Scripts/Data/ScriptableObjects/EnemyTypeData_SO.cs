@@ -7,7 +7,13 @@ public class EnemyTypeData_SO : ScriptableObject
     public GameObject EnemyPrefab;
     public bool IsRange;
     public EnemyTier[] enemyTiers;
+
+    [Header("=== XP Settings ===")]
     public int XPValue = 10;
+
+    [Header("=== VFX Settings ===")]
+    public GameObject DeathVFXPrefab;
+    public GameObject BulletHitVFXPrefab;
 
     [Header("Boids Flocking Settings")]
     public bool UseBoids = true; // toggle boids

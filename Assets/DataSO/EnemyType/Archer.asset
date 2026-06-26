@@ -44,6 +44,8 @@ MonoBehaviour:
       ATKSpeed: 3
       ATKRange: 5
   XPValue: 10
+  DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
+  BulletHitVFXPrefab: {fileID: 4084188421608476203, guid: 8ad18cf3a8cba9a48a7e54155f2bb667, type: 3}
   UseBoids: 1
   EnemyLayer:
     serializedVersion: 2

@@ -1,10 +1,9 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 [System.Serializable]
 public struct WeaponStat
 {
-    public float ATKDamage; 
+    public float ATKDamage;
     public float ATKRange;
     public float ATKSpeed;
 }
@@ -13,4 +12,7 @@ public struct WeaponStat
 public class WeaponItemData_SO : ItemData_Base<WeaponStat>
 {
     public GameObject WeaponPrefab;
+
+    [Header("=== VFX Settings ===")]
+    public GameObject HitVFXPrefab;
 }

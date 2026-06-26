@@ -261,10 +261,7 @@ public class Enemy : NetworkBehaviour
             XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
         }
 
-        if (VFXManager.Instance != null)
-        {
-            VFXManager.Instance.PlayVFXAtPostion(transform.position);
-        }
+        PlayDeathVFXClientRpc(transform.position);
 
         // Despawn enemy obj after 1.2 s
         StartCoroutine(DelayDespawnRoutine(1.2f));
@@ -275,6 +272,25 @@ public class Enemy : NetworkBehaviour
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayDeathVFXClientRpc(Vector3 position)
+    {
+        if (EnemyType != null && EnemyType.DeathVFXPrefab != null)
+        {
+            ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(
+                EnemyType.DeathVFXPrefab,
+                position,
+                Quaternion.identity,
+                PoolCategory.VFX
+            );
+
+            if (ps != null)
+            {
+                ps.Play();
+            }
         }
     }
     private void ApplyTierColor(EnemyCurrentStats _stat)
@@ -364,7 +380,10 @@ public class Enemy : NetworkBehaviour
             if (bulletObj != null)
             {
                 bulletObj.IsEnemy = true;
-                bulletObj.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage);
+
+                GameObject hitVFX = null;
+                if (EnemyType != null) hitVFX = EnemyType.BulletHitVFXPrefab;
+                bulletObj.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage, hitVFX);
             }
         }
     }

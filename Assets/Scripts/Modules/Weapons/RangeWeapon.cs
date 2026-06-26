@@ -24,7 +24,8 @@ public class RangeWeapon : BaseWeapon
             {
                 // Set the bullet damage to the combined weapon stat and player stat
                 int totalDamage = GetTotalDamage();
-                bulletScript.Initialize(target, totalDamage);
+                GameObject hitVFX = WeaponData.HitVFXPrefab;
+                bulletScript.Initialize(target, totalDamage, hitVFX);
             }
 
             if (AudioManager.Instance != null)
