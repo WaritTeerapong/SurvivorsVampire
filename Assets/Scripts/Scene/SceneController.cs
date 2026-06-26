@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Unity.Netcode;
 
 public class SceneController : NetworkBehaviour
 {
@@ -31,6 +31,11 @@ public class SceneController : NetworkBehaviour
         if (NetworkManager?.SceneManager == null) return;
 
         var sm = NetworkManager.SceneManager;
+        if (IsServer)
+        {
+            sm.ActiveSceneSynchronizationEnabled = true;
+        }
+
         sm.OnLoad += OnLoadHandler;
         sm.OnUnload += OnUnloadHandler;
         sm.OnLoadEventCompleted += HandleOnLoadEventComplete;
@@ -58,8 +63,7 @@ public class SceneController : NetworkBehaviour
 
     private void OnUnloadHandler(ulong clientId, string sceneName, AsyncOperation asyncOperation)
     {
-
-        _isNetworkSceneLoading = true;
+        _isNetworkSceneUnloading = true;
         NetworkOverlayFadeIn();
     }
 
@@ -73,7 +77,6 @@ public class SceneController : NetworkBehaviour
     {
         _isNetworkSceneUnloading = false;
         NetworkOverlayFadeOut();
-
     }
 
     #endregion
@@ -92,21 +95,20 @@ public class SceneController : NetworkBehaviour
 
     private void NetworkOverlayFadeIn() 
     {
-        if(IsOverlayBuild.Value && !IsNetworkOverlayFadeIn.Value)
+        if (IsOverlayBuild.Value && !IsNetworkOverlayFadeIn.Value)
         {
-            FadeInOverlayRoutine();
-            if(IsServer)IsNetworkOverlayFadeIn.Value = true;
+            StartCoroutine(FadeInOverlayRoutine());
+            if (IsServer) IsNetworkOverlayFadeIn.Value = true;
         }
     }
     private void NetworkOverlayFadeOut() 
     {
         if (IsOverlayBuild.Value && IsNetworkOverlayFadeIn.Value)
         {
-            FadeInOverlayRoutine();
+            StartCoroutine(FadeOutOverlayRoutine());
             if (IsServer) IsNetworkOverlayFadeIn.Value = false;
         }
     }
-
 
     #endregion
 
@@ -125,7 +127,7 @@ public class SceneController : NetworkBehaviour
             return null;
         }
 
-        if (plan.Overlay && IsServer) IsOverlayBuild.Value = true;
+        if (IsServer) IsOverlayBuild.Value = plan.Overlay;
         _isBusy = true;
         return StartCoroutine(ChangeSceneRoutine(plan));
     }
@@ -158,12 +160,17 @@ public class SceneController : NetworkBehaviour
             yield return LoadAdditiveSceneRoutine(kvp.Key, kvp.Value, plan.ActiveSceneName == kvp.Value);
         }
 
+        if (!string.IsNullOrEmpty(plan.ActiveSceneName))
+        {
+            SetSceneActive(plan.ActiveSceneName);
+        }
+
         if (plan.Overlay)
         {
             yield return FadeOutOverlayRoutine();
         }
 
-        if(IsServer) IsOverlayBuild.Value = true;
+        if (IsServer) IsOverlayBuild.Value = false;
         _isBusy = false;
     }
 
@@ -212,6 +219,7 @@ public class SceneController : NetworkBehaviour
     {
         if (!NetworkManager.IsServer) yield break;
 
+        _isNetworkSceneLoading = true;
         var status = NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
         if (status != SceneEventProgressStatus.Started)
         {
@@ -242,6 +250,7 @@ public class SceneController : NetworkBehaviour
         Scene sceneToUnload = SceneManager.GetSceneByName(sceneName);
         if (!sceneToUnload.IsValid() || !sceneToUnload.isLoaded) yield break;
 
+        _isNetworkSceneUnloading = true;
         var status = NetworkManager.SceneManager.UnloadScene(sceneToUnload);
         if (status != SceneEventProgressStatus.Started)
         {
@@ -290,6 +299,19 @@ public class SceneController : NetworkBehaviour
         {
             SceneToLoad[slotKey] = sceneName;
             if (setActive) ActiveSceneName = sceneName;
+            return this;
+        }
+
+        public SceneTransitionPlan SetSceneActive(string slotKey)
+        {
+            if (SceneToLoad.TryGetValue(slotKey, out string sceneToLoad))
+            {
+                ActiveSceneName = sceneToLoad;
+            }
+            else if (SceneController.Instance._loadedSceneBySlot.TryGetValue(slotKey, out string loadedScene))
+            {
+                ActiveSceneName = loadedScene;
+            }
             return this;
         }
 

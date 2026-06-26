@@ -62,8 +62,8 @@ public class PlayerLevelManager : NetworkBehaviour
             {
                 SceneController.Instance
                     .NewTransition()
-                    .Load(Slots.SESSION, Scenes.SESSION, setActive: true)
                     .Unload(Slots.SESSION_CONTENT)
+                    .SetSceneActive(Slots.SESSION)
                     .WithClearUnusedAssets()
                     .Perform();
             }
@@ -73,11 +73,13 @@ public class PlayerLevelManager : NetworkBehaviour
     private void OnLevelChange(int previousValue, int newValue)
     {
         ReviveDownedPlayers();
-        SceneController.Instance
-            .NewTransition()
-            .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
-            .Perform();
-        
+        if (IsServer)
+        {
+            SceneController.Instance
+                .NewTransition()
+                .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+                .Perform();
+        }
     }
 
     [Rpc(SendTo.Server)]

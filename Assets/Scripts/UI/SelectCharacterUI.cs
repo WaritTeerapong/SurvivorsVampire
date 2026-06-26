@@ -108,6 +108,9 @@ public class SelectCharacterUI : NetworkBehaviour
             spawnPos += new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-1.5f, 1.5f), 0);
 
             GameObject spawnedObj = Instantiate(CharacterPrefabs[oldCharIndex], spawnPos, Quaternion.identity);
+
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(spawnedObj, gameObject.scene);
+
             NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
 
             netObj.SpawnWithOwnership(oldClientId, true);
@@ -132,6 +135,9 @@ public class SelectCharacterUI : NetworkBehaviour
         Vector3 spawnPos = LobbySpawnPoint != null ? LobbySpawnPoint.position : Vector3.zero;
         spawnPos += new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-1.5f, 1.5f), 0);
         GameObject spawnedObj = Instantiate(CharacterPrefabs[charIndex], spawnPos, Quaternion.identity);
+
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(spawnedObj, gameObject.scene);
+
         NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
 
         netObj.SpawnWithOwnership(clientId, true);

@@ -67,6 +67,8 @@ public class PlayerSpawnManager : NetworkBehaviour
 
                 GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, Quaternion.identity);
 
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(spawnedObj, gameObject.scene);
+
                 spawnedObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
                 spawnIndex++;
@@ -90,6 +92,10 @@ public class PlayerSpawnManager : NetworkBehaviour
         Transform spawnPos = (_spawnPoints != null && _spawnPoints.Length > _testSpawnIndex) ? _spawnPoints[_testSpawnIndex] : transform;
 
         GameObject spawnedObj = Instantiate(_characterPrefabs[charIndex], spawnPos.position, Quaternion.identity);
+
+        // When Session Scene available, Force spawnObj to move to Session Scene
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(spawnedObj, gameObject.scene);
+
         NetworkObject netObj = spawnedObj.GetComponent<NetworkObject>();
         if (netObj != null) netObj.SpawnAsPlayerObject(clientId, true);
 

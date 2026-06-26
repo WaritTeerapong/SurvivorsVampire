@@ -88,6 +88,11 @@ public class ObjectPoolManager : MonoBehaviour
         spawnedObj.transform.position = position;
         spawnedObj.transform.rotation = rotation;
 
+        if (gameObject.scene.IsValid() && gameObject.scene.isLoaded && spawnedObj.scene != gameObject.scene)
+        {
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(spawnedObj, gameObject.scene);
+        }
+
         _instanceToPrefabMap[spawnedObj] = prefab;
 
         return spawnedObj;
