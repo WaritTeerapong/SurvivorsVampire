@@ -7,6 +7,7 @@ public enum PoolCategory
 {
     Default,
     Projectiles,
+    VFX,
     UIVFX,
     Enemies,
     XP,

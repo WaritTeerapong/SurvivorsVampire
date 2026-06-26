@@ -261,6 +261,11 @@ public class Enemy : NetworkBehaviour
             XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
         }
 
+        if (VFXManager.Instance != null)
+        {
+            VFXManager.Instance.PlayVFXAtPostion(transform.position);
+        }
+
         // Despawn enemy obj after 1.2 s
         StartCoroutine(DelayDespawnRoutine(1.2f));
     }
