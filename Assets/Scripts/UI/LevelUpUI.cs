@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelUpUI : NetworkBehaviour
 {
@@ -67,7 +68,6 @@ public class LevelUpUI : NetworkBehaviour
     private void OnLevelChange(int previousValue, int newValue)
     {
         UpdateUI();
-        ReviveDownPlayer();
     }
     private void UpdateUI()
     {
@@ -81,16 +81,10 @@ public class LevelUpUI : NetworkBehaviour
 
         OpenLevelUpScreen();
     }
-    private void ReviveDownPlayer()
-    {
-        foreach(Player player in PlayerManager.Instance.AllPlayers)
-        {
-            if(player != null && player.IsDowned) player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
-    
-        }
-    }
     private void OpenLevelUpScreen()
     {
+        
+
         if (PauseMenuUI.Instance != null)
         {
             PauseMenuUI.Instance.ForceCloseMenu();

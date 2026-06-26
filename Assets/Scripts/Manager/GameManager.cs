@@ -99,8 +99,11 @@ public class GameManager : NetworkBehaviour
     private void ReturnToLobbyRpc()
     {
         // NETWORK OPERATION: Initiating transition to the Waiting Room scene on the server
-        SceneController.Instance.NewTransition()
+        SceneController.Instance
+            .NewTransition()
             .Load(Slots.SESSION, Scenes.WAITING_ROOM, setActive: true)
+            .Unload(Slots.SESSION)
+            .WithClearUnusedAssets()
             .WithOverlay()
             .Perform();
     }

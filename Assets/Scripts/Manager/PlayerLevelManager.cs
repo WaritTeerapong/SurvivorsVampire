@@ -34,8 +34,20 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
             }
         }
+
+        SharedLevel.OnValueChanged += OnLevelChange;
     }
 
+    
+    public override void OnNetworkDespawn()
+    { 
+        SharedLevel.OnValueChanged -= OnLevelChange;
+    }
+
+    private void OnLevelChange(int previousValue, int newValue)
+    {
+        ReviveDownedPlayers();
+    }
 
     [Rpc(SendTo.Server)]
     public void RequestGainXPRpc(int amount)
@@ -47,19 +59,35 @@ public class PlayerLevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
         if (SharedXPNeeded.Value == -1) return;
+        if (SharedXPNeeded.Value == -1) return;
 
         SharedXP.Value += incomingXP;
 
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
         {
             SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++;    // OnLevelUp event fire!
+            SharedLevel.Value++; 
             SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
+
 
             if (SharedXPNeeded.Value == -1)
             {
                 SharedXP.Value = 0;
                 break;
+            }
+        }
+    }
+
+    private void ReviveDownedPlayers()
+    {
+        if (PlayerManager.Instance != null)
+        {
+            foreach (Player player in PlayerManager.Instance.AllPlayers)
+            {
+                if (player != null && player.IsDowned)
+                {
+                    player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
+                }
             }
         }
     }
