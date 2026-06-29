@@ -128,7 +128,7 @@ public class EnemySpawnManager : NetworkBehaviour
                 GameObject selectedPrefab = EnemyType.EnemyPrefab;
 
                 // Spawn with object pool
-                GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
+                GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject(
                     selectedPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies
                 );
 
