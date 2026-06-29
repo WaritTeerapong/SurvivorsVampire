@@ -119,7 +119,7 @@ public class PauseMenuUI : MonoBehaviour
 
     public void ForceCloseMenu()
     {
-        if (_currentState != PauseUIState.Closed && _currentState != PauseUIState.Overlay)
+        if (_currentState != PauseUIState.Closed)
         {
             ChangeState(PauseUIState.Closed);
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
