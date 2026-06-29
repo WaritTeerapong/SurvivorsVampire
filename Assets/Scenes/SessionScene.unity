@@ -1877,16 +1877,7 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 8402467215355904824, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2492170574011386367, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 521524032}
-    - targetCorrespondingSourceObject: {fileID: 8712771873470171049, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 521524031}
-    - targetCorrespondingSourceObject: {fileID: 1117590837923112226, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 521524030}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
 --- !u!114 &521524023 stripped
 MonoBehaviour:
@@ -1926,69 +1917,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
---- !u!1 &521524027 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1117590837923112226, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-  m_PrefabInstance: {fileID: 521524022}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &521524028 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8712771873470171049, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-  m_PrefabInstance: {fileID: 521524022}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &521524029 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2492170574011386367, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
-  m_PrefabInstance: {fileID: 521524022}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &521524030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 521524027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
-  EnableJuice: 1
-  HoverScale: 1.1
-  ClickScale: 0.9
-  AnimationDuration: 0.2
---- !u!114 &521524031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 521524028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
-  EnableJuice: 1
-  HoverScale: 1.1
-  ClickScale: 0.9
-  AnimationDuration: 0.2
---- !u!114 &521524032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 521524029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c839ee7b600a584092643ee8c81fe5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ButtonSFXUI
-  EnableJuice: 1
-  HoverScale: 1.1
-  ClickScale: 0.9
-  AnimationDuration: 0.2
 --- !u!1 &530714076
 GameObject:
   m_ObjectHideFlags: 0
