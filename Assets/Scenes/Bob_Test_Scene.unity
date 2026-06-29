@@ -1793,10 +1793,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 48329623086967332, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 459562143179440432, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 634428828596343151, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
     - target: {fileID: 1648105055544779944, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1723758329815879866, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 3132038351925784045, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 4250140265358687335, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 4347276186876253723, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 5422089317915899024, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 5958822633198165817, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
     - target: {fileID: 6213626146725574779, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1877,10 +1913,42 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6545911401216418930, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 6955673525598089777, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 7048980632151793585, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 7361323381847955533, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8145657664290595771, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
+    - target: {fileID: 8402467215355904824, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8628952549584341167, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
     - target: {fileID: 9064496029618428850, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
       propertyPath: m_Name
       value: GameplayUI_Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 9198162992302633956, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1914728959957782282, guid: 298e103554c71fd4e9a93ecada1bef25, type: 2}
     m_RemovedComponents:
     - {fileID: 1562486065653260884, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
     - {fileID: 5761320895968380433, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
@@ -1888,6 +1956,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8402467215355904824, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 680909314}
     - targetCorrespondingSourceObject: {fileID: 2492170574011386367, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 521524032}
@@ -2702,6 +2773,22 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8402467215355904824, guid: 5c550bd1b3b5afd46a1ce0386d5e2a2a, type: 3}
   m_PrefabInstance: {fileID: 521524022}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &680909314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680909313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0a626296a3ee6f46aac1d28c7dcf0fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopupUI
+  OpenDuration: 0.35
+  CloseDuration: 0.2
+  OpenEase: 27
+  CloseEase: 26
 --- !u!1 &696014360
 GameObject:
   m_ObjectHideFlags: 0

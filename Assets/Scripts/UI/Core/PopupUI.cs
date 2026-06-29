@@ -22,7 +22,7 @@ public class PopupUI : MonoBehaviour
         transform.DOScale(_originalScale, OpenDuration).SetEase(OpenEase).SetUpdate(true);
     }
 
-    public void ClosePopup(GameObject targetPanel)
+    public void CloseAndOpenPopup(GameObject targetPanel)
     {
         transform.DOKill();
 
@@ -32,6 +32,18 @@ public class PopupUI : MonoBehaviour
                 gameObject.SetActive(false);
                 transform.localScale = _originalScale;
                 targetPanel.SetActive(true);
+            });
+    }
+
+    public void CloseSelectPopup(GameObject targetPanel)
+    {
+        transform.DOKill();
+
+        transform.DOScale(Vector3.zero, CloseDuration).SetEase(CloseEase).SetUpdate(true)
+            .OnComplete(() =>
+            {
+                targetPanel.SetActive(false);
+                transform.localScale = _originalScale;
             });
     }
 }

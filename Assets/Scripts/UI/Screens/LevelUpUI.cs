@@ -18,6 +18,13 @@ public class LevelUpUI : NetworkBehaviour
     private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
 
+    private PopupUI popupUI;
+
+    void Awake()
+    {
+        if (popupUI == null) popupUI = _levelUpScreen.GetComponent<PopupUI>();
+    }
+
     void Start()
     {
         _levelUpScreen.SetActive(false);
@@ -35,7 +42,6 @@ public class LevelUpUI : NetworkBehaviour
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnLevelChange;
         }
-        
     }
 
     private Player GetLocalPlayer()
@@ -83,10 +89,10 @@ public class LevelUpUI : NetworkBehaviour
     }
     private void ReviveDownPlayer()
     {
-        foreach(Player player in PlayerManager.Instance.AllPlayers)
+        foreach (Player player in PlayerManager.Instance.AllPlayers)
         {
-            if(player != null && player.IsDowned) player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
-    
+            if (player != null && player.IsDowned) player.RevivePlayerRpc(isReviveOnFullHealth: false, healAmount: 0.5f);
+
         }
     }
     private void OpenLevelUpScreen()
@@ -180,7 +186,7 @@ public class LevelUpUI : NetworkBehaviour
                 UpgradeCard respawnCard = _upgradeCard[cardIndex];
                 respawnCard.gameObject.SetActive(true);
                 respawnCard.SetupCard(false);
-                
+
                 Player targetPlayer = deadPlayer;
                 TMP_Text Buttontext = respawnCard.UpgradeButton.GetComponentInChildren<TMP_Text>();
                 if (Buttontext != null)
@@ -190,7 +196,7 @@ public class LevelUpUI : NetworkBehaviour
 
                 respawnCard.UpgradeButton.onClick.RemoveAllListeners();
                 respawnCard.UpgradeButton.onClick.AddListener(() => { OnReviveClicked(targetPlayer); });
-                
+
                 cardIndex++;
                 continue;
             }
@@ -341,7 +347,7 @@ public class LevelUpUI : NetworkBehaviour
         FinishChoosing();
     }
 
-     private void OnUpgradeClicked(string itemId)
+    private void OnUpgradeClicked(string itemId)
     {
         PlayerInventory inventory = OwnerStat.GetComponent<PlayerInventory>();
         if (inventory != null)
@@ -372,7 +378,9 @@ public class LevelUpUI : NetworkBehaviour
         else
         {
             _isChoosing = false;
-            _levelUpScreen.SetActive(false);
+            // _levelUpScreen.SetActive(false);
+
+            popupUI.CloseSelectPopup(_levelUpScreen);
 
             if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
 
