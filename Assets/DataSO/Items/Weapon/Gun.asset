@@ -26,3 +26,4 @@ MonoBehaviour:
     ATKRange: 1
     ATKSpeed: 0
   WeaponPrefab: {fileID: 8609959353125987989, guid: f2ffd168eab58fd468a5bad8e364f7bc, type: 3}
+  HitVFXPrefab: {fileID: 4084188421608476203, guid: 5e228c459a52b6f47b79ab4503cc5a0c, type: 3}
