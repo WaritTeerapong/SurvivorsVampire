@@ -13,9 +13,8 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log("Starting Host...");
         GameSessionData.PlayerSelections.Clear();
         GameSessionData.SpawnedDummies.Clear();
-
+        
         NetworkManager.Singleton.StartHost();
-
         NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
         NetworkManager.Singleton.SceneManager.PostSynchronizationSceneUnloading = false;
 
@@ -37,13 +36,14 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.PlayerSelections.Clear();
         GameSessionData.SpawnedDummies.Clear();
 
-        NetworkManager.Singleton.StartClient(); 
         SceneController.Instance
             .NewTransition()
             .Unload(Slots.MAIN_MENU)
             .WithOverlay()
             .WithClearUnusedAssets()
             .Perform();
+        NetworkManager.Singleton.StartClient();
+        
     }
 
     public void OnSettingsButtonClicked()
