@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using DG.Tweening;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -35,7 +37,14 @@ public class PauseMenuUI : MonoBehaviour
     public Slider SFXSlider;
     public Slider UISlider;
 
+    [Header("Animation Settings")]
+    public float OverlayTextBobAmount = 15f;
+    public float OverlayTextBobDuration = 1f;
+
     private PauseUIState _currentState = PauseUIState.Closed;
+    private bool _isTransitioning = false;
+    private Tween _overlayTextTween;
+    private Vector3 _overlayTextOriginalPos;
 
     void Awake()
     {
@@ -45,6 +54,11 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Start()
     {
+        if (OverlayText != null)
+        {
+            _overlayTextOriginalPos = OverlayText.rectTransform.localPosition;
+        }
+
         ChangeState(PauseUIState.Closed);
 
         if (ResumeButton != null) ResumeButton.onClick.AddListener(ResumeGame);
@@ -81,27 +95,78 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Update()
     {
-        if (IsLevelUpActive) return;
+        // Anti-spam check to prevent state logic from breaking during animations
+        if (IsLevelUpActive || _isTransitioning) return;
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             switch (_currentState)
             {
-                case PauseUIState.Closed: OpenPauseMenu(); break; // Play -> Pause
-                case PauseUIState.Overlay: OpenPauseMenu(); break; // Wait other player -> Pasued ( Settings )
-                case PauseUIState.PauseMenu: ResumeGame(); break; // Pause -> Play
-                case PauseUIState.SettingMenu: BackToPauseMenu(); break; // Settings -> Back ( Pasued )
+                case PauseUIState.Closed: OpenPauseMenu(); break;
+                case PauseUIState.Overlay: OpenPauseMenu(); break;
+                case PauseUIState.PauseMenu: ResumeGame(); break;
+                case PauseUIState.SettingMenu: BackToPauseMenu(); break;
             }
         }
     }
 
-    private void ChangeState(PauseUIState newState)
+    private void ChangeState(PauseUIState newState, Action onTransitionComplete = null)
     {
+        if (_currentState == newState)
+        {
+            onTransitionComplete?.Invoke();
+            return;
+        }
+
+        _isTransitioning = true;
+        PauseUIState previousState = _currentState;
         _currentState = newState;
 
-        PauseMenuPanel.SetActive(_currentState == PauseUIState.PauseMenu);
-        SettingsPanel.SetActive(_currentState == PauseUIState.SettingMenu);
-        OverlayPanel.SetActive(_currentState == PauseUIState.Overlay);
+        // Callback function to execute after the closing animation finishes
+        Action openNewState = () =>
+        {
+            PauseMenuPanel.SetActive(_currentState == PauseUIState.PauseMenu);
+            SettingsPanel.SetActive(_currentState == PauseUIState.SettingMenu);
+            OverlayPanel.SetActive(_currentState == PauseUIState.Overlay);
+
+            HandleOverlayText();
+
+            _isTransitioning = false;
+            onTransitionComplete?.Invoke();
+        };
+
+        // Find the currently active panel to close it smoothly
+        GameObject activePanel = GetActivePanel(previousState);
+
+        if (activePanel != null && activePanel.activeInHierarchy && activePanel.TryGetComponent(out PopupUI popup))
+        {
+            popup.ClosePopup(openNewState);
+        }
+        else
+        {
+            if (activePanel != null) activePanel.SetActive(false);
+            openNewState();
+        }
+    }
+
+    private GameObject GetActivePanel(PauseUIState state)
+    {
+        switch (state)
+        {
+            case PauseUIState.PauseMenu: return PauseMenuPanel;
+            case PauseUIState.SettingMenu: return SettingsPanel;
+            case PauseUIState.Overlay: return OverlayPanel;
+            default: return null;
+        }
+    }
+
+    private void HandleOverlayText()
+    {
+        _overlayTextTween?.Kill();
+        if (OverlayText != null)
+        {
+            OverlayText.rectTransform.localPosition = _overlayTextOriginalPos;
+        }
 
         if (_currentState == PauseUIState.Overlay && PauseManager.Instance != null)
         {
@@ -114,6 +179,15 @@ public class PauseMenuUI : MonoBehaviour
                 OverlayText.text = "Waiting for other player...\n(Press ESC to open menu)";
             }
 
+            // Apply a smooth, unscaled-time bobbing effect to the text
+            if (OverlayText != null)
+            {
+                _overlayTextTween = OverlayText.rectTransform
+                    .DOLocalMoveY(_overlayTextOriginalPos.y + OverlayTextBobAmount, OverlayTextBobDuration)
+                    .SetEase(Ease.InOutSine)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetUpdate(true);
+            }
         }
     }
 
@@ -121,11 +195,13 @@ public class PauseMenuUI : MonoBehaviour
     {
         if (_currentState != PauseUIState.Closed && _currentState != PauseUIState.Overlay)
         {
-            ChangeState(PauseUIState.Closed);
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+            ChangeState(PauseUIState.Closed, () =>
             {
-                PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
-            }
+                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                {
+                    PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
+                }
+            });
         }
     }
 
@@ -133,16 +209,21 @@ public class PauseMenuUI : MonoBehaviour
     {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsConnectedClient) return;
 
-        ChangeState(PauseUIState.PauseMenu);
-        PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, true);
+        ChangeState(PauseUIState.PauseMenu, () =>
+        {
+            PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, true);
+        });
     }
 
     public void ResumeGame()
     {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsConnectedClient) return;
 
-        ChangeState(PauseUIState.Overlay);
-        PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
+        // Transition to Overlay first, then unpause server when animation is complete
+        ChangeState(PauseUIState.Overlay, () =>
+        {
+            PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
+        });
     }
 
     public void OpenSettingsMenu() => ChangeState(PauseUIState.SettingMenu);
@@ -150,9 +231,10 @@ public class PauseMenuUI : MonoBehaviour
 
     public void QuitGame()
     {
-        ChangeState(PauseUIState.Closed);
-
-        NetworkDisconnectHandler.ReturnToMainMenu();
+        ChangeState(PauseUIState.Closed, () =>
+        {
+            NetworkDisconnectHandler.ReturnToMainMenu();
+        });
     }
 
     private void HandleNetworkPauseState(bool previousValue, bool isPaused)
@@ -172,15 +254,15 @@ public class PauseMenuUI : MonoBehaviour
 
     private void HandleNetworkListChanged(NetworkListEvent<ulong> changeEvent)
     {
-        if (PauseManager.Instance.PlayersInPause.Count == 0 && 
-            PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && 
+        if (PauseManager.Instance.PlayersInPause.Count == 0 &&
+            PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 &&
             _currentState == PauseUIState.Overlay)
         {
             ChangeState(PauseUIState.Closed);
         }
         else if (_currentState == PauseUIState.Overlay)
         {
-            ChangeState(PauseUIState.Overlay);
+            HandleOverlayText(); // Refresh text dynamically if a player joins/leaves pause
         }
     }
 

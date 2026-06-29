@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ public class PopupUI : MonoBehaviour
         transform.DOScale(_originalScale, OpenDuration).SetEase(OpenEase).SetUpdate(true);
     }
 
-    public void CloseAndOpenPopup(GameObject targetPanel)
+    public void ClosePopup(Action onCompleate = null)
     {
         transform.DOKill();
 
@@ -31,19 +32,17 @@ public class PopupUI : MonoBehaviour
             {
                 gameObject.SetActive(false);
                 transform.localScale = _originalScale;
-                targetPanel.SetActive(true);
+                onCompleate?.Invoke();
             });
+    }
+
+    public void CloseAndOpenPopup(GameObject targetPanel)
+    {
+        ClosePopup(() => targetPanel.SetActive(true));
     }
 
     public void CloseSelectPopup(GameObject targetPanel)
     {
-        transform.DOKill();
-
-        transform.DOScale(Vector3.zero, CloseDuration).SetEase(CloseEase).SetUpdate(true)
-            .OnComplete(() =>
-            {
-                targetPanel.SetActive(false);
-                transform.localScale = _originalScale;
-            });
+        ClosePopup(() => targetPanel.SetActive(false));
     }
 }
