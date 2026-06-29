@@ -15,6 +15,10 @@ public class MainMenuManager : MonoBehaviour
         GameSessionData.SpawnedDummies.Clear();
 
         NetworkManager.Singleton.StartHost();
+
+        NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
+        NetworkManager.Singleton.SceneManager.PostSynchronizationSceneUnloading = false;
+
         if (SceneController.Instance != null)
         {
             SceneController.Instance
