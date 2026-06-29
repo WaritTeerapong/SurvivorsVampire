@@ -25,6 +25,10 @@ public class PauseMenuUI : MonoBehaviour
     public GameObject OverlayPanel;
     public TMP_Text OverlayText;
 
+    [Header("Background Settings")]
+    public GameObject BGPanel;
+    public CanvasGroup BGCanvasGroup;
+
     [Header("Pause Menu Buttons")]
     public Button ResumeButton;
     public Button SettingsButton;
@@ -40,6 +44,7 @@ public class PauseMenuUI : MonoBehaviour
     [Header("Animation Settings")]
     public float OverlayTextBobAmount = 15f;
     public float OverlayTextBobDuration = 1f;
+    public float BGFadeDuration = 0.2f;
 
     private PauseUIState _currentState = PauseUIState.Closed;
     private bool _isTransitioning = false;
@@ -58,6 +63,9 @@ public class PauseMenuUI : MonoBehaviour
         {
             _overlayTextOriginalPos = OverlayText.rectTransform.localPosition;
         }
+
+        // Ensure BG is properly disabled at start
+        if (BGPanel != null) BGPanel.SetActive(false);
 
         ChangeState(PauseUIState.Closed);
 
@@ -95,7 +103,6 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Update()
     {
-        // Anti-spam check to prevent state logic from breaking during animations
         if (IsLevelUpActive || _isTransitioning) return;
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -121,6 +128,35 @@ public class PauseMenuUI : MonoBehaviour
         _isTransitioning = true;
         PauseUIState previousState = _currentState;
         _currentState = newState;
+
+        // === Background Animation Logic ===
+        if (newState == PauseUIState.Closed)
+        {
+            // Fade out when closing everything
+            if (BGCanvasGroup != null && BGPanel.activeInHierarchy)
+            {
+                BGCanvasGroup.DOKill();
+                BGCanvasGroup.DOFade(0f, BGFadeDuration).SetUpdate(true).OnComplete(() => BGPanel.SetActive(false));
+            }
+            else if (BGPanel != null)
+            {
+                BGPanel.SetActive(false);
+            }
+        }
+        else // Moving to PauseMenu, SettingMenu, or Overlay
+        {
+            // Only fade in if we were previously completely closed
+            if (previousState == PauseUIState.Closed && BGPanel != null)
+            {
+                BGPanel.SetActive(true);
+                if (BGCanvasGroup != null)
+                {
+                    BGCanvasGroup.DOKill();
+                    BGCanvasGroup.alpha = 0f;
+                    BGCanvasGroup.DOFade(1f, BGFadeDuration).SetUpdate(true);
+                }
+            }
+        }
 
         // Callback function to execute after the closing animation finishes
         Action openNewState = () =>
@@ -179,7 +215,6 @@ public class PauseMenuUI : MonoBehaviour
                 OverlayText.text = "Waiting for other player...\n(Press ESC to open menu)";
             }
 
-            // Apply a smooth, unscaled-time bobbing effect to the text
             if (OverlayText != null)
             {
                 _overlayTextTween = OverlayText.rectTransform
@@ -219,7 +254,6 @@ public class PauseMenuUI : MonoBehaviour
     {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsConnectedClient) return;
 
-        // Transition to Overlay first, then unpause server when animation is complete
         ChangeState(PauseUIState.Overlay, () =>
         {
             PauseManager.Instance.ToggleSettingServerRpc(NetworkManager.Singleton.LocalClientId, false);
@@ -262,7 +296,7 @@ public class PauseMenuUI : MonoBehaviour
         }
         else if (_currentState == PauseUIState.Overlay)
         {
-            HandleOverlayText(); // Refresh text dynamically if a player joins/leaves pause
+            HandleOverlayText();
         }
     }
 
