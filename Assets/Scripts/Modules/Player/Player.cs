@@ -257,7 +257,7 @@ public class Player : NetworkBehaviour
                 ReviveTimer.Value = 3f;
                 _playersInReviveZone = 0;
                 IsBeingRevived.Value = false;
-                SwitchToIdleRpc();
+                RevivePlayerRpc(isReviveOnFullHealth: true);
             }
         }
         else

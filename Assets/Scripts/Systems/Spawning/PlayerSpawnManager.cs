@@ -71,6 +71,8 @@ public class PlayerSpawnManager : NetworkBehaviour
 
                 spawnedObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
+                spawnedObj.GetComponent<PlayerInventory>().AddOrUpgradeWeaponRpc("w1");
+
                 spawnIndex++;
             }
         }
