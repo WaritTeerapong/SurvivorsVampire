@@ -9,6 +9,8 @@ public class CoreSceneManager : MonoBehaviour
         {
             string sn = SceneController.Instance.GetActiveSceneName();
 
+            Debug.Log(sn);
+
             if (sn != "CoreScene") return;
 
             SceneController.Instance

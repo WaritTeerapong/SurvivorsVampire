@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PlayerLevelManager : NetworkBehaviour
 {
@@ -99,7 +98,7 @@ public class PlayerLevelManager : NetworkBehaviour
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
         {
             SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++; 
+            SharedLevel.Value++;
             SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
 
 

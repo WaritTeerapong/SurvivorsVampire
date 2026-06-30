@@ -340,5 +340,5 @@ public class SceneController : NetworkBehaviour
         }
     }
 
-    public string GetActiveSceneName() => SceneManager.GetActiveScene().ToString();
+    public string GetActiveSceneName() => SceneManager.GetActiveScene().name;
 }

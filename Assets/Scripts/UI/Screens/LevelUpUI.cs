@@ -344,7 +344,11 @@ public class LevelUpUI : NetworkBehaviour
 
     private void FinishChoosing()
     {
-        foreach (var card in _upgradeCard) card.UpgradeButton.onClick.RemoveAllListeners();
+        foreach (var card in _upgradeCard)
+        {
+            card.UpgradeButton.onClick.RemoveAllListeners();
+            card.UpgradeButton.interactable = false;
+        }
 
         _pendingLevelUps--;
 
@@ -354,22 +358,22 @@ public class LevelUpUI : NetworkBehaviour
         }
         else
         {
-            _isChoosing = false;
-            _levelUpScreen.SetActive(false);
-
-            // popupUI.CloseSelectPopup(_levelUpScreen);
-
-            if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
-
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+            popupUI.ClosePopup(() =>
             {
-                PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
-            }
+                _isChoosing = false;
 
-            if (PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
-            {
-                PauseMenuUI.Instance.ResumeGame();
-            }
+                if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
+
+                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                {
+                    PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
+                }
+
+                if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
+                {
+                    PauseMenuUI.Instance.ResumeGame();
+                }
+            });
         }
     }
 
