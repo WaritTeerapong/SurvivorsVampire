@@ -355,9 +355,9 @@ public class LevelUpUI : NetworkBehaviour
         else
         {
             _isChoosing = false;
-            // _levelUpScreen.SetActive(false);
+            _levelUpScreen.SetActive(false);
 
-            popupUI.CloseSelectPopup(_levelUpScreen);
+            // popupUI.CloseSelectPopup(_levelUpScreen);
 
             if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
 
