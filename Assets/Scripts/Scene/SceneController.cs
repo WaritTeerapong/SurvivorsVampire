@@ -93,7 +93,7 @@ public class SceneController : NetworkBehaviour
         if (_loadingOverlay != null) yield return _loadingOverlay.FadeOutBlack();
     }
 
-    private void NetworkOverlayFadeIn() 
+    private void NetworkOverlayFadeIn()
     {
         if (IsOverlayBuild.Value && !IsNetworkOverlayFadeIn.Value)
         {
@@ -101,7 +101,7 @@ public class SceneController : NetworkBehaviour
             if (IsServer) IsNetworkOverlayFadeIn.Value = true;
         }
     }
-    private void NetworkOverlayFadeOut() 
+    private void NetworkOverlayFadeOut()
     {
         if (IsOverlayBuild.Value && IsNetworkOverlayFadeIn.Value)
         {
@@ -339,4 +339,6 @@ public class SceneController : NetworkBehaviour
             return SceneController.Instance.ExecutePlan(this);
         }
     }
+
+    public string GetActiveSceneName() => SceneManager.GetActiveScene().ToString();
 }
