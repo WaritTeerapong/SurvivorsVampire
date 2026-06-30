@@ -26,9 +26,9 @@ public class Boss : NetworkBehaviour
 
     // FSM 
     public readonly IBossState ChaseState = new BossChaseState();
-    public readonly IBossState AOEState = new BossChaseState();
-    public readonly IBossState SpawnState = new BossChaseState();
-    public readonly IBossState TransitionState = new BossChaseState();
+    public readonly IBossState AOEState = new BossAOEState();
+    public readonly IBossState SpawnState = new BossSpawnState();
+    public readonly IBossState TransitionState = new BossTransitionState();
 
     private IBossState _currentState;
     private bool _isDead = false;

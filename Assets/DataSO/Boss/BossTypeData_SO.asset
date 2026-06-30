@@ -41,5 +41,5 @@ MonoBehaviour:
   - EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
     Tier: 2
     Amount: 2
-  AOEPrefab: {fileID: 8624073178470441703, guid: 1b946cca1e50c5c489e0b88288333c18, type: 3}
+  AOEPrefab: {fileID: 3424684454591862253, guid: 1570082fb5112d9469a0d7584d4b8450, type: 3}
   DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
