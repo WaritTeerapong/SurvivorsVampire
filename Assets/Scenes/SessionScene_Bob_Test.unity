@@ -19806,17 +19806,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss_Necromancer
       objectReference: {fileID: 0}
-    - target: {fileID: 627905120298723077, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 627905120298723077, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
-      propertyPath: m_TagString
-      value: Enemy
-      objectReference: {fileID: 0}
     - target: {fileID: 5884567541801139077, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -41.5
+      value: -18.5
       objectReference: {fileID: 0}
     - target: {fileID: 5884567541801139077, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -19857,10 +19849,6 @@ PrefabInstance:
     - target: {fileID: 6877821347938443063, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2812738099
-      objectReference: {fileID: 0}
-    - target: {fileID: 6877821347938443063, guid: 5e6355a85127a3f4aaf709af3b6e4f8d, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 423860030
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

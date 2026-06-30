@@ -18,6 +18,7 @@ MonoBehaviour:
   P1_AtkDamage: 15
   P1_AOECooldown: 8
   P1_AOETrackingTime: 2
+  P1_AOETrackingSpeed: 5
   P1_SpawnCooldown: 15
   P1_Minions:
   - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}

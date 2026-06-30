@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using DG.Tweening;
 
 public class BossAOEController : NetworkBehaviour
 {
@@ -18,30 +19,23 @@ public class BossAOEController : NetworkBehaviour
     private bool _isTracking;
     private float _trackingTimeLeft;
     private Transform _targetTransform;
+    private float _trackingSpeed;
 
     [Rpc(SendTo.Server)]
-    public void InitializeAOERpc(int damage, ulong targetNetworkId, bool isTracking, float trackTime)
+    public void InitializeAOERpc(int damage, ulong targetNetworkId, bool isTracking, float trackTime, float trackingSpeed)
     {
         _damage = damage;
         _isTracking = isTracking;
         _trackingTimeLeft = trackTime;
+        _trackingSpeed = trackingSpeed;
 
-        // Try to find the target player on the network
         if (isTracking && NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
         {
             _targetTransform = targetObj.transform;
         }
-        else if (isTracking)
-        {
-            // Debug.LogWarning("BossAOEController: Target NetworkObject not found for tracking.");
-        }
 
         float totalLifetime = WarningDuration + trackTime;
-
-        // Schedule the explosion
         Invoke(nameof(Explode), totalLifetime);
-
-        // Notify all clients to play the visual warning warning
         TriggerWarningVFXRpc(totalLifetime);
     }
 
@@ -49,15 +43,19 @@ public class BossAOEController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Handle tracking logic for Phase 1
         if (_isTracking && _targetTransform != null)
         {
             _trackingTimeLeft -= Time.deltaTime;
-            transform.position = _targetTransform.position;
+
+            transform.position = Vector2.Lerp(
+                transform.position,
+                _targetTransform.position,
+                _trackingSpeed * Time.deltaTime
+            );
 
             if (_trackingTimeLeft <= 0f)
             {
-                _isTracking = false; // Lock position after tracking time ends
+                _isTracking = false;
             }
         }
     }
@@ -85,9 +83,8 @@ public class BossAOEController : NetworkBehaviour
     {
         if (_spriteRenderer != null)
         {
-            // Note: You can replace this with DG.Tweening (DOTween) for better animation
-            // Example: _spriteRenderer.color = new Color(1, 0, 0, 0.2f);
-            // _spriteRenderer.DOColor(new Color(1, 0, 0, 0.8f), totalTime).SetEase(Ease.InQuad);
+            _spriteRenderer.DOKill();
+            _spriteRenderer.DOColor(new Color(1, 0, 0, 0.8f), totalTime).SetEase(Ease.InQuad);
         }
     }
 

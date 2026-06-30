@@ -21,6 +21,7 @@ public class BossTypeData_SO : ScriptableObject
     public int P1_AtkDamage = 15;
     public float P1_AOECooldown = 8f;
     public float P1_AOETrackingTime = 2f;
+    public float P1_AOETrackingSpeed = 3.5f;
     public float P1_SpawnCooldown = 15f;
     [Space]
     public List<BossMinionSetup> P1_Minions;

@@ -47,7 +47,6 @@ public class BossAOEState : IBossState
 
         if (_castTimer <= 0f)
         {
-            // Reset timer depending on current phase and return to chase behavior
             boss.AOETimer = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOECooldown : boss.BossData.P2_AOECooldown;
             boss.SwitchState(boss.ChaseState);
         }
@@ -55,7 +54,6 @@ public class BossAOEState : IBossState
 
     public void OnExit(Boss boss)
     {
-        // Optional: End spellcast visual indicators on boss entity
     }
 
     private void SpawnAOEPrefab(Boss boss, Vector3 position, int damage, ulong targetId, bool isTracking)
@@ -72,7 +70,10 @@ public class BossAOEState : IBossState
         if (aoeObj.TryGetComponent<BossAOEController>(out BossAOEController controller))
         {
             float trackTime = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingTime : 0f;
-            controller.InitializeAOERpc(damage, targetId, isTracking, trackTime);
+            float trackSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingSpeed : 0f; // Get speed from SO
+
+            // Pass trackSpeed into the initialized RPC
+            controller.InitializeAOERpc(damage, targetId, isTracking, trackTime, trackSpeed);
         }
     }
 
