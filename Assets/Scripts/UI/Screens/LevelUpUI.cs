@@ -223,14 +223,14 @@ public class LevelUpUI : NetworkBehaviour
         ResolveItemStats(itemData, nextLevel, currentLevel, ref activeStatType, ref statName, ref increaseAmount, ref totalValue);
 
         bool isFloat = IntStatArray == null || !IntStatArray.Contains(activeStatType);
-
+        
         if (isFloat)
         {
-            card.SetupCard(itemData.ItemName, nextLevel, statName, increaseAmount, totalValue);
+            card.SetupCard(itemData.ItemName, nextLevel, statName, increaseAmount, totalValue, itemData.Icon);
         }
         else
         {
-            card.SetupCard(itemData.ItemName, nextLevel, statName, Mathf.RoundToInt(increaseAmount), Mathf.RoundToInt(totalValue));
+            card.SetupCard(itemData.ItemName, nextLevel, statName, Mathf.RoundToInt(increaseAmount), Mathf.RoundToInt(totalValue), itemData.Icon);
         }
 
         card.UpgradeButton.onClick.RemoveAllListeners();

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public abstract class ItemData_Base : ScriptableObject, IItem
@@ -7,14 +8,14 @@ public abstract class ItemData_Base : ScriptableObject, IItem
     [Header("Base Info")]
     public string Id;
     public string ItemName;
-    public Sprite Icon;
+    public Image Icon;
 
     public abstract int MaxLevel { get; }
 
     // Implement IItem interface properties
     string IItem.Id => Id;
     string IItem.ItemName => ItemName;
-    Sprite IItem.Icon => Icon;
+    Image IItem.Icon => Icon;
     int IItem.MaxLevel => MaxLevel;
 }
 
