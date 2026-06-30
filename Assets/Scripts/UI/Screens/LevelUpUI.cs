@@ -17,6 +17,13 @@ public class LevelUpUI : NetworkBehaviour
     private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
 
+    private PopupUI popupUI;
+
+    void Awake()
+    {
+        if (popupUI == null) popupUI = _levelUpScreen.GetComponent<PopupUI>();
+    }
+
     void Start()
     {
         _levelUpScreen.SetActive(true);
@@ -33,7 +40,7 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (_localPlayer == null && NetworkManager.Singleton != null)
         {
-            
+
             // 1. Try using Netcode SpawnManager (works on both Client and Host/Server)
             if (NetworkManager.Singleton.SpawnManager != null)
             {
@@ -61,7 +68,7 @@ public class LevelUpUI : NetworkBehaviour
             {
                 OwnerStat = _localPlayer.Stats;
             }
-            
+
         }
         return _localPlayer;
     }
@@ -348,8 +355,9 @@ public class LevelUpUI : NetworkBehaviour
         else
         {
             _isChoosing = false;
-            _levelUpScreen.SetActive(false);
+            // _levelUpScreen.SetActive(false);
 
+            popupUI.CloseSelectPopup(_levelUpScreen);
 
             if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
 
