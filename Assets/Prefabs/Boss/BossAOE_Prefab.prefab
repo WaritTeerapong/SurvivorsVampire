@@ -73,7 +73,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossAOEController
   ShowTopMostFoldoutHeaderGroup: 1
   DamageRadius: 2
-  WarningDuration: 1.5
+  WarningDuration: 0.5
   PlayerLayerMask:
     serializedVersion: 2
     m_Bits: 128

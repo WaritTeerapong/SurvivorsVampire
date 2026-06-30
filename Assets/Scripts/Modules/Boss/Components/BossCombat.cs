@@ -19,6 +19,8 @@ public class BossCombat : NetworkBehaviour
 
         _attackCooldownTimer = cooldown;
 
+        // Play ATK Animation 
+
         if (target.TryGetComponent<Player>(out Player player))
         {
             player.TakeDamageRpc(damage);

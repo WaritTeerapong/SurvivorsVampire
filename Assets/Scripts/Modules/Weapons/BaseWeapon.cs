@@ -78,9 +78,10 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         bool isAttacked = false;
 
         // Request Attack to all target(s)
-        foreach (var target in _targets) { 
+        foreach (var target in _targets)
+        {
             float sqrDist = (target.position - transform.position).sqrMagnitude;
-            
+
             // Target out of range
             if (sqrDist > totalRange * totalRange)
             {
@@ -126,11 +127,17 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         // Default Melee behavior: apply damage directly to the target on the server
         if (NetworkManager.Singleton.IsServer && target != null)
         {
-            Enemy enemy = target.GetComponent<Enemy>();
-            if (enemy != null)
+            int damage = GetTotalDamage();
+
+            // Check for Enemy component
+            if (target.TryGetComponent<Enemy>(out Enemy enemy))
             {
-                int damage = GetTotalDamage();
                 enemy.TakeDamage(damage);
+            }
+            // Check for Boss component
+            else if (target.TryGetComponent<Boss>(out Boss boss))
+            {
+                boss.TakeDamage(damage);
             }
         }
     }
