@@ -23,3 +23,11 @@ MonoBehaviour:
     XPNeeded: 1000
   - Level: 5
     XPNeeded: 1500
+  - Level: 6
+    XPNeeded: 2000
+  - Level: 7
+    XPNeeded: 2750
+  - Level: 8
+    XPNeeded: 3500
+  - Level: 9
+    XPNeeded: 4500
