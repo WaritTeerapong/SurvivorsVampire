@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8328292c07d0043aef55c36c635b59, type: 3}
+  m_Name: BossTypeData_SO
+  m_EditorClassIdentifier: Assembly-CSharp::BossTypeData_SO
+  MaxHealth: 2000
+  AttackRange: 2.5
+  P1_MoveSpeed: 3
+  P1_AtkDamage: 15
+  P1_AOECooldown: 8
+  P1_AOETrackingTime: 2
+  P1_SpawnCooldown: 15
+  P1_Minions:
+  - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
+    Tier: 1
+    Amount: 5
+  - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+    Tier: 1
+    Amount: 5
+  P2_MoveSpeed: 5.5
+  P2_AtkDamage: 25
+  P2_AOECooldown: 5
+  P2_AOEDistanceOffset: 2.5
+  P2_SpawnCooldown: 8
+  P2_Minions:
+  - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
+    Tier: 2
+    Amount: 8
+  - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
+    Tier: 2
+    Amount: 8
+  - EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
+    Tier: 2
+    Amount: 2
+  AOEPrefab: {fileID: 8624073178470441703, guid: 1b946cca1e50c5c489e0b88288333c18, type: 3}
+  DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
