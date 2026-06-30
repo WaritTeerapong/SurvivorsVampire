@@ -12,6 +12,7 @@ public struct Scenes
     // Session
     public const string WAITING_ROOM = "WaitingRoomScene";
     public const string SESSION = "SessionScene";
+    public const string SESSION_BOB = "SessionScene_Bob_Test";
     // Session Content
     public const string UPGRADE = "UpgradeScene";
 
@@ -23,6 +24,7 @@ public struct Scenes
                 return Slots.MAIN_MENU;
             case WAITING_ROOM:
             case SESSION:
+            case SESSION_BOB:
                 return Slots.SESSION;
             case UPGRADE:
                 return Slots.SESSION_CONTENT;
