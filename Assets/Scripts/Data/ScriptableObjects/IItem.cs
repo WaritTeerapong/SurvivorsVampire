@@ -1,8 +1,8 @@
-using UnityEngine.UI;
+using UnityEngine;
 public interface IItem
 {
     string Id { get; }
     string ItemName { get; }
-    Image Icon { get; }
+    Sprite Icon { get; }
     int MaxLevel { get; }
 }

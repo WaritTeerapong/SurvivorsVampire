@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponItemData_SO
   Id: w1
   ItemName: Gun
-  Icon: {fileID: 0}
+  Icon: {fileID: 8654281846431810975, guid: 814bb9e874f45444d9f478596acbbded, type: 3}
   BonusPerLevel:
   - ATKDamage: 5
     ATKRange: 1

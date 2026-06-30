@@ -13,22 +13,22 @@ public class UpgradeCard : MonoBehaviour
 
     // increaseAmount = newLevel.bonus - lastLevel.bonus
     // totalValue = baseValue + newLevel.bonus
-    public void SetupCard(string itemName, int newLevel, string statName, int increaseAmount, int totalValue, Image icon)
+    public void SetupCard(string itemName, int newLevel, string statName, int increaseAmount, int totalValue, Sprite icon)
     {
         ItemNameText.text = itemName;
         ItemLevelText.text = $"Lv.{newLevel}";
         StatNameText.text = statName;
         StatBonusText.text = $" +{increaseAmount} ({totalValue})";
-        Icon = icon;
+        Icon.sprite = icon;
     }
 
-    public void SetupCard(string itemName, int newLevel, string statName, float increaseAmount, float totalValue, Image icon)
+    public void SetupCard(string itemName, int newLevel, string statName, float increaseAmount, float totalValue, Sprite icon)
     {
         ItemNameText.text = itemName;
         ItemLevelText.text = $"Lv.{newLevel}";
         StatNameText.text = statName;
         StatBonusText.text = $" +{increaseAmount:F1} ({totalValue:F1})";
-        Icon = icon;
+        Icon.sprite = icon;
     }
 
     public void SetupCard(bool isPlayer)

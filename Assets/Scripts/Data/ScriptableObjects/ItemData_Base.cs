@@ -8,14 +8,14 @@ public abstract class ItemData_Base : ScriptableObject, IItem
     [Header("Base Info")]
     public string Id;
     public string ItemName;
-    public Image Icon;
+    public Sprite Icon;
 
     public abstract int MaxLevel { get; }
 
     // Implement IItem interface properties
     string IItem.Id => Id;
     string IItem.ItemName => ItemName;
-    Image IItem.Icon => Icon;
+    Sprite IItem.Icon => Icon;
     int IItem.MaxLevel => MaxLevel;
 }
 
