@@ -27,9 +27,14 @@ public class UIVFXManager : MonoBehaviour
 
         if (ps != null)
         {
-            ParticleSystem pss = ps.GetComponent<ParticleSystem>();
-            pss.transform.SetAsLastSibling();
-            pss.Play();
+            if (ps.TryGetComponent(out ParticleSystem pss))
+            {
+                var mainModule = pss.main;
+                mainModule.useUnscaledTime = true;
+
+                pss.transform.SetAsLastSibling();
+                pss.Play();
+            }
         }
     }
 }

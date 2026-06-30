@@ -118,6 +118,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  _sidePadding: 0.5
+  _topPadding: 1.25
+  _bottomPadding: 0.5
   GhostMoveSpeed: 7
   FacingDirection:
     UpdateTraits:
