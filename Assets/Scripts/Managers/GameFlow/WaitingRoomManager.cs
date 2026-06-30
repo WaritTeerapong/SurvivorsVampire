@@ -60,7 +60,12 @@ public class WaitingRoomManager : NetworkBehaviour
                     }
                     GameSessionData.SpawnedDummies.Clear();
 
-                    NetworkManager.Singleton.SceneManager.LoadScene("Bob_Test_Scene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                    SceneController.Instance.NewTransition()
+                        .Load(Slots.SESSION, Scenes.SESSION, setActive: true)
+                        .Unload(Slots.SESSION)
+                        .WithClearUnusedAssets()
+                        .WithOverlay()
+                        .Perform();
                     this.enabled = false;
                 }
             }

@@ -98,18 +98,19 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ReturnToLobbyRpc()
     {
-        if (NetworkManager.Singleton.SceneManager != null)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoomScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
-        }
+        // NETWORK OPERATION: Initiating transition to the Waiting Room scene on the server
+        SceneController.Instance
+            .NewTransition()
+            .Load(Slots.SESSION, Scenes.WAITING_ROOM, setActive: true)
+            .Unload(Slots.SESSION)
+            .WithClearUnusedAssets()
+            .WithOverlay()
+            .Perform();
     }
 
     public void ReturnToMenu()
     {
         Debug.Log("Back To Main Menu");
-
-        if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
-
-        // TODO: Back to main Menu
+        NetworkDisconnectHandler.ReturnToMainMenu();
     }
 }

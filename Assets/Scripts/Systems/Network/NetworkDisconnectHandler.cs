@@ -32,7 +32,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
             Debug.Log("[Network] Host is Gone for good!! Going to Main Menu...");
 
             Time.timeScale = 1f;
-            SceneManager.LoadScene("MainMenuScene");
+            SceneManager.LoadScene("CoreScene");
         }
 
         if (NetworkManager.Singleton.IsServer && clientId != NetworkManager.Singleton.LocalClientId)
@@ -44,7 +44,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
 
             if (GameSessionData.SpawnedDummies.ContainsKey(clientId))
                 GameSessionData.SpawnedDummies.Remove(clientId);
-
+            
             if (PauseManager.Instance != null)
             {
                 if (PauseManager.Instance.PlayersInPause.Contains(clientId))
@@ -67,7 +67,7 @@ public class NetworkDisconnectHandler : MonoBehaviour
         else
         {
             if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
-            SceneManager.LoadScene("MainMenuScene");
+            SceneManager.LoadScene("CoreScene");
         }
     }
 
@@ -94,6 +94,6 @@ public class NetworkDisconnectHandler : MonoBehaviour
         }
 
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenuScene");
+        SceneManager.LoadScene("CoreScene");
     }
 }

@@ -97,7 +97,7 @@ public class Player : NetworkBehaviour
         if (PlayerManager.Instance != null) PlayerManager.Instance.AddPlayer(this);
         if (IsOwner) SwitchState(IdleState);
 
-        bool isWaitingRoom = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "WaitingRoomScene";
+        bool isWaitingRoom = gameObject.scene.name == "WaitingRoomScene" || UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "WaitingRoomScene";
 
         if (isWaitingRoom)
         {
