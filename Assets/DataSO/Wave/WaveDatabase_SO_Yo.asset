@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b0f5da502c37a94e8d4abcd876df6b5, type: 3}
-  m_Name: WaveDatabase_SO
+  m_Name: WaveDatabase_SO_Yo
   m_EditorClassIdentifier: Assembly-CSharp::WaveDatabase_SO
   Waves:
   - {fileID: 11400000, guid: 146651883b43bd7489fac01b4c3ad08a, type: 2}
