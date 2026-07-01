@@ -271,7 +271,16 @@ public class Enemy : NetworkBehaviour
         yield return new WaitForSeconds(delay);
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
-            NetworkObject.Despawn(true);
+            NetworkObject.Despawn(false);
+        }
+
+        if (ObjectPoolManager.Instance != null)
+        {
+            ObjectPoolManager.Instance.ReturnObjectToPool(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 

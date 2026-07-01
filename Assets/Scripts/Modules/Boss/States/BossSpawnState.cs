@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class BossSpawnState : IBossState
@@ -8,6 +9,8 @@ public class BossSpawnState : IBossState
 
     public void OnEnter(Boss boss)
     {
+        if (!boss.IsServer) return;
+
         _castTimer = CAST_DURATION;
 
         // Note: Trigger necromancy/summon animation here
@@ -30,12 +33,31 @@ public class BossSpawnState : IBossState
 
                 // Note: Pass the EnemyType directly to your Spawn Manager or instantiate its prefab here
                 // Example: EnemySpawnManager.Instance.SpawnEnemy(setup.EnemyType, setup.Tier, finalSpawnPos);
+                GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
+                    setup.EnemyType.EnemyPrefab, finalSpawnPos, Quaternion.identity, PoolCategory.Enemies
+                );
+
+                if (enemyObj != null && enemyObj.TryGetComponent<NetworkObject>(out NetworkObject netObj))
+                {
+                    // If returning from pool, it might not be spawned on the network yet
+                    if (!netObj.IsSpawned)
+                    {
+                        netObj.Spawn(true);
+                    }
+
+                    if (enemyObj.TryGetComponent<Enemy>(out Enemy enemyScript))
+                    {
+                        enemyScript.InitStats(setup.EnemyType, setup.Tier);
+                    }
+                }
             }
         }
     }
 
     public void OnUpdate(Boss boss)
     {
+        if (!boss.IsServer) return;
+
         _castTimer -= Time.deltaTime;
 
         if (_castTimer <= 0f)
