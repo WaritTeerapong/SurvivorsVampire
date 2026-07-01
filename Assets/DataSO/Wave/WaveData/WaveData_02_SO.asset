@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c631dd8f7c5d1c84ea4e84d76ddfbbeb, type: 3}
-  m_Name: WaveData_02_SO_Yo
+  m_Name: WaveData_02_SO
   m_EditorClassIdentifier: Assembly-CSharp::WaveData_SO
-  WaveDuration: 5
-  RestTime: 5
+  WaveDuration: 60
+  RestTime: 10
   SpawnCD: 0.25
-  MaxActiveEnemies: 50
-  IsBossWave: 0
-  BossPrefab: {fileID: 0}
+  MaxActiveEnemies: 40
   AllowedEnemyTypes:
   - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
     Weight: 50
   - EnemyType: {fileID: 11400000, guid: 086ecec1fb4a59e4d879fe0f959e63f6, type: 2}
-    Weight: 50
+    Weight: 30
+  - EnemyType: {fileID: 11400000, guid: 19174fd6812f19a48bae7e7cb8a7084d, type: 2}
+    Weight: 20
   AllowedEnemyTiers:
   - Tier: 0
-    Weight: 25.9
+    Weight: 90
   - Tier: 2
-    Weight: 26.7
+    Weight: 10
   - Tier: 3
-    Weight: 70
+    Weight: 0
