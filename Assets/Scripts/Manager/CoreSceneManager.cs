@@ -7,12 +7,21 @@ public class CoreSceneManager : MonoBehaviour
     {
         if (SceneController.Instance != null)
         {
-            string sn = SceneController.Instance.GetActiveSceneName();
+            string activeSceneName = SceneController.Instance.GetActiveSceneName();
 
-            Debug.Log(sn);
+            Debug.Log(activeSceneName);
 
-            if (sn != "CoreScene") return;
+            // Test mode
+            if (activeSceneName != "CoreScene")
+            {
+                SceneController.Instance
+                    .NewTransition()
+                    .SetSlotInTestMode(Slots.SESSION, activeSceneName)
+                    .Perform();
+                return;
+            }
 
+            // Normal mode
             SceneController.Instance
                 .NewTransition()
                 .Load(Slots.MAIN_MENU, Scenes.MAIN_MENU, setActive: true)
