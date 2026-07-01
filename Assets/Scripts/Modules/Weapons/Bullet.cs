@@ -108,12 +108,23 @@ public class Bullet : MonoBehaviour
         {
             if (!IsEnemy && hitCollider.CompareTag("Enemy"))
             {
-                Enemy enemy = hitCollider.GetComponent<Enemy>();
-                if (enemy != null) enemy.TakeDamage(_damage);
+                Enemy enemy = hitCollider.GetComponentInParent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(_damage);
+                }
+                else
+                {
+                    Boss boss = hitCollider.GetComponentInParent<Boss>();
+                    if (boss != null)
+                    {
+                        boss.TakeDamage(_damage);
+                    }
+                }
             }
             else if (IsEnemy && hitCollider.CompareTag("Player"))
             {
-                Player player = hitCollider.GetComponent<Player>();
+                Player player = hitCollider.GetComponentInParent<Player>();
                 if (player != null) player.TakeDamageRpc(_damage);
             }
         }

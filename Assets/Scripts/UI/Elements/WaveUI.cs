@@ -8,15 +8,12 @@ public class WaveUI : MonoBehaviour
 
     private void Start()
     {
-        // 1. เช็กว่ามี Manager อยู่ในฉากหรือไม่
         if (EnemySpawnManager.Instance != null)
         {
-            // 2. สมัครรับ Event (Subscribe) เมื่อค่าใน NetworkVariable มีการเปลี่ยนแปลง
             EnemySpawnManager.Instance.CurrentWave.OnValueChanged += OnWaveChanged;
             EnemySpawnManager.Instance.IsResting.OnValueChanged += OnRestingChanged;
             EnemySpawnManager.Instance.TimeRemaining.OnValueChanged += OnTimeChanged;
 
-            // 3. อัปเดต UI ครั้งแรกสุด (เพื่อไม่ให้เป็นข้อความเปล่าๆ ตอนเริ่มเกม)
             UpdateWaveText(EnemySpawnManager.Instance.CurrentWave.Value, EnemySpawnManager.Instance.IsResting.Value);
             UpdateTimeText(EnemySpawnManager.Instance.TimeRemaining.Value);
         }
@@ -24,7 +21,6 @@ public class WaveUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 🚨 กฎเหล็กของ Event: สมัครแล้วต้องยกเลิก (Unsubscribe) ตอนถูกทำลาย เพื่อป้องกัน Memory Leak!
         if (EnemySpawnManager.Instance != null)
         {
             EnemySpawnManager.Instance.CurrentWave.OnValueChanged -= OnWaveChanged;
@@ -32,8 +28,6 @@ public class WaveUI : MonoBehaviour
             EnemySpawnManager.Instance.TimeRemaining.OnValueChanged -= OnTimeChanged;
         }
     }
-
-    // --- ฟังก์ชันที่จะทำงานก็ต่อเมื่อ "Server สั่งเปลี่ยนค่า" เท่านั้น ---
 
     private void OnWaveChanged(int previousValue, int newValue)
     {
@@ -49,8 +43,6 @@ public class WaveUI : MonoBehaviour
     {
         UpdateTimeText(newValue);
     }
-
-    // --- ฟังก์ชันจัดการแสดงผล UI ---
 
     private void UpdateWaveText(int wave, bool isResting)
     {
@@ -70,6 +62,16 @@ public class WaveUI : MonoBehaviour
     {
         if (_timerText == null) return;
 
-        _timerText.text = time.ToString() + " s";
+        // Process flag sent from EnemySpawnManager
+        if (time < 0)
+        {
+            _timerText.text = "KILL BOSS!";
+            _timerText.color = Color.red;
+        }
+        else
+        {
+            _timerText.text = time.ToString() + " s";
+            _timerText.color = Color.white;
+        }
     }
 }
