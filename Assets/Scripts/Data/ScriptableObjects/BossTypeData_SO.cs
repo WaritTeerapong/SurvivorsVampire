@@ -13,6 +13,7 @@ public struct BossMinionSetup
 public class BossTypeData_SO : ScriptableObject
 {
     [Header("=== Base Stats ===")]
+    public string BossName = "BOSS NAME";
     public int MaxHealth = 2000;
     public float AttackRange = 2.5f;
 
