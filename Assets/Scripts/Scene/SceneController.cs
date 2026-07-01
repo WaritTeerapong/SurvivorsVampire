@@ -135,6 +135,19 @@ public class SceneController : NetworkBehaviour
     // Coroutine that performs the sequential transition logic (overlay fade, unload, reload)
     private IEnumerator ChangeSceneRoutine(SceneTransitionPlan plan)
     {
+
+        #region Test mode Condition
+        // skip all transition to test only 1 scene
+        if (!string.IsNullOrEmpty(plan.TestSlot) && !string.IsNullOrEmpty(plan.TestScene))
+        {
+            _loadedSceneBySlot[plan.TestSlot] = plan.TestScene;
+
+            if (IsServer) IsOverlayBuild.Value = false;
+            _isBusy = false;
+            yield break;
+        }
+        #endregion
+
         if (plan.Overlay)
         {
             yield return FadeInOverlayRoutine();
@@ -286,6 +299,7 @@ public class SceneController : NetworkBehaviour
 
     #endregion
 
+
     // Builder Pattern : for transition plan
     public class SceneTransitionPlan
     {
@@ -294,6 +308,14 @@ public class SceneController : NetworkBehaviour
         public string ActiveSceneName { get; private set; } = "";
         public bool ClearUnusedAssets { get; private set; } = false;
         public bool Overlay { get; private set; } = false;
+
+        #region Test mode field
+        public string TestSlot;
+        public string TestScene;
+        #endregion
+
+
+
 
         public SceneTransitionPlan Load(string slotKey, string sceneName, bool setActive = false)
         {
@@ -338,6 +360,15 @@ public class SceneController : NetworkBehaviour
         {
             return SceneController.Instance.ExecutePlan(this);
         }
+
+        #region Test mode Method
+        public SceneTransitionPlan SetSlotInTestMode(string slotKey, string sceneName)
+        {
+            TestSlot = slotKey;
+            TestScene = sceneName;
+            return this;
+        }
+        #endregion
     }
 
     public string GetActiveSceneName() => SceneManager.GetActiveScene().name;
