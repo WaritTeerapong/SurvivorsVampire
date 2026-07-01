@@ -7,11 +7,11 @@ public class EnemySpawnManager : NetworkBehaviour
 {
     public static EnemySpawnManager Instance;
 
-    [Header("Databases")]
+    [Header("=== Databases ===")]
     public WaveDatabase_SO WaveDatabase;
     public GameObject EnemyPrefab;
 
-    [Header("Map & Spawn Settings")]
+    [Header("=== Map & Spawn Settings ===")]
     public Vector2 MapSize = new Vector2(50f, 25f);
     public float SpawnOffset = 5f;
 
@@ -19,12 +19,15 @@ public class EnemySpawnManager : NetworkBehaviour
     private Coroutine _waveCoroutine;
     private Coroutine _spawnCoroutine;
 
-    [Header("Wave State (UI)")]
+    [Header("=== Wave State (UI) ===")]
     public NetworkVariable<int> CurrentWave = new NetworkVariable<int>();
     public NetworkVariable<int> TimeRemaining = new NetworkVariable<int>();
     public NetworkVariable<bool> IsResting = new NetworkVariable<bool>();
 
     public List<Enemy> ActiveEnemies = new List<Enemy>();
+
+    private bool _isBossDefeated;
+    private bool _canSpawnEnemies;
 
     private void Awake()
     {
@@ -72,31 +75,42 @@ public class EnemySpawnManager : NetworkBehaviour
         {
             WaveData_SO currentWave = WaveDatabase.Waves[_currentWaveIndex];
 
-            // 1. อัปเดตสถานะให้ UI รู้ว่ากำลังเริ่มเวฟไหน
             CurrentWave.Value = _currentWaveIndex + 1;
             IsResting.Value = false;
 
-            Debug.Log($"[WaveManager] Starting Wave {_currentWaveIndex + 1}");
+            // Debug.Log($"[EnemySpawnManager] Starting Wave {_currentWaveIndex + 1}");
 
-            _spawnCoroutine = StartCoroutine(SpawnEnemies(currentWave));
-
-            // 2. ลูปนับถอยหลังเวลาสู้ (ทีละ 1 วินาที) เพื่อส่งไปให้ Client
-            int waveTime = Mathf.CeilToInt(currentWave.WaveDuration);
-            while (waveTime > 0)
+            if (currentWave.IsBossWave)
             {
-                TimeRemaining.Value = waveTime;
-                yield return new WaitForSeconds(1f);
-                waveTime--;
+                _canSpawnEnemies = false;
+                _isBossDefeated = false;
+                TimeRemaining.Value = -1; // Flag for UI
+
+                SpawnBossAtCenter(currentWave.BossPrefab);
+
+                yield return new WaitUntil(() => _isBossDefeated);
+            }
+            else
+            {
+                _canSpawnEnemies = true;
+                _spawnCoroutine = StartCoroutine(SpawnEnemies(currentWave));
+
+                int waveTime = Mathf.CeilToInt(currentWave.WaveDuration);
+                while (waveTime > 0)
+                {
+                    TimeRemaining.Value = waveTime;
+                    yield return new WaitForSeconds(1f);
+                    waveTime--;
+                }
+
+                // Force stop spawning safely
+                _canSpawnEnemies = false;
+                if (_spawnCoroutine != null) StopCoroutine(_spawnCoroutine);
             }
 
-            if (_spawnCoroutine != null) StopCoroutine(_spawnCoroutine);
-
-            Debug.Log($"[WaveManager] Wave {_currentWaveIndex + 1} Ended! Resting for {currentWave.RestTime}");
-
-            // 3. อัปเดตสถานะให้ UI รู้ว่ากำลังพักหายใจ
             IsResting.Value = true;
+            _canSpawnEnemies = false; // Double check to ensure no spawning during rest
 
-            // 4. ลูปนับถอยหลังเวลาพัก (ทีละ 1 วินาที)
             int restTime = Mathf.CeilToInt(currentWave.RestTime);
             while (restTime > 0)
             {
@@ -108,26 +122,63 @@ public class EnemySpawnManager : NetworkBehaviour
             _currentWaveIndex++;
         }
 
-        Debug.Log("[WaveManager] All Waves Completed!");
         TimeRemaining.Value = 0;
+        // Debug.Log("[EnemySpawnManager] All Waves Completed!");
+    }
 
-        // TODO : Show Win UI
+    private void SpawnBossAtCenter(GameObject bossPrefab)
+    {
+        if (bossPrefab == null)
+        {
+            // Debug.LogError("[EnemySpawnManager] Boss Prefab is missing.");
+            return;
+        }
+
+        GameObject bossObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
+            bossPrefab, Vector3.zero, Quaternion.identity, PoolCategory.Enemies
+        );
+
+        if (bossObj != null && NetworkManager.Singleton.IsListening)
+        {
+            if (bossObj.TryGetComponent<NetworkObject>(out NetworkObject netObj))
+            {
+                if (!netObj.IsSpawned) netObj.Spawn(true);
+            }
+
+            if (bossObj.TryGetComponent<Boss>(out Boss bossScript))
+            {
+                bossScript.OnBossDied -= HandleBossDefeated;
+                bossScript.OnBossDied += HandleBossDefeated;
+            }
+        }
+    }
+
+    private void HandleBossDefeated()
+    {
+        _isBossDefeated = true;
     }
 
     private IEnumerator SpawnEnemies(WaveData_SO waveData)
     {
-        while (IsSpawned && IsServer)
+        // Loop will immediately break if _canSpawnEnemies becomes false
+        while (IsSpawned && IsServer && _canSpawnEnemies)
         {
             if (ActiveEnemies.Count < waveData.MaxActiveEnemies)
             {
-                // Random Position
+                EnemyTypeData_SO enemyType = GetRandomEnemyType();
+
+                // Safety Check: Prevent NullReferenceException if data is missing or loading fails
+                if (enemyType == null || enemyType.EnemyPrefab == null)
+                {
+                    // Debug.LogWarning("[EnemySpawnManager] EnemyType or Prefab is missing. Skipping spawn cycle.");
+                    yield return new WaitForSeconds(1f);
+                    continue; // Skip this loop iteration safely
+                }
+
                 Vector3 spawnPos = GetEdgeSpawnPosition();
-
-                EnemyTypeData_SO EnemyType = GetRandomEnemyType();
                 int tierLevel = GetRandomEnemyTier();
-                GameObject selectedPrefab = EnemyType.EnemyPrefab;
+                GameObject selectedPrefab = enemyType.EnemyPrefab;
 
-                // Spawn with object pool
                 GameObject enemyObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
                     selectedPrefab, spawnPos, Quaternion.identity, PoolCategory.Enemies
                 );
@@ -139,8 +190,7 @@ public class EnemySpawnManager : NetworkBehaviour
                     Enemy enemyScript = enemyObj.GetComponent<Enemy>();
                     if (enemyScript != null)
                     {
-                        enemyScript.InitStats(EnemyType, tierLevel);
-
+                        enemyScript.InitStats(enemyType, tierLevel);
                         ActiveEnemies.Add(enemyScript);
 
                         enemyScript.OnEnemyDespawned -= HandleEnemyDespawned;
@@ -166,7 +216,7 @@ public class EnemySpawnManager : NetworkBehaviour
         if (WaveDatabase == null || _currentWaveIndex >= WaveDatabase.Waves.Count) return null;
 
         var types = WaveDatabase.Waves[_currentWaveIndex].AllowedEnemyTypes;
-        if (types.Count == 0) return null;
+        if (types == null || types.Count == 0) return null;
 
         float totalWeight = 0;
         foreach (var t in types) totalWeight += t.Weight;
@@ -186,7 +236,7 @@ public class EnemySpawnManager : NetworkBehaviour
         if (WaveDatabase == null || _currentWaveIndex >= WaveDatabase.Waves.Count) return 1;
 
         var tiers = WaveDatabase.Waves[_currentWaveIndex].AllowedEnemyTiers;
-        if (tiers.Count == 0) return 1;
+        if (tiers == null || tiers.Count == 0) return 1;
 
         float totalWeight = 0;
         foreach (var t in tiers) totalWeight += t.Weight;
@@ -201,15 +251,12 @@ public class EnemySpawnManager : NetworkBehaviour
         return 1;
     }
 
-    // Edge Spawn System
     private Vector3 GetEdgeSpawnPosition()
     {
         float halfWidth = (MapSize.x / 2f) + SpawnOffset;
         float halfHeight = (MapSize.y / 2f) + SpawnOffset;
 
-        // 0 = Top, 1 = Bottom, 2 = Left, 3 = Right
         int edge = Random.Range(0, 4);
-
         Vector3 spawnPos = Vector3.zero;
 
         switch (edge)
@@ -233,11 +280,9 @@ public class EnemySpawnManager : NetworkBehaviour
 
     private void OnDrawGizmos()
     {
-        // Map Size
         Gizmos.color = Color.green;
         Gizmos.DrawWireCube(Vector3.zero, new Vector3(MapSize.x, MapSize.y, 0));
 
-        // Map Size + Offset for Spawn Enemy
         Gizmos.color = Color.red;
         Vector3 spawnBoundarySize = new Vector3(MapSize.x + (SpawnOffset * 2), MapSize.y + (SpawnOffset * 2), 0);
         Gizmos.DrawWireCube(Vector3.zero, spawnBoundarySize);

@@ -18,13 +18,17 @@ public struct EnemyTierWeight
 [CreateAssetMenu(fileName = "WaveData_SO", menuName = "DataSO/WaveData_SO", order = 0)]
 public class WaveData_SO : ScriptableObject
 {
-    [Header("Wave Settings")]
+    [Header("=== Wave Settings ===")]
     public float WaveDuration = 30f;
     public float RestTime = 5f;
     public float SpawnCD = 1f;
     public int MaxActiveEnemies = 50;
 
-    [Header("Enemy Spawns")]
+    [Header("=== Boss Settings ===")]
+    public bool IsBossWave = false;
+    public GameObject BossPrefab;
+
+    [Header("=== Enemy Spawns ===")]
     public List<EnemyTypeWeight> AllowedEnemyTypes;
     public List<EnemyTierWeight> AllowedEnemyTiers;
 }

@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c631dd8f7c5d1c84ea4e84d76ddfbbeb, type: 3}
   m_Name: WaveData_02_SO
   m_EditorClassIdentifier: Assembly-CSharp::WaveData_SO
-  WaveDuration: 30
+  WaveDuration: 5
   RestTime: 5
   SpawnCD: 0.25
   MaxActiveEnemies: 50
+  IsBossWave: 0
+  BossPrefab: {fileID: 0}
   AllowedEnemyTypes:
   - EnemyType: {fileID: 11400000, guid: ba51ec12c9e04c747a48a5a98f525537, type: 2}
     Weight: 50

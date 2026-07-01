@@ -22,6 +22,7 @@ public class Boss : NetworkBehaviour
 
     public event Action<int, int> OnBossHealthChanged;
     public event Action<int> OnPhaseChanged;
+    public event Action OnBossDied;
 
     // FSM 
     public readonly IBossState ChaseState = new BossChaseState();
@@ -123,6 +124,9 @@ public class Boss : NetworkBehaviour
     private void DespawnBoss()
     {
         if (!IsServer) return;
+
+        OnBossDied?.Invoke();
+
         PlayDeathVFXRpc(transform.position);
         NetworkObject.Despawn(true);
     }
