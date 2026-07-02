@@ -25,7 +25,7 @@ public class PlayerCombat : NetworkBehaviour
                 IWeapon weapon = weaponObj.GetComponent<IWeapon>();
                 if (weapon != null)
                 {
-                    weapon.PerformAttack();
+                    weapon.PrepareToAttack();
                 }
             }
         }
@@ -35,11 +35,11 @@ public class PlayerCombat : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void RequestPerformAttackRpc(string weaponId, ulong targetNetworkId)
     {
-        FireWeaponClientRpc(weaponId, targetNetworkId);
+        PerformAttackRpc(weaponId, targetNetworkId);
     }
 
     [Rpc(SendTo.Everyone)]
-    private void FireWeaponClientRpc(string weaponId, ulong targetNetworkId)
+    private void PerformAttackRpc(string weaponId, ulong targetNetworkId)
     {
         if (_inventory != null && _inventory.InstantiatedWeapons.TryGetValue(weaponId, out GameObject weaponObj))
         {

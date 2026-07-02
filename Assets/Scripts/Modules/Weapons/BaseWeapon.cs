@@ -19,7 +19,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     protected Detector _detector;
     protected bool _isCooldown = false;
     protected List<Transform> _targets;
-    protected int _targetNumber = 1;
+    protected int _maxTarget = 1;
 
     protected void Awake()
     {
@@ -30,7 +30,10 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     {
         _detector = GetComponent<Detector>();
         _inventory = GetComponentInParent<PlayerInventory>();
-        _playerStats = _inventory.GetComponent<PlayerRunTimeStats>();
+        if (_inventory != null)
+        {
+            _playerStats = _inventory.GetComponent<PlayerRunTimeStats>();
+        }
         _playerCombat = GetComponentInParent<PlayerCombat>();
 
         // Set initial stats (Level 1)
@@ -49,7 +52,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
     }
 
-    public virtual void PerformAttack()
+    public virtual void PrepareToAttack()
     {
         if (_isCooldown) return;
         if (_detector == null)
@@ -59,7 +62,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
 
         //Detect Targets
-        _targets = _detector.FindNearestTargets(_targetNumber);
+        _targets = _detector.FindNearestTargets(_maxTarget);
         if (_targets.Count == 0)
         {
             return; // No target detected, silent return is expected
@@ -68,11 +71,11 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
         if (totalAtkSpeed == 0)
         {
-            Debug.LogWarning($"[BaseWeapon] PerformAttack: Total AtkSpeed is 0 on {gameObject.name}");
+            Debug.LogWarning($"[BaseWeapon] PrepareToAttack: Total AtkSpeed is 0 on {gameObject.name}");
             return;
         }
 
-        // Perform range check locally in the weapon against the nearest target
+        // Range check locally in the weapon against the nearest target
         float playerAtkRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;
         float totalRange = _stat.ATKRange + playerAtkRange;
         bool isAttacked = false;
@@ -91,16 +94,17 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             NetworkObject targetNetObj = target.GetComponent<NetworkObject>();
             if (targetNetObj != null)
             {
-                Debug.Log($"[BaseWeapon] PerformAttack: Firing weapon {WeaponData.Id} at {targetNetObj.NetworkObjectId}");
+                
                 if (_playerCombat != null)
                 {
                     _playerCombat.RequestPerformAttackRpc(WeaponData.Id, targetNetObj.NetworkObjectId);
                     isAttacked = true;
+                    Debug.Log($"[BaseWeapon] PrepareToAttack: {WeaponData.Id} RequestPerformAttackRpc to {targetNetObj.NetworkObjectId} ");
                 }
             }
             else
             {
-                Debug.LogWarning($"[BaseWeapon] PerformAttack: Target {target.name} has no NetworkObject component.");
+                Debug.LogWarning($"[BaseWeapon] PrepareToAttack: Target {target.name} has no NetworkObject component.");
             }
         }
 

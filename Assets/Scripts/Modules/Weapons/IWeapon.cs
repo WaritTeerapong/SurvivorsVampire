@@ -4,6 +4,6 @@ using UnityEngine;
 public interface IWeapon
 {
     public float AtkRange { get; }
-    public void PerformAttack();
+    public void PrepareToAttack();
 
 }

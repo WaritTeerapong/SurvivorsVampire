@@ -367,7 +367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 059ae93985962844086b846bbe00fe01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreSceneManager
-  IsBobTest: 1
 --- !u!1 &429729166
 GameObject:
   m_ObjectHideFlags: 0

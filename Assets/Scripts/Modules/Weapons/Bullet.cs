@@ -8,7 +8,6 @@ public class Bullet : MonoBehaviour
     public float HitDistance = 1f;
     public bool IsEnemy = false;
 
-    private Transform _target;
     private int _damage;
     private bool _isFired;
 
@@ -31,7 +30,6 @@ public class Bullet : MonoBehaviour
 
     public void Initialize(Transform target, int damage, GameObject hitVFX)
     {
-        _target = target;
         _damage = damage;
         _hitVFXPrefab = hitVFX;
         _lifeTimer = 5f;
