@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Boss : NetworkBehaviour
 {
+    // Global events for UI connection (Decoupled Architecture)
+    public static event Action<Boss> OnBossSpawnedGlobal;
+    public static event Action<Boss> OnBossDespawnedGlobal;
+
     [Header("=== Data ===")]
     [SerializeField] private BossTypeData_SO _bossData;
 
@@ -23,6 +27,7 @@ public class Boss : NetworkBehaviour
     public event Action<int, int> OnBossHealthChanged;
     public event Action<int> OnPhaseChanged;
     public event Action OnBossDied;
+    public event Action OnBossSpawned;
 
     // FSM 
     public readonly IBossState ChaseState = new BossChaseState();
@@ -42,6 +47,9 @@ public class Boss : NetworkBehaviour
         CurrentHealth.OnValueChanged += HandleHealthChanged;
         CurrentPhase.OnValueChanged += HandlePhaseChanged;
 
+        // Broadcast to all local listeners (like UI) that a boss has spawned
+        OnBossSpawnedGlobal?.Invoke(this);
+
         if (IsServer && _bossData != null)
         {
             CurrentHealth.Value = _bossData.MaxHealth;
@@ -52,6 +60,7 @@ public class Boss : NetworkBehaviour
 
             if (_detector != null) _detector.StartDetect();
             SwitchState(ChaseState);
+            OnBossSpawned?.Invoke();
         }
     }
 
@@ -60,10 +69,12 @@ public class Boss : NetworkBehaviour
         base.OnNetworkDespawn();
         CurrentHealth.OnValueChanged -= HandleHealthChanged;
         CurrentPhase.OnValueChanged -= HandlePhaseChanged;
+
+        // Broadcast to all local listeners (like UI) that a boss has despawned
+        OnBossDespawnedGlobal?.Invoke(this);
+
         if (IsServer && _detector != null) _detector.StopDetect();
     }
-
-
 
     private void HandlePhaseChanged(int previousValue, int newValue)
     {

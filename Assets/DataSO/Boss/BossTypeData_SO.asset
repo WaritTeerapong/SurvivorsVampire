@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a8328292c07d0043aef55c36c635b59, type: 3}
   m_Name: BossTypeData_SO
   m_EditorClassIdentifier: Assembly-CSharp::BossTypeData_SO
+  BossName: Necromancer
   MaxHealth: 2000
   AttackRange: 2.5
   P1_MoveSpeed: 3
