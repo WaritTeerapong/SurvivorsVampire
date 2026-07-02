@@ -4,7 +4,7 @@ public class BossChaseState : IBossState
 {
     public void OnEnter(Boss boss)
     {
-
+        boss.PlayAnimation(boss.CHASE);
     }
 
     public void OnExit(Boss boss)

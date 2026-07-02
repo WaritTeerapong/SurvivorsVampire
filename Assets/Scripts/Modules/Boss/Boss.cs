@@ -15,6 +15,7 @@ public class Boss : NetworkBehaviour
     [SerializeField] private EnemyDetector _detector;
     [SerializeField] private BossMovement _movement;
     [SerializeField] private BossCombat _combat;
+    private Animator _anim;
 
     public BossTypeData_SO BossData => _bossData;
     public EnemyDetector Detector => _detector;
@@ -40,6 +41,9 @@ public class Boss : NetworkBehaviour
 
     public float AOETimer { get; set; }
     public float SpawnTimer { get; set; }
+
+    public readonly int IDLE = Animator.StringToHash("IDLE");
+    public readonly int CHASE = Animator.StringToHash("CHASE");
 
     public override void OnNetworkSpawn()
     {
@@ -90,6 +94,11 @@ public class Boss : NetworkBehaviour
             CurrentPhase.Value = 2;
             SwitchState(TransitionState);
         }
+    }
+
+    void Awake()
+    {
+        _anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -151,5 +160,11 @@ public class Boss : NetworkBehaviour
 
             if (ps != null) ps.Play();
         }
+    }
+
+    public void PlayAnimation(int animation)
+    {
+        if (!IsServer) return;
+        _anim.Play(animation);
     }
 }

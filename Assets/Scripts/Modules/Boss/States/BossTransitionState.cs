@@ -10,6 +10,7 @@ public class BossTransitionState : IBossState
         _transitionTimer = TRANSITION_DURATION;
 
         // Note: Trigger phase change animation or temporary invincibility here
+        boss.PlayAnimation(boss.IDLE);
     }
 
     public void OnUpdate(Boss boss)
