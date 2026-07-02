@@ -7,10 +7,6 @@ public class BossChaseState : IBossState
         boss.PlayAnimation(boss.CHASE);
     }
 
-    public void OnExit(Boss boss)
-    {
-    }
-
     public void OnUpdate(Boss boss)
     {
         if (boss.SpawnTimer <= 0)
@@ -28,22 +24,26 @@ public class BossChaseState : IBossState
         if (boss.Detector != null && boss.Detector.NearestTarget != null)
         {
             float sqrDir = (boss.Detector.NearestTarget.position - boss.transform.position).sqrMagnitude;
+            float rangedRangeSq = boss.BossData.RangedAttackRange * boss.BossData.RangedAttackRange;
 
-            float moveSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MoveSpeed : boss.BossData.P2_MoveSpeed;
-            int attackDamage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AtkDamage : boss.BossData.P2_AtkDamage;
-
-            if (sqrDir <= (boss.BossData.AttackRange * boss.BossData.AttackRange))
+            // Check if within maximum attack range (Ranged is usually further than Melee)
+            if (sqrDir <= rangedRangeSq)
             {
                 if (boss.Combat.CanAttack)
                 {
-                    boss.Combat.ExecuteBasicAttack(boss.Detector.NearestTarget, attackDamage, 1.5f);
+                    boss.SwitchState(boss.AttackState);
                 }
-                return;
+                return; // Stop moving if in range
             }
 
+            float moveSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MoveSpeed : boss.BossData.P2_MoveSpeed;
             boss.Movement.MoveTowardsTarget(boss.Detector.NearestTarget.position, moveSpeed);
-
         }
-
+        else
+        {
+            boss.SwitchState(boss.IdleState);
+        }
     }
+
+    public void OnExit(Boss boss) { }
 }

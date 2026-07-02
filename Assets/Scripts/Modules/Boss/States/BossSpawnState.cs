@@ -12,6 +12,7 @@ public class BossSpawnState : IBossState
         if (!boss.IsServer) return;
 
         _castTimer = CAST_DURATION;
+        boss.PlayAnimation(boss.SPAWN);
 
         // Note: Trigger necromancy/summon animation here
 
