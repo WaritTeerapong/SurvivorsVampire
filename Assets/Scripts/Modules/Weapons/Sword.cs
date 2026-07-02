@@ -28,7 +28,8 @@ public class Sword : MeleeWeapon
         _swordInstance.transform.position = spawnPos;
         _swordInstance.SetActive(true);
 
-        int totalDamage = GetTotalDamage();
+        int totalDamage = GetTotalATKDamage();
+
         GameObject hitVFX = WeaponData.HitVFXPrefab;
 
         float playerAtkRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;

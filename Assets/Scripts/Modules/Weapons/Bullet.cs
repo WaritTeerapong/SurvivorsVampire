@@ -72,10 +72,12 @@ public class Bullet : MonoBehaviour
             return;
         }
 
+        // update position
         Vector3 previousPosition = transform.position;
         float distanceMoveThisFrame = Speed * Time.deltaTime;
         transform.position += _shootDirection * distanceMoveThisFrame;
 
+        // check hit
         RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, _shootDirection, distanceMoveThisFrame, _targetLayer);
 
         if (hit.collider != null)

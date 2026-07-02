@@ -61,23 +61,16 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             return;
         }
 
-        //Detect Targets
+        // Detected Targets
         _targets = _detector.FindNearestTargets(_maxTarget);
         if (_targets.Count == 0)
         {
-            return; // No target detected, silent return is expected
-        }
-        float playerAtkSpeed = _playerStats != null ? _playerStats.CurrentStats.Value.ATKSpeed : 0f;
-        float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
-        if (totalAtkSpeed == 0)
-        {
-            Debug.LogWarning($"[BaseWeapon] PrepareToAttack: Total AtkSpeed is 0 on {gameObject.name}");
-            return;
+            return; 
         }
 
-        // Range check locally in the weapon against the nearest target
-        float playerAtkRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;
-        float totalRange = _stat.ATKRange + playerAtkRange;
+        // Get Total AtkSpeed & AtkRange
+        float totalAtkSpeed = GetTotalATKSpeed();
+        float totalAtkRange = GetTotalATKRange();
         bool isAttacked = false;
 
         // Request Attack to all target(s)
@@ -86,7 +79,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             float sqrDist = (target.position - transform.position).sqrMagnitude;
 
             // Target out of range
-            if (sqrDist > totalRange * totalRange)
+            if (sqrDist > totalAtkRange * totalAtkRange)
             {
                 continue;
             }
@@ -131,7 +124,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         // Default Melee behavior: apply damage directly to the target on the server
         if (NetworkManager.Singleton.IsServer && target != null)
         {
-            int damage = GetTotalDamage();
+            int damage = GetTotalATKDamage();
 
             // Check for Enemy component
             if (target.TryGetComponent<Enemy>(out Enemy enemy))
@@ -146,14 +139,39 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
     }
 
-    protected int GetTotalDamage()
+    protected int GetTotalATKDamage()
     {
-        int playerAtk = 0;
+        float totalATKDamage = 0;
         if (_playerStats != null)
         {
-            playerAtk = _playerStats.CurrentStats.Value.ATKDamage;
+            totalATKDamage = _stat.ATKDamage + _playerStats.CurrentStats.Value.ATKDamage;
         }
-        return Mathf.RoundToInt(_stat.ATKDamage + playerAtk);
+        return Mathf.RoundToInt(totalATKDamage);
+    }
+
+    protected float GetTotalATKSpeed()
+    {
+        float totalATKSpeed = 1;
+        if (_playerStats != null)
+        {
+            totalATKSpeed = _stat.ATKDamage + _playerStats.CurrentStats.Value.ATKDamage;
+
+            // prevent from ATKspeed = 0
+            totalATKSpeed = totalATKSpeed == 0 ? 1f : totalATKSpeed;
+        }
+        return totalATKSpeed;
+
+    }
+
+    protected float GetTotalATKRange()
+    {
+        float totalATKRange = 0;
+        if (_playerStats != null)
+        {
+            totalATKRange = _stat.ATKRange + _playerStats.CurrentStats.Value.ATKRange;
+        }
+
+        return totalATKRange;
     }
     #endregion
 

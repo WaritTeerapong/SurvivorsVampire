@@ -5,8 +5,8 @@ using UnityEngine;
 public class SwordPrefabs : MonoBehaviour
 {
     [Header("Sweep Settings")]
-    public float SweepAngle = 120f;
-    public float SweepDuration = 0.2f;
+    public float SweepAngle;
+    public float SweepDuration;
     public bool IsEnemy = false;
 
     private int _damage;

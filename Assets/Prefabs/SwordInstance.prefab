@@ -303,6 +303,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf92ec3d31e1eee49b2fc9881c9236ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwordPrefabs
-  SweepAngle: 120
-  SweepDuration: 0.2
+  SweepAngle: 60
+  SweepDuration: 0.1
   IsEnemy: 0
