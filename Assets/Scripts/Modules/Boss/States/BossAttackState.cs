@@ -22,6 +22,9 @@ public class BossAttackState : IBossState
             return;
         }
 
+        // Force boss to face the target when entering attack state
+        boss.Movement.FaceTarget(boss.Detector.NearestTarget.position);
+
         Player p = boss.Detector.NearestTarget.GetComponent<Player>();
         Vector3 targetPos = p != null ? p.TargetPoint.position : boss.Detector.NearestTarget.position;
         float sqrDist = (targetPos - boss.TargetPoint.position).sqrMagnitude;

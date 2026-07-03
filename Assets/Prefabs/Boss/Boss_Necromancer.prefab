@@ -122,7 +122,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  _spriteRenderer: {fileID: 1229875647094317411}
 --- !u!114 &593311843574457466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,7 +318,7 @@ GameObject:
   - component: {fileID: 1229875647094317411}
   - component: {fileID: 6419944332724758371}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -387,7 +386,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1661552117
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4051155292746719317, guid: a32704a0eb04bd649953c2e9790ef846, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
