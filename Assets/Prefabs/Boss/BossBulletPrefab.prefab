@@ -10,9 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1061797952097566280}
   - component: {fileID: 4622267924692174348}
-  - component: {fileID: 7438121729589708700}
   - component: {fileID: 884930653607806431}
   - component: {fileID: 41982766710961011}
+  - component: {fileID: 7438121729589708700}
+  - component: {fileID: 3937089259642802335}
+  - component: {fileID: 1195045347049558729}
+  - component: {fileID: 7779570260985646472}
+  - component: {fileID: 6879834115683304151}
+  - component: {fileID: 2950900661440543561}
   m_Layer: 0
   m_Name: BossBulletPrefab
   m_TagString: Untagged
@@ -94,21 +99,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &7438121729589708700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4995447966391219493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a4a8a76b89a813479ba06ad90ffee21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bullet
-  Speed: 15
-  HitDistance: 0.3
-  IsEnemy: 0
 --- !u!58 &884930653607806431
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -264,3 +254,85 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &7438121729589708700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a4a8a76b89a813479ba06ad90ffee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Bullet
+  Speed: 15
+  HitDistance: 0.3
+  IsEnemy: 0
+--- !u!114 &3937089259642802335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b77479da78cae2d45b6ac0d474c7df61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileMovement
+  Speed: 15
+--- !u!114 &1195045347049558729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b125b674b5f3b7044806f54021d28687, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileCollision
+  HitRadius: 1
+  TargetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+--- !u!114 &7779570260985646472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757e6ed2253dbc24aa0a3c2ba4e54acf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDamageDealer
+  IsEnemy: 0
+--- !u!114 &6879834115683304151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ed76360e8783d42a3e9ff52e79ad16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileVisuals
+--- !u!114 &2950900661440543561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995447966391219493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e4851276eb68941af998bbfb5ae802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileLifetime
+  MaxLifetime: 5

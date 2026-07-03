@@ -1,6 +1,10 @@
-using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(ProjectileMovement))]
+[RequireComponent(typeof(ProjectileCollision))]
+[RequireComponent(typeof(WeaponDamageDealer))]
+[RequireComponent(typeof(ProjectileVisuals))]
+[RequireComponent(typeof(ProjectileLifetime))]
 public class Bullet : MonoBehaviour
 {
     [Header("Bullet Settings")]
@@ -8,133 +12,80 @@ public class Bullet : MonoBehaviour
     public float HitDistance = 1f;
     public bool IsEnemy = false;
 
-    private Transform _target;
-    private int _damage;
-    private bool _isFired;
-
-    private LayerMask _targetLayer;
-    private Vector3 _shootDirection;
-    private float _lifeTimer = 5f;
-
-    private GameObject _hitVFXPrefab;
-    private SpriteRenderer _spriteRenderer;
-    private Collider2D _collider;
-
-    private TrailRenderer _trail;
+    private ProjectileMovement _movement;
+    private ProjectileCollision _collision;
+    private WeaponDamageDealer _damageDealer;
+    private ProjectileVisuals _visuals;
+    private ProjectileLifetime _lifetime;
 
     void Awake()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _collider = GetComponent<Collider2D>();
-        _trail = GetComponent<TrailRenderer>();
+        _movement = GetComponent<ProjectileMovement>() ?? gameObject.AddComponent<ProjectileMovement>();
+        _collision = GetComponent<ProjectileCollision>() ?? gameObject.AddComponent<ProjectileCollision>();
+        _damageDealer = GetComponent<WeaponDamageDealer>() ?? gameObject.AddComponent<WeaponDamageDealer>();
+        _visuals = GetComponent<ProjectileVisuals>() ?? gameObject.AddComponent<ProjectileVisuals>();
+        _lifetime = GetComponent<ProjectileLifetime>() ?? gameObject.AddComponent<ProjectileLifetime>();
     }
 
     public void Initialize(Transform target, int damage, GameObject hitVFX)
     {
-        _target = target;
-        _damage = damage;
-        _hitVFXPrefab = hitVFX;
-        _lifeTimer = 5f;
-        _isFired = true;
+        // Set dynamic properties on the sub-components from config values
+        _movement.Speed = Speed;
+        _collision.HitRadius = HitDistance;
+        _collision.TargetLayer = IsEnemy ? LayerMask.GetMask("Player") : LayerMask.GetMask("Enemy");
+        _damageDealer.IsEnemy = IsEnemy;
+        _damageDealer.SetDamage(damage);
 
-        if (_spriteRenderer != null) _spriteRenderer.enabled = true;
-        if (_collider != null) _collider.enabled = true;
+        _visuals.Setup(hitVFX);
 
-        if (_trail != null) _trail.Clear();
-
-        CircleCollider2D col = _collider as CircleCollider2D;
-        if (col != null)
-        {
-            col.radius = HitDistance;
-        }
-
+        // Set direction
+        Vector3 direction = Vector3.right;
         if (target != null)
         {
-            _shootDirection = (target.position - transform.position).normalized;
-            float angle = Mathf.Atan2(_shootDirection.y, _shootDirection.x) * Mathf.Rad2Deg;
+            direction = (target.position - transform.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
         }
         else
         {
-            _shootDirection = Vector3.right;
+            transform.rotation = Quaternion.identity;
         }
 
-        if (IsEnemy) _targetLayer = LayerMask.GetMask("Player");
-        else _targetLayer = LayerMask.GetMask("Enemy");
+        // Register events
+        _collision.OnHitDetected += OnHit;
+        _lifetime.OnLifetimeExpired += ReturnToPool;
+
+        // Activate components
+        _movement.MoveInDirection(direction);
+        _collision.Activate();
+        _lifetime.StartCountdown();
     }
 
-    private void Update()
+    private void OnHit(Collider2D hitCollider, Vector3 hitPoint)
     {
-        if (!_isFired) return;
+        // Unsubscribe to avoid double execution
+        _collision.OnHitDetected -= OnHit;
+        _lifetime.OnLifetimeExpired -= ReturnToPool;
 
-        _lifeTimer -= Time.deltaTime;
-        if (_lifeTimer <= 0)
-        {
-            ReturnToPool();
-            return;
-        }
+        // Stop updates
+        _movement.Stop();
+        _collision.Deactivate();
+        _lifetime.StopCountdown();
 
-        Vector3 previousPosition = transform.position;
-        float distanceMoveThisFrame = Speed * Time.deltaTime;
-        transform.position += _shootDirection * distanceMoveThisFrame;
+        // Handle impact
+        _visuals.Disable();
+        _visuals.SpawnHitVFX(hitPoint);
+        _damageDealer.DealDamage(hitCollider);
 
-        RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, _shootDirection, distanceMoveThisFrame, _targetLayer);
-
-        if (hit.collider != null)
-        {
-            ProcessHit(hit.collider);
-        }
-    }
-
-    private void ProcessHit(Collider2D hitCollider)
-    {
-        _isFired = false;
-
-        if (_spriteRenderer != null) _spriteRenderer.enabled = false;
-        if (_collider != null) _collider.enabled = false;
-
-        if (_hitVFXPrefab != null && ObjectPoolManager.Instance != null)
-        {
-            ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(
-                _hitVFXPrefab,
-                transform.position,
-                Quaternion.identity,
-                PoolCategory.Default
-            );
-            if (ps != null) ps.Play();
-        }
-
-        if (NetworkManager.Singleton.IsServer)
-        {
-            if (!IsEnemy && hitCollider.CompareTag("Enemy"))
-            {
-                Enemy enemy = hitCollider.GetComponentInParent<Enemy>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(_damage);
-                }
-                else
-                {
-                    Boss boss = hitCollider.GetComponentInParent<Boss>();
-                    if (boss != null)
-                    {
-                        boss.TakeDamage(_damage);
-                    }
-                }
-            }
-            else if (IsEnemy && hitCollider.CompareTag("Player"))
-            {
-                Player player = hitCollider.GetComponentInParent<Player>();
-                if (player != null) player.TakeDamageRpc(_damage);
-            }
-        }
-
+        // Pool cleanup delay
         Invoke(nameof(ReturnToPool), 0.1f);
     }
 
     private void ReturnToPool()
     {
-        _isFired = false;
+        _collision.OnHitDetected -= OnHit;
+        _lifetime.OnLifetimeExpired -= ReturnToPool;
+        
         CancelInvoke(nameof(ReturnToPool));
 
         if (ObjectPoolManager.Instance != null)
@@ -146,7 +97,6 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
 
     private void OnDrawGizmos()
     {

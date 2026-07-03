@@ -167,7 +167,7 @@ public class Player : NetworkBehaviour
         if (Keyboard.current.yKey.wasPressedThisFrame) TakeDamageRpc(9999);
         if (Keyboard.current.uKey.wasPressedThisFrame) SwitchToIdleRpc();
 
-        if (Keyboard.current.nKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w1");
+        if (Keyboard.current.nKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w3");
         if (Keyboard.current.mKey.wasPressedThisFrame) Inventory.AddOrUpgradeWeaponRpc("w2");
         if (Keyboard.current.oKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p1");
         if (Keyboard.current.pKey.wasPressedThisFrame) Inventory.AddOrUpgradePassiveRpc("p2");
