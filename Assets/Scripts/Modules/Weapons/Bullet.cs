@@ -12,19 +12,18 @@ public class Bullet : MonoBehaviour
     private bool _isFired;
 
     private LayerMask _targetLayer;
+    private RaycastHit2D hit;
     private Vector3 _shootDirection;
     private float _lifeTimer = 5f;
 
     private GameObject _hitVFXPrefab;
     private SpriteRenderer _spriteRenderer;
-    private Collider2D _collider;
 
     private TrailRenderer _trail;
 
     void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        _collider = GetComponent<Collider2D>();
         _trail = GetComponent<TrailRenderer>();
     }
 
@@ -36,15 +35,9 @@ public class Bullet : MonoBehaviour
         _isFired = true;
 
         if (_spriteRenderer != null) _spriteRenderer.enabled = true;
-        if (_collider != null) _collider.enabled = true;
 
         if (_trail != null) _trail.Clear();
 
-        CircleCollider2D col = _collider as CircleCollider2D;
-        if (col != null)
-        {
-            col.radius = HitDistance;
-        }
 
         if (target != null)
         {
@@ -77,8 +70,9 @@ public class Bullet : MonoBehaviour
         float distanceMoveThisFrame = Speed * Time.deltaTime;
         transform.position += _shootDirection * distanceMoveThisFrame;
 
-        // check hit
-        RaycastHit2D hit = Physics2D.CircleCast(previousPosition, HitDistance, _shootDirection, distanceMoveThisFrame, _targetLayer);
+        // check hit with raycast to prevent tunneling
+        hit = Physics2D.CircleCast(previousPosition, HitDistance, _shootDirection, distanceMoveThisFrame, _targetLayer);
+
 
         if (hit.collider != null)
         {
@@ -91,7 +85,6 @@ public class Bullet : MonoBehaviour
         _isFired = false;
 
         if (_spriteRenderer != null) _spriteRenderer.enabled = false;
-        if (_collider != null) _collider.enabled = false;
 
         if (_hitVFXPrefab != null && ObjectPoolManager.Instance != null)
         {
