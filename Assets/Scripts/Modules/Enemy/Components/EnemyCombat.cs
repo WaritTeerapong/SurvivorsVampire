@@ -2,27 +2,23 @@ using UnityEngine;
 
 public class EnemyCombat : MonoBehaviour
 {
-
     public void PerformMeleeAttack(Enemy enemy, Transform target)
     {
         if (target == null) return;
 
-        float hitRange = enemy.CurrentStats.Value.ATKRange + 0.5f; // +0.5 for Enemy not missed more often
+        float hitRange = enemy.CurrentStats.Value.ATKRange + 0.5f;
 
-        float currentSqrDistance = (target.position - transform.position).sqrMagnitude;
+        Player player = target.GetComponent<Player>();
+        Vector3 targetPos = player != null ? player.TargetPoint.position : target.position;
+
+        float currentSqrDistance = (targetPos - enemy.TargetPoint.position).sqrMagnitude;
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            Player player = target.GetComponent<Player>();
             if (player != null)
             {
                 player.TakeDamageRpc(enemy.CurrentStats.Value.ATKDamage);
-                Debug.Log("Hit Player!");
             }
-        }
-        else
-        {
-            Debug.Log("Missed!");
         }
     }
 
@@ -32,17 +28,16 @@ public class EnemyCombat : MonoBehaviour
 
         float hitRange = enemy.CurrentStats.Value.ATKRange;
 
-        float currentSqrDistance = (target.position - transform.position).sqrMagnitude;
+        Player player = target.GetComponent<Player>();
+        Vector3 targetPos = player != null ? player.TargetPoint.position : target.position;
+
+        float currentSqrDistance = (targetPos - enemy.TargetPoint.position).sqrMagnitude;
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            Player player = target.GetComponent<Player>();
             if (player != null)
             {
-                // player.TakeDamageRpc(enemy.CurrentStats.Value.ATKDamage);
-                Debug.Log("Shoot!!");
                 enemy.RequestFireRpc();
-                // TODO : Shoot Bullet
             }
         }
     }

@@ -11,12 +11,19 @@ public class RangeWeapon : BaseWeapon
 
         Vector3 spawnPos = transform.position;
         Transform firePoint = transform.Find("FirePoint");
+
         if (firePoint != null)
         {
             spawnPos = firePoint.position;
         }
+        else
+        {
+            Player myPlayer = GetComponentInParent<Player>();
+            if (myPlayer != null) spawnPos = myPlayer.TargetPoint.position;
+        }
 
         GameObject bulletObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+
         if (bulletObj != null)
         {
             Bullet bulletScript = bulletObj.GetComponent<Bullet>();
@@ -25,7 +32,12 @@ public class RangeWeapon : BaseWeapon
                 // Set the bullet damage to the combined weapon stat and player stat
                 int totalDamage = GetTotalATKDamage();
                 GameObject hitVFX = WeaponData.HitVFXPrefab;
-                bulletScript.Initialize(target, totalDamage, hitVFX);
+
+                Transform aimTarget = target;
+                if (target.TryGetComponent<Enemy>(out Enemy e)) aimTarget = e.TargetPoint;
+                else if (target.TryGetComponent<Boss>(out Boss b)) aimTarget = b.TargetPoint;
+
+                bulletScript.Initialize(aimTarget, totalDamage, hitVFX);
             }
 
             if (AudioManager.Instance != null)

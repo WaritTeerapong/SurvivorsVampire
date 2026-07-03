@@ -4,11 +4,7 @@ public class BossChaseState : IBossState
 {
     public void OnEnter(Boss boss)
     {
-
-    }
-
-    public void OnExit(Boss boss)
-    {
+        boss.PlayAnimation(boss.CHASE);
     }
 
     public void OnUpdate(Boss boss)
@@ -27,23 +23,29 @@ public class BossChaseState : IBossState
 
         if (boss.Detector != null && boss.Detector.NearestTarget != null)
         {
-            float sqrDir = (boss.Detector.NearestTarget.position - boss.transform.position).sqrMagnitude;
+            Player p = boss.Detector.NearestTarget.GetComponent<Player>();
+            Vector3 targetPos = p != null ? p.TargetPoint.position : boss.Detector.NearestTarget.position;
 
-            float moveSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MoveSpeed : boss.BossData.P2_MoveSpeed;
-            int attackDamage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AtkDamage : boss.BossData.P2_AtkDamage;
+            float sqrDir = (targetPos - boss.TargetPoint.position).sqrMagnitude;
+            float rangedRangeSq = boss.BossData.RangedAttackRange * boss.BossData.RangedAttackRange;
 
-            if (sqrDir <= (boss.BossData.AttackRange * boss.BossData.AttackRange))
+            if (sqrDir <= rangedRangeSq)
             {
                 if (boss.Combat.CanAttack)
                 {
-                    boss.Combat.ExecuteBasicAttack(boss.Detector.NearestTarget, attackDamage, 1.5f);
+                    boss.SwitchState(boss.AttackState);
                 }
                 return;
             }
 
+            float moveSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MoveSpeed : boss.BossData.P2_MoveSpeed;
             boss.Movement.MoveTowardsTarget(boss.Detector.NearestTarget.position, moveSpeed);
-
         }
-
+        else
+        {
+            boss.SwitchState(boss.IdleState);
+        }
     }
+
+    public void OnExit(Boss boss) { }
 }

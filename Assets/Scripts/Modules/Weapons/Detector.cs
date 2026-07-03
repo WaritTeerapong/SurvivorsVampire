@@ -6,7 +6,7 @@ public class Detector : MonoBehaviour
     private CircleCollider2D _detectorCollider;
     private PlayerRunTimeStats _playerStats;
     private PlayerInventory _inventory;
-    private IWeapon _localWeapon; 
+    private IWeapon _localWeapon;
 
     private List<Transform> _enemiesInRange = new List<Transform>();
     private List<Transform> _nearestEnemies = new List<Transform>();
@@ -18,12 +18,11 @@ public class Detector : MonoBehaviour
         {
             _detectorCollider.isTrigger = true;
         }
+
         _playerStats = GetComponentInParent<PlayerRunTimeStats>();
         _inventory = GetComponentInParent<PlayerInventory>();
-        
+
         _localWeapon = GetComponent<IWeapon>();
-        //if (_localWeapon == null) _localWeapon = GetComponentInParent<IWeapon>();
-        //if (_localWeapon == null) _localWeapon = GetComponentInChildren<IWeapon>();
     }
 
     void Start()
@@ -48,7 +47,6 @@ public class Detector : MonoBehaviour
         UpdateRadius();
     }
 
-    // Call this when weapons are added/upgraded to recalculate radius
     public void UpdateRadius()
     {
         float playerRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;
@@ -56,12 +54,10 @@ public class Detector : MonoBehaviour
 
         if (_localWeapon != null)
         {
-            // If we are attached to a specific weapon, use that weapon's range
             weaponRange = _localWeapon.AtkRange;
         }
         else if (_inventory != null)
         {
-            // If we are on the player, find the maximum range among all equipped weapons
             foreach (var weaponObj in _inventory.InstantiatedWeapons.Values)
             {
                 if (weaponObj != null)
@@ -91,16 +87,27 @@ public class Detector : MonoBehaviour
             return _nearestEnemies;
         }
 
-        Vector3 playerPos = transform.position;
+        Player myPlayer = GetComponentInParent<Player>();
+        Vector3 playerPos = myPlayer != null ? myPlayer.TargetPoint.position : transform.position;
+
         _enemiesInRange.Sort((a, b) =>
         {
-            float sqrDistA = (a.position - playerPos).sqrMagnitude;
-            float sqrDistB = (b.position - playerPos).sqrMagnitude;
+            Vector3 posA = a.position;
+            if (a.TryGetComponent<Enemy>(out Enemy eA)) posA = eA.TargetPoint.position;
+            else if (a.TryGetComponent<Boss>(out Boss bA)) posA = bA.TargetPoint.position;
+
+            Vector3 posB = b.position;
+            if (b.TryGetComponent<Enemy>(out Enemy eB)) posB = eB.TargetPoint.position;
+            else if (b.TryGetComponent<Boss>(out Boss bB)) posB = bB.TargetPoint.position;
+
+            float sqrDistA = (posA - playerPos).sqrMagnitude;
+            float sqrDistB = (posB - playerPos).sqrMagnitude;
             return sqrDistA.CompareTo(sqrDistB);
         });
 
         int count = Mathf.Min(maxTarget, _enemiesInRange.Count);
         _nearestEnemies.Clear();
+
         for (int i = 0; i < count; i++)
         {
             _nearestEnemies.Add(_enemiesInRange[i]);
@@ -113,7 +120,6 @@ public class Detector : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            Debug.Log($"[Detector] OnTriggerEnter2D: {other.name} entered detection range.");
             if (!_enemiesInRange.Contains(other.transform))
             {
                 _enemiesInRange.Add(other.transform);

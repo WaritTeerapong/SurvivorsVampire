@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class BossMovement : NetworkBehaviour
 {
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-
     public void MoveTowardsTarget(Vector3 targetPosition, float speed)
     {
         if (!IsServer) return;
@@ -15,14 +13,24 @@ public class BossMovement : NetworkBehaviour
             speed * Time.deltaTime
         );
 
-        HandleFacingDirectionRpc(targetPosition.x > transform.position.x);
+        bool isFacingRight = targetPosition.x > transform.position.x;
+        HandleFacingDirectionRpc(isFacingRight);
+    }
+
+    // Call this to force the boss to face a target without moving
+    public void FaceTarget(Vector3 targetPosition)
+    {
+        if (!IsServer) return;
+
+        bool isFacingRight = targetPosition.x > transform.position.x;
+        HandleFacingDirectionRpc(isFacingRight);
     }
 
     [Rpc(SendTo.Everyone)]
     private void HandleFacingDirectionRpc(bool isFacingRight)
     {
-        if (_spriteRenderer == null) return;
-
-        _spriteRenderer.flipX = !isFacingRight;
+        // Use localScale to flip the entire GameObject (including child FirePoint)
+        // Default scale assumes the boss faces right when X is 1
+        transform.localScale = new Vector3(isFacingRight ? 1f : -1f, 1f, 1f);
     }
 }

@@ -9,12 +9,13 @@ public class BossAOEState : IBossState
     public void OnEnter(Boss boss)
     {
         _castTimer = CAST_DURATION;
+        boss.PlayAnimation(boss.AOE);
 
-        // Note: Trigger magic cast animation here
-
+        // Trigger magic cast animation here
         if (boss.BossData.AOEPrefab == null || PlayerManager.Instance == null) return;
 
-        int attackDamage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AtkDamage : boss.BossData.P2_AtkDamage;
+        // Using the newly defined AOE damage variables
+        int attackDamage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOEDamage : boss.BossData.P2_AOEDamage;
 
         // Target all active players in the game session
         foreach (Transform target in PlayerManager.Instance.ActiveTargets)
@@ -31,7 +32,6 @@ public class BossAOEState : IBossState
             {
                 // Phase 2: Spawn 3 static line circles predicting player movement direction
                 Vector2 playerForward = GetPlayerForwardDirection(target);
-
                 for (int i = 0; i < 3; i++)
                 {
                     Vector3 offsetPosition = target.position + (Vector3)(playerForward * (i * boss.BossData.P2_AOEDistanceOffset));
@@ -44,7 +44,6 @@ public class BossAOEState : IBossState
     public void OnUpdate(Boss boss)
     {
         _castTimer -= Time.deltaTime;
-
         if (_castTimer <= 0f)
         {
             boss.AOETimer = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOECooldown : boss.BossData.P2_AOECooldown;
@@ -70,7 +69,7 @@ public class BossAOEState : IBossState
         if (aoeObj.TryGetComponent<BossAOEController>(out BossAOEController controller))
         {
             float trackTime = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingTime : 0f;
-            float trackSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingSpeed : 0f; // Get speed from SO
+            float trackSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingSpeed : 0f;
 
             // Pass trackSpeed into the initialized RPC
             controller.InitializeAOERpc(damage, targetId, isTracking, trackTime, trackSpeed);

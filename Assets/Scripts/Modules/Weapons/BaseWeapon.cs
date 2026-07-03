@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class BaseWeapon : MonoBehaviour, IWeapon
 {
@@ -10,13 +9,13 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     public WeaponItemData_SO WeaponData;
 
     protected WeaponStat _stat;
-
     public float AtkRange => _stat.ATKRange;
 
     protected PlayerInventory _inventory;
     protected PlayerRunTimeStats _playerStats;
     protected PlayerCombat _playerCombat;
     protected Detector _detector;
+
     protected bool _isCooldown = false;
     protected List<Transform> _targets;
     protected int _maxTarget = 1;
@@ -36,7 +35,6 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
         _playerCombat = GetComponentInParent<PlayerCombat>();
 
-        // Set initial stats (Level 1)
         UpgradeWeapon(1);
     }
 
@@ -55,9 +53,9 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     public virtual void PrepareToAttack()
     {
         if (_isCooldown) return;
+
         if (_detector == null)
         {
-            Debug.LogWarning($"[BaseWeapon] PerformAttack: _detector is null on {gameObject.name}");
             return;
         }
 
@@ -73,10 +71,16 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         float totalAtkRange = GetTotalATKRange();
         bool isAttacked = false;
 
-        // Request Attack to all target(s)
+        Player myPlayer = GetComponentInParent<Player>();
+        Vector3 playerPos = myPlayer != null ? myPlayer.TargetPoint.position : transform.position;
+
         foreach (var target in _targets)
         {
-            float sqrDist = (target.position - transform.position).sqrMagnitude;
+            Vector3 targetPos = target.position;
+            if (target.TryGetComponent<Enemy>(out Enemy e)) targetPos = e.TargetPoint.position;
+            else if (target.TryGetComponent<Boss>(out Boss b)) targetPos = b.TargetPoint.position;
+
+            float sqrDist = (targetPos - playerPos).sqrMagnitude;
 
             // Target out of range
             if (sqrDist > totalAtkRange * totalAtkRange)
@@ -107,31 +111,28 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
     }
 
-
-    #region Helper Function
     public virtual IEnumerator Cooldown()
     {
         _isCooldown = true;
         float playerAtkSpeed = _playerStats != null ? _playerStats.CurrentStats.Value.ATKSpeed : 0f;
         float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
+
         float cooldown = totalAtkSpeed > 0 ? 1f / totalAtkSpeed : 1f;
         yield return new WaitForSeconds(cooldown);
+
         _isCooldown = false;
     }
 
     public virtual void Attack(Transform target)
     {
-        // Default Melee behavior: apply damage directly to the target on the server
         if (NetworkManager.Singleton.IsServer && target != null)
         {
             int damage = GetTotalATKDamage();
 
-            // Check for Enemy component
             if (target.TryGetComponent<Enemy>(out Enemy enemy))
             {
                 enemy.TakeDamage(damage);
             }
-            // Check for Boss component
             else if (target.TryGetComponent<Boss>(out Boss boss))
             {
                 boss.TakeDamage(damage);
@@ -173,9 +174,4 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
         return totalATKRange;
     }
-    #endregion
-
-
-
 }
-
