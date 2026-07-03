@@ -17,7 +17,7 @@ MonoBehaviour:
     MoveSpeed: 5
     ATKDamage: 5
     ATKSpeed: 1
-    ATKRange: 5
+    ATKRange: 3
   PlayerId: 0
   StatLevel:
     MaxHealthLevel: 1

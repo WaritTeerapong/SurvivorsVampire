@@ -18,7 +18,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
     protected bool _isCooldown = false;
     protected List<Transform> _targets;
-    protected int _targetNumber = 1;
+    protected int _maxTarget = 1;
 
     protected void Awake()
     {
@@ -29,7 +29,10 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     {
         _detector = GetComponent<Detector>();
         _inventory = GetComponentInParent<PlayerInventory>();
-        _playerStats = _inventory.GetComponent<PlayerRunTimeStats>();
+        if (_inventory != null)
+        {
+            _playerStats = _inventory.GetComponent<PlayerRunTimeStats>();
+        }
         _playerCombat = GetComponentInParent<PlayerCombat>();
 
         UpgradeWeapon(1);
@@ -47,7 +50,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
     }
 
-    public virtual void PerformAttack()
+    public virtual void PrepareToAttack()
     {
         if (_isCooldown) return;
 
@@ -56,22 +59,16 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             return;
         }
 
-        _targets = _detector.FindNearestTargets(_targetNumber);
+        // Detected Targets
+        _targets = _detector.FindNearestTargets(_maxTarget);
         if (_targets.Count == 0)
         {
-            return;
+            return; 
         }
 
-        float playerAtkSpeed = _playerStats != null ? _playerStats.CurrentStats.Value.ATKSpeed : 0f;
-        float totalAtkSpeed = _stat.ATKSpeed + playerAtkSpeed;
-
-        if (totalAtkSpeed == 0)
-        {
-            return;
-        }
-
-        float playerAtkRange = _playerStats != null ? _playerStats.CurrentStats.Value.ATKRange : 0f;
-        float totalRange = _stat.ATKRange + playerAtkRange;
+        // Get Total AtkSpeed & AtkRange
+        float totalAtkSpeed = GetTotalATKSpeed();
+        float totalAtkRange = GetTotalATKRange();
         bool isAttacked = false;
 
         Player myPlayer = GetComponentInParent<Player>();
@@ -85,7 +82,8 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
             float sqrDist = (targetPos - playerPos).sqrMagnitude;
 
-            if (sqrDist > totalRange * totalRange)
+            // Target out of range
+            if (sqrDist > totalAtkRange * totalAtkRange)
             {
                 continue;
             }
@@ -93,11 +91,17 @@ public class BaseWeapon : MonoBehaviour, IWeapon
             NetworkObject targetNetObj = target.GetComponent<NetworkObject>();
             if (targetNetObj != null)
             {
+                
                 if (_playerCombat != null)
                 {
                     _playerCombat.RequestPerformAttackRpc(WeaponData.Id, targetNetObj.NetworkObjectId);
                     isAttacked = true;
+                    Debug.Log($"[BaseWeapon] PrepareToAttack: {WeaponData.Id} RequestPerformAttackRpc to {targetNetObj.NetworkObjectId} ");
                 }
+            }
+            else
+            {
+                Debug.LogWarning($"[BaseWeapon] PrepareToAttack: Target {target.name} has no NetworkObject component.");
             }
         }
 
@@ -123,7 +127,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     {
         if (NetworkManager.Singleton.IsServer && target != null)
         {
-            int damage = GetTotalDamage();
+            int damage = GetTotalATKDamage();
 
             if (target.TryGetComponent<Enemy>(out Enemy enemy))
             {
@@ -136,13 +140,38 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         }
     }
 
-    protected int GetTotalDamage()
+    protected int GetTotalATKDamage()
     {
-        int playerAtk = 0;
+        float totalATKDamage = 0;
         if (_playerStats != null)
         {
-            playerAtk = _playerStats.CurrentStats.Value.ATKDamage;
+            totalATKDamage = _stat.ATKDamage + _playerStats.CurrentStats.Value.ATKDamage;
         }
-        return Mathf.RoundToInt(_stat.ATKDamage + playerAtk);
+        return Mathf.RoundToInt(totalATKDamage);
+    }
+
+    protected float GetTotalATKSpeed()
+    {
+        float totalATKSpeed = 1;
+        if (_playerStats != null)
+        {
+            totalATKSpeed = _stat.ATKDamage + _playerStats.CurrentStats.Value.ATKDamage;
+
+            // prevent from ATKspeed = 0
+            totalATKSpeed = totalATKSpeed == 0 ? 1f : totalATKSpeed;
+        }
+        return totalATKSpeed;
+
+    }
+
+    protected float GetTotalATKRange()
+    {
+        float totalATKRange = 0;
+        if (_playerStats != null)
+        {
+            totalATKRange = _stat.ATKRange + _playerStats.CurrentStats.Value.ATKRange;
+        }
+
+        return totalATKRange;
     }
 }

@@ -29,7 +29,8 @@ public class RangeWeapon : BaseWeapon
             Bullet bulletScript = bulletObj.GetComponent<Bullet>();
             if (bulletScript != null)
             {
-                int totalDamage = GetTotalDamage();
+                // Set the bullet damage to the combined weapon stat and player stat
+                int totalDamage = GetTotalATKDamage();
                 GameObject hitVFX = WeaponData.HitVFXPrefab;
 
                 Transform aimTarget = target;
