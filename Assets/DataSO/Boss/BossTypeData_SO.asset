@@ -14,9 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossTypeData_SO
   BossName: Necromancer
   MaxHealth: 2000
-  AttackRange: 2.5
+  MeleeAttackRange: 1.5
+  RangedAttackRange: 5
   P1_MoveSpeed: 3
-  P1_AtkDamage: 15
+  P1_MeleeDamage: 20
+  P1_RangedDamage: 10
+  P1_AOEDamage: 25
+  P1_BulletSpeed: 8
+  P1_AtkCooldown: 2
   P1_AOECooldown: 8
   P1_AOETrackingTime: 2
   P1_AOETrackingSpeed: 5
@@ -29,7 +34,11 @@ MonoBehaviour:
     Tier: 1
     Amount: 5
   P2_MoveSpeed: 5.5
-  P2_AtkDamage: 25
+  P2_MeleeDamage: 35
+  P2_RangedDamage: 15
+  P2_AOEDamage: 40
+  P2_BulletSpeed: 12
+  P2_AtkCooldown: 1.2
   P2_AOECooldown: 5
   P2_AOEDistanceOffset: 2.5
   P2_SpawnCooldown: 8
@@ -44,4 +53,6 @@ MonoBehaviour:
     Tier: 2
     Amount: 2
   AOEPrefab: {fileID: 3424684454591862253, guid: 1570082fb5112d9469a0d7584d4b8450, type: 3}
+  BulletPrefab: {fileID: 4995447966391219493, guid: 9119cc75f1ada2f4ca0c0bb46aff8f80, type: 3}
+  BulletHitVFXPrefab: {fileID: 557788231294613471, guid: 65ec6c389a90a994e9b14583f83677be, type: 3}
   DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}

@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class Boss : NetworkBehaviour
 {
-    // Global events for UI connection (Decoupled Architecture)
     public static event Action<Boss> OnBossSpawnedGlobal;
     public static event Action<Boss> OnBossDespawnedGlobal;
+
+    [Header("=== Targeting ===")]
+    [SerializeField] private Transform _targetPoint;
+    public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
 
     [Header("=== Data ===")]
     [SerializeField] private BossTypeData_SO _bossData;
@@ -15,6 +18,8 @@ public class Boss : NetworkBehaviour
     [SerializeField] private EnemyDetector _detector;
     [SerializeField] private BossMovement _movement;
     [SerializeField] private BossCombat _combat;
+
+    private Animator _anim;
 
     public BossTypeData_SO BossData => _bossData;
     public EnemyDetector Detector => _detector;
@@ -30,7 +35,9 @@ public class Boss : NetworkBehaviour
     public event Action OnBossSpawned;
 
     // FSM 
+    public readonly IBossState IdleState = new BossIdleState();
     public readonly IBossState ChaseState = new BossChaseState();
+    public readonly IBossState AttackState = new BossAttackState();
     public readonly IBossState AOEState = new BossAOEState();
     public readonly IBossState SpawnState = new BossSpawnState();
     public readonly IBossState TransitionState = new BossTransitionState();
@@ -41,13 +48,25 @@ public class Boss : NetworkBehaviour
     public float AOETimer { get; set; }
     public float SpawnTimer { get; set; }
 
+    // Animation Hashes
+    public readonly int IDLE = Animator.StringToHash("IDLE");
+    public readonly int CHASE = Animator.StringToHash("CHASE");
+    public readonly int RANGED = Animator.StringToHash("RANGED");
+    public readonly int MELEE = Animator.StringToHash("MELEE");
+    public readonly int AOE = Animator.StringToHash("AOE");
+    public readonly int SPAWN = Animator.StringToHash("SPAWN");
+
+    void Awake()
+    {
+        _anim = GetComponentInChildren<Animator>();
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         CurrentHealth.OnValueChanged += HandleHealthChanged;
         CurrentPhase.OnValueChanged += HandlePhaseChanged;
 
-        // Broadcast to all local listeners (like UI) that a boss has spawned
         OnBossSpawnedGlobal?.Invoke(this);
 
         if (IsServer && _bossData != null)
@@ -59,7 +78,7 @@ public class Boss : NetworkBehaviour
             SpawnTimer = _bossData.P1_SpawnCooldown;
 
             if (_detector != null) _detector.StartDetect();
-            SwitchState(ChaseState);
+            SwitchState(IdleState);
             OnBossSpawned?.Invoke();
         }
     }
@@ -70,7 +89,6 @@ public class Boss : NetworkBehaviour
         CurrentHealth.OnValueChanged -= HandleHealthChanged;
         CurrentPhase.OnValueChanged -= HandlePhaseChanged;
 
-        // Broadcast to all local listeners (like UI) that a boss has despawned
         OnBossDespawnedGlobal?.Invoke(this);
 
         if (IsServer && _detector != null) _detector.StopDetect();
@@ -96,7 +114,7 @@ public class Boss : NetworkBehaviour
     {
         if (!IsServer || _isDead) return;
 
-        if (_currentState == ChaseState)
+        if (_currentState == ChaseState || _currentState == IdleState)
         {
             AOETimer -= Time.deltaTime;
             SpawnTimer -= Time.deltaTime;
@@ -137,7 +155,6 @@ public class Boss : NetworkBehaviour
         if (!IsServer) return;
 
         OnBossDied?.Invoke();
-
         PlayDeathVFXRpc(transform.position);
         NetworkObject.Despawn(true);
     }
@@ -148,8 +165,28 @@ public class Boss : NetworkBehaviour
         if (_bossData != null && _bossData.DeathVFXPrefab != null && ObjectPoolManager.Instance != null)
         {
             ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(_bossData.DeathVFXPrefab, position, Quaternion.identity, PoolCategory.VFX);
-
             if (ps != null) ps.Play();
         }
+    }
+
+    public void PlayAnimation(int animationHash)
+    {
+        if (!IsServer || _anim == null) return;
+        _anim.Play(animationHash);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (_bossData == null) return;
+
+        Vector3 centerPos = TargetPoint != null ? TargetPoint.position : transform.position;
+
+        // Draw Melee Attack Range (Red)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(centerPos, _bossData.MeleeAttackRange);
+
+        // Draw Ranged Attack Range (Orange)
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireSphere(centerPos, _bossData.RangedAttackRange);
     }
 }

@@ -3,8 +3,10 @@ using UnityEngine;
 
 public class BossCombat : NetworkBehaviour
 {
-    private float _attackCooldownTimer;
+    [Header("=== Combat Settings ===")]
+    [SerializeField] private Transform _firePoint;
 
+    private float _attackCooldownTimer;
     public bool CanAttack => _attackCooldownTimer <= 0f;
 
     void Update()
@@ -13,17 +15,55 @@ public class BossCombat : NetworkBehaviour
         if (_attackCooldownTimer > 0f) _attackCooldownTimer -= Time.deltaTime;
     }
 
-    public void ExecuteBasicAttack(Transform target, int damage, float cooldown)
+    public void ExecuteMeleeAttack(ulong targetId, int damage, float cooldown)
     {
         if (!IsServer || !CanAttack) return;
 
         _attackCooldownTimer = cooldown;
 
-        // Play ATK Animation 
-
-        if (target.TryGetComponent<Player>(out Player player))
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out NetworkObject targetObj))
         {
-            player.TakeDamageRpc(damage);
+            if (targetObj.TryGetComponent<Player>(out Player player))
+            {
+                player.TakeDamageRpc(damage);
+            }
+        }
+    }
+
+    public void ExecuteRangedAttack(ulong targetId, int damage, float cooldown)
+    {
+        if (!IsServer || !CanAttack) return;
+
+        _attackCooldownTimer = cooldown;
+        ExecuteRangedAttackRpc(targetId, damage);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void ExecuteRangedAttackRpc(ulong targetId, int damage)
+    {
+        Boss boss = GetComponent<Boss>();
+
+        if (boss.BossData.BulletPrefab == null || ObjectPoolManager.Instance == null)
+        {
+            return;
+        }
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out NetworkObject targetObj))
+        {
+            Vector3 spawnPos = _firePoint != null ? _firePoint.position : boss.TargetPoint.position;
+            Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(boss.BossData.BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+
+            if (bulletObj != null)
+            {
+                bulletObj.IsEnemy = true;
+                float bulletSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_BulletSpeed : boss.BossData.P2_BulletSpeed;
+                bulletObj.Speed = bulletSpeed;
+
+                Transform aimTarget = targetObj.transform;
+                if (targetObj.TryGetComponent<Player>(out Player p)) aimTarget = p.TargetPoint;
+
+                bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
+            }
         }
     }
 }
