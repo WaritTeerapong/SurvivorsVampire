@@ -7,6 +7,10 @@ public class Boss : NetworkBehaviour
     public static event Action<Boss> OnBossSpawnedGlobal;
     public static event Action<Boss> OnBossDespawnedGlobal;
 
+    [Header("=== Targeting ===")]
+    [SerializeField] private Transform _targetPoint;
+    public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
+
     [Header("=== Data ===")]
     [SerializeField] private BossTypeData_SO _bossData;
 
@@ -76,10 +80,6 @@ public class Boss : NetworkBehaviour
             if (_detector != null) _detector.StartDetect();
             SwitchState(IdleState);
             OnBossSpawned?.Invoke();
-        }
-        else if (IsServer && _bossData == null)
-        {
-            // Debug.LogWarning("[Boss] BossData is missing upon spawn.");
         }
     }
 
@@ -167,10 +167,6 @@ public class Boss : NetworkBehaviour
             ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(_bossData.DeathVFXPrefab, position, Quaternion.identity, PoolCategory.VFX);
             if (ps != null) ps.Play();
         }
-        else
-        {
-            // Debug.LogWarning("[Boss] Missing DeathVFXPrefab or ObjectPoolManager instance.");
-        }
     }
 
     public void PlayAnimation(int animationHash)
@@ -183,12 +179,14 @@ public class Boss : NetworkBehaviour
     {
         if (_bossData == null) return;
 
+        Vector3 centerPos = TargetPoint != null ? TargetPoint.position : transform.position;
+
         // Draw Melee Attack Range (Red)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, _bossData.MeleeAttackRange);
+        Gizmos.DrawWireSphere(centerPos, _bossData.MeleeAttackRange);
 
         // Draw Ranged Attack Range (Orange)
         Gizmos.color = new Color(1f, 0.5f, 0f);
-        Gizmos.DrawWireSphere(transform.position, _bossData.RangedAttackRange);
+        Gizmos.DrawWireSphere(centerPos, _bossData.RangedAttackRange);
     }
 }

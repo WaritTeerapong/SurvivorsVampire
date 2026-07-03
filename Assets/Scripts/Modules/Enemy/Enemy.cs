@@ -30,11 +30,14 @@ public struct EnemyCurrentStats : INetworkSerializable
         serializer.SerializeValue(ref ColorG);
         serializer.SerializeValue(ref ColorB);
     }
-
 }
 
 public class Enemy : NetworkBehaviour
 {
+    [Header("=== Targeting ===")]
+    [SerializeField] private Transform _targetPoint;
+    public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
+
     [Header("Component refernce")]
     public EnemyDetector Detector;
     public EnemyMovement Movement;
@@ -51,7 +54,6 @@ public class Enemy : NetworkBehaviour
     private Animator _anim;
     private Vector3 _lastPosition;
     private bool _isDead = false;
-
     private Collider2D col;
 
     [Header("=== Hit Flash Material ===")]
@@ -72,12 +74,11 @@ public class Enemy : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
-    // C# event
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action<Enemy> OnEnemyDespawned;
 
     // === FSM ( Finite State-Machine ) ===
-    #region     FSM State-Machine
+    #region FSM State-Machine
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
     public readonly IEnemyState AttackState = new EnemyAttackState();
@@ -94,35 +95,26 @@ public class Enemy : NetworkBehaviour
     {
         _anim = GetComponentInChildren<Animator>();
         col = GetComponent<Collider2D>();
-
         _spriteRenderer = _anim != null ? _anim.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
         {
             _originalMaterial = _spriteRenderer.material;
         }
     }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
-
         ApplyTierColor(CurrentStats.Value);
 
         if (IsServer && EnemySpawnManager.Instance != null)
         {
             _isDead = false;
             SetColliderTo(true);
-
             Detector?.StartDetect();
             SwitchState(IdleState);
         }
-        else if (IsServer) // Check if Manager not Instance
-        {
-            Debug.LogError("EnemySpawnManager is missing on " + gameObject.name);
-        }
-
-        // DebugLogStatsRpc();
     }
 
     public override void OnNetworkDespawn()
@@ -133,10 +125,8 @@ public class Enemy : NetworkBehaviour
         if (IsServer)
         {
             Detector?.StopDetect();
-
             OnEnemyDespawned?.Invoke(this);
             OnEnemyDespawned = null;
-
             EnemyType = null;
             _currentState = null;
         }
@@ -151,7 +141,6 @@ public class Enemy : NetworkBehaviour
             if (_spriteRenderer != null && HitFlashMaterial != null)
             {
                 _flashTween?.Kill();
-
                 _spriteRenderer.material = HitFlashMaterial;
 
                 _flashTween = DOVirtual.DelayedCall(0.15f, () =>
@@ -174,7 +163,6 @@ public class Enemy : NetworkBehaviour
     public void InitStats(EnemyTypeData_SO enemyType, int tierLevel)
     {
         EnemyType = enemyType;
-
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
         EnemyStats _stats = currentTierData.enemyStats;
         Color _color = currentTierData.color;
@@ -192,9 +180,8 @@ public class Enemy : NetworkBehaviour
             ColorG = _color.g,
             ColorB = _color.b
         };
+
         CurrentStats.Value = initStats;
-
-
     }
 
     public void SwitchState(IEnemyState newState)
@@ -212,7 +199,9 @@ public class Enemy : NetworkBehaviour
 
         float atkRange = CurrentStats.Value.ATKRange;
 
-        float currentSqrDistance = (Detector.NearestTarget.position - transform.position).sqrMagnitude;
+        Player p = Detector.NearestTarget.GetComponent<Player>();
+        Vector3 targetPos = p != null ? p.TargetPoint.position : Detector.NearestTarget.position;
+        float currentSqrDistance = (targetPos - TargetPoint.position).sqrMagnitude;
 
         return currentSqrDistance <= (atkRange * atkRange);
     }
@@ -235,13 +224,13 @@ public class Enemy : NetworkBehaviour
 
         EnemyCurrentStats stats = CurrentStats.Value;
         stats.CurrentHealth -= damage;
+
         if (stats.CurrentHealth <= 0)
         {
             _isDead = true;
             stats.CurrentHealth = 0;
             Despawn();
         }
-
         CurrentStats.Value = stats;
     }
 
@@ -255,20 +244,20 @@ public class Enemy : NetworkBehaviour
     {
         if (!IsServer) return;
         SwitchState(DieState);
-        // Spawn XP Orb
+
         if (XPDropManager.Instance != null && EnemyType != null)
         {
             XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
         }
 
         PlayDeathVFXClientRpc(transform.position);
-
-        // Despawn enemy obj after 1.2 s
         StartCoroutine(DelayDespawnRoutine(1.2f));
     }
+
     private IEnumerator DelayDespawnRoutine(float delay)
     {
         yield return new WaitForSeconds(delay);
+
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(false);
@@ -295,13 +284,13 @@ public class Enemy : NetworkBehaviour
                 Quaternion.identity,
                 PoolCategory.VFX
             );
-
             if (ps != null)
             {
                 ps.Play();
             }
         }
     }
+
     private void ApplyTierColor(EnemyCurrentStats _stat)
     {
         if (_anim == null) return;
@@ -314,8 +303,8 @@ public class Enemy : NetworkBehaviour
             renderer.color = Color.white;
             return;
         }
-        renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
 
+        renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
     }
 
     private void FacingToDirection()
@@ -323,15 +312,14 @@ public class Enemy : NetworkBehaviour
         transform.localScale = new Vector3(FacingDirection.Value, 1, 1);
 
         if (!IsServer) return;
+
         Vector3 positionDelta = Vector3.zero;
 
-        // If found target, face to target 
         if (Detector != null && Detector.NearestTarget != null)
         {
             positionDelta = Detector.NearestTarget.position - transform.position;
         }
 
-        // If not found target, face to where you move
         if (Detector.NearestTarget == null)
         {
             positionDelta = transform.position - _lastPosition;
@@ -347,19 +335,6 @@ public class Enemy : NetworkBehaviour
         }
 
         _lastPosition = transform.position;
-    }
-
-    [Rpc(SendTo.Server)]
-    public void DebugLogStatsRpc()
-    {
-        Debug.Log($"Enemy Stats - " +
-            $"EnemyID: {CurrentStats.Value.EnemyID}, " +
-            $"Tier: {CurrentStats.Value.Tier}, " +
-            $"Health: {CurrentStats.Value.CurrentHealth}, " +
-            $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
-            $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
-            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}" +
-            $"ATKRange: {CurrentStats.Value.ATKRange}");
     }
 
     [Rpc(SendTo.Server)]
@@ -382,17 +357,20 @@ public class Enemy : NetworkBehaviour
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
         {
-            Vector3 spawnPos = transform.position;
+            Vector3 spawnPos = TargetPoint.position; // Fire bullet from chest/target point
 
             Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
-
             if (bulletObj != null)
             {
                 bulletObj.IsEnemy = true;
-
                 GameObject hitVFX = null;
                 if (EnemyType != null) hitVFX = EnemyType.BulletHitVFXPrefab;
-                bulletObj.Initialize(targetObj.transform, CurrentStats.Value.ATKDamage, hitVFX);
+
+                // Aim directly at the player's TargetPoint
+                Transform aimTarget = targetObj.transform;
+                if (targetObj.TryGetComponent<Player>(out Player p)) aimTarget = p.TargetPoint;
+
+                bulletObj.Initialize(aimTarget, CurrentStats.Value.ATKDamage, hitVFX);
             }
         }
     }
@@ -400,6 +378,6 @@ public class Enemy : NetworkBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, CurrentStats.Value.ATKRange);
+        Gizmos.DrawWireSphere(TargetPoint != null ? TargetPoint.position : transform.position, CurrentStats.Value.ATKRange);
     }
 }

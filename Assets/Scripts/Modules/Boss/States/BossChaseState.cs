@@ -23,17 +23,19 @@ public class BossChaseState : IBossState
 
         if (boss.Detector != null && boss.Detector.NearestTarget != null)
         {
-            float sqrDir = (boss.Detector.NearestTarget.position - boss.transform.position).sqrMagnitude;
+            Player p = boss.Detector.NearestTarget.GetComponent<Player>();
+            Vector3 targetPos = p != null ? p.TargetPoint.position : boss.Detector.NearestTarget.position;
+
+            float sqrDir = (targetPos - boss.TargetPoint.position).sqrMagnitude;
             float rangedRangeSq = boss.BossData.RangedAttackRange * boss.BossData.RangedAttackRange;
 
-            // Check if within maximum attack range (Ranged is usually further than Melee)
             if (sqrDir <= rangedRangeSq)
             {
                 if (boss.Combat.CanAttack)
                 {
                     boss.SwitchState(boss.AttackState);
                 }
-                return; // Stop moving if in range
+                return;
             }
 
             float moveSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MoveSpeed : boss.BossData.P2_MoveSpeed;

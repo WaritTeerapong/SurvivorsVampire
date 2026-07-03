@@ -22,7 +22,10 @@ public class BossAttackState : IBossState
             return;
         }
 
-        float sqrDist = (boss.Detector.NearestTarget.position - boss.transform.position).sqrMagnitude;
+        Player p = boss.Detector.NearestTarget.GetComponent<Player>();
+        Vector3 targetPos = p != null ? p.TargetPoint.position : boss.Detector.NearestTarget.position;
+        float sqrDist = (targetPos - boss.TargetPoint.position).sqrMagnitude;
+
         _isMelee = sqrDist <= (boss.BossData.MeleeAttackRange * boss.BossData.MeleeAttackRange);
 
         if (boss.Detector.NearestTarget.TryGetComponent<NetworkObject>(out NetworkObject netObj))

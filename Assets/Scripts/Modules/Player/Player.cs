@@ -12,10 +12,14 @@ public class Player : NetworkBehaviour
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerMovement Movement { get; private set; }
     public PlayerReviveHandler Revive { get; private set; }
-    public PlayerInventory Inventory { get; private set; } // for debug
+    public PlayerInventory Inventory { get; private set; }
     public Animator Anim { get; private set; }
     public SpriteRenderer SpriteRend { get; private set; }
     #endregion
+
+    [Header("=== Targeting ===")]
+    [SerializeField] private Transform _targetPoint;
+    public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
 
     #region Ghost Mode
     [Header("=== Ghost Mode ===")]
@@ -28,7 +32,6 @@ public class Player : NetworkBehaviour
     public readonly IPlayerState MoveState = new PlayerMoveState();
     public readonly IPlayerState DownedState = new PlayerDownedState();
     public readonly IPlayerState DiedState = new PlayerDiedState();
-
     private IPlayerState _currentState;
     public IPlayerState CurrentState => _currentState;
     #endregion
@@ -61,14 +64,11 @@ public class Player : NetworkBehaviour
 
     #region Revive System
     private int _playersInReviveZone = 0;
-
     private float _reviveScanTimer = 0f;
     private const float REVIVE_SCAN_INTERVAL = 0.1f;
     private Collider2D[] _reviveScanResults = new Collider2D[2];
-
     private ContactFilter2D _playerScanFilter;
     private bool _isFilterInitialized = false;
-
     public LayerMask PlayerLayer;
     #endregion
 
@@ -125,13 +125,11 @@ public class Player : NetworkBehaviour
         if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RemoveActiveTarget(transform);
-
             if (PlayerManager.Instance.AllPlayers.Contains(this))
             {
                 PlayerManager.Instance.AllPlayers.Remove(this);
             }
         }
-
         Stats.CurrentStats.OnValueChanged -= OnPlayerStatsChanged;
     }
 
@@ -207,6 +205,7 @@ public class Player : NetworkBehaviour
             Anim.enabled = true;
             PlayAnimation(GHOST_IDLE);
         }
+
         if (Revive != null) Revive.gameObject.SetActive(false);
 
         if (IsServer)
@@ -234,12 +233,12 @@ public class Player : NetworkBehaviour
         _playersInReviveZone = 0;
     }
 
-    // Server-side revive progression check
     public void ReviveCheck()
     {
         if (!IsServer) return;
 
         _reviveScanTimer -= Time.deltaTime;
+
         if (_reviveScanTimer <= 0)
         {
             _reviveScanTimer = REVIVE_SCAN_INTERVAL;
@@ -250,7 +249,6 @@ public class Player : NetworkBehaviour
         if (_playersInReviveZone > 0)
         {
             ReviveTimer.Value -= Time.deltaTime;
-
             if (ReviveTimer.Value <= 0)
             {
                 Stats.ResetHealthToMax();
@@ -268,7 +266,6 @@ public class Player : NetworkBehaviour
             }
 
             DiedTimer.Value -= Time.deltaTime;
-
             if (DiedTimer.Value <= 0)
             {
                 SwitchToGhostRpc();
@@ -287,22 +284,18 @@ public class Player : NetworkBehaviour
             _playerScanFilter.useLayerMask = true;
             _playerScanFilter.layerMask = PlayerLayer;
             _playerScanFilter.useTriggers = true;
-
             _isFilterInitialized = true;
         }
 
         int count = 0;
-
         int hitCount = Physics2D.OverlapCircle(transform.position, Revive.ReviveZoneRadius, _playerScanFilter, _reviveScanResults);
 
         for (int i = 0; i < hitCount; i++)
         {
             Collider2D hit = _reviveScanResults[i];
-
             if (hit.CompareTag("Player"))
             {
                 Player otherPlayer = hit.GetComponent<Player>();
-
                 if (otherPlayer != null && otherPlayer != this && !otherPlayer.IsDownOrDied)
                 {
                     count++;
@@ -312,7 +305,6 @@ public class Player : NetworkBehaviour
         return count;
     }
 
-    // ดึง Function นี้ไปใช้กับ Card ได้เลย
     public void RespawnFromCard()
     {
         if (!IsServer) return;
@@ -320,7 +312,6 @@ public class Player : NetworkBehaviour
         if (_myGravestone != null)
         {
             transform.position = _myGravestone.transform.position;
-
             if (_myGravestone.TryGetComponent<NetworkObject>(out var netObj) && netObj.IsSpawned)
             {
                 netObj.Despawn(false);
@@ -335,7 +326,6 @@ public class Player : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     public void ForceGhostRpc()
     {
-        // ถ้ากำลังนอนรอคนมาชุบอยู่ (Downed) ให้เปลี่ยนเป็นตายจริง (Died/ผี) ทันที
         if (_currentState == DownedState)
         {
             SwitchState(DiedState);
@@ -399,6 +389,4 @@ public class Player : NetworkBehaviour
     {
         SwitchState(IdleState);
     }
-
-
 }

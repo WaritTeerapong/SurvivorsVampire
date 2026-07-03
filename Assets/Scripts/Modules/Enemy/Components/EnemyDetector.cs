@@ -21,7 +21,6 @@ public class EnemyDetector : MonoBehaviour
             StopCoroutine(_findTargetCoroutine);
             _findTargetCoroutine = null;
         }
-
         NearestTarget = null;
     }
 
@@ -43,23 +42,30 @@ public class EnemyDetector : MonoBehaviour
             return;
         }
 
+        Vector3 myPos = transform.position;
+        if (TryGetComponent<Enemy>(out Enemy e)) myPos = e.TargetPoint.position;
+        else if (TryGetComponent<Boss>(out Boss b)) myPos = b.TargetPoint.position;
+
         float shortestDistanceSqr = Mathf.Infinity;
         Transform nearestPlayer = null;
 
-        foreach (Transform player in PlayerManager.Instance.ActiveTargets)
+        foreach (Transform playerTransform in PlayerManager.Instance.ActiveTargets)
         {
-            if (player == null || !player.gameObject.activeInHierarchy) continue;
+            if (playerTransform == null || !playerTransform.gameObject.activeInHierarchy) continue;
 
-            float sqrDistance = (player.position - transform.position).sqrMagnitude;
+            Player p = playerTransform.GetComponent<Player>();
+            Vector3 targetPos = p != null ? p.TargetPoint.position : playerTransform.position;
+
+            float sqrDistance = (targetPos - myPos).sqrMagnitude;
+
             if (sqrDistance < shortestDistanceSqr)
             {
                 shortestDistanceSqr = sqrDistance;
-                nearestPlayer = player;
+                nearestPlayer = playerTransform; // Store the root to support logic that requires it
             }
         }
 
         NearestTarget = nearestPlayer;
         SqrDistanceToTarget = shortestDistanceSqr;
     }
-
 }
