@@ -23,9 +23,9 @@ public class BossCombat : NetworkBehaviour
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out NetworkObject targetObj))
         {
-            if (targetObj.TryGetComponent<Player>(out Player player))
+            if (targetObj.TryGetComponent<IDamageble>(out IDamageble damageable))
             {
-                player.TakeDamageRpc(damage);
+                damageable.TakeDamage(damage);
             }
         }
     }
@@ -60,7 +60,7 @@ public class BossCombat : NetworkBehaviour
                 bulletObj.Speed = bulletSpeed;
 
                 Transform aimTarget = targetObj.transform;
-                if (targetObj.TryGetComponent<Player>(out Player p)) aimTarget = p.TargetPoint;
+                if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
                 bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
             }

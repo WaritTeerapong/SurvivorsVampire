@@ -32,8 +32,7 @@ public class Bullet : MonoBehaviour
         // Set dynamic properties on the sub-components from config values
         _movement.Speed = Speed;
         _collision.HitRadius = HitDistance;
-        _collision.TargetLayer = IsEnemy ? LayerMask.GetMask("Player") : LayerMask.GetMask("Enemy");
-        _damageDealer.IsEnemy = IsEnemy;
+        _collision.SetFilter(gameObject.layer);
         _damageDealer.SetDamage(damage);
 
         _visuals.Setup(hitVFX);
@@ -72,10 +71,12 @@ public class Bullet : MonoBehaviour
         _collision.Deactivate();
         _lifetime.StopCountdown();
 
-        // Handle impact
         _visuals.Disable();
         _visuals.SpawnHitVFX(hitPoint);
-        _damageDealer.DealDamage(hitCollider);
+        
+        //Handle Damage
+        IDamageble damagebleObj = hitCollider.GetComponentInParent<IDamageble>();
+        _damageDealer.DealDamage(damagebleObj);
 
         // Pool cleanup delay
         Invoke(nameof(ReturnToPool), 0.1f);

@@ -15,8 +15,18 @@ public class SwordWeapon : MeleeWeapon
         if (SwordPrefab != null)
         {
             _swordInstance = Instantiate(SwordPrefab, transform.position, Quaternion.identity);
+            SetLayerRecursively(_swordInstance, gameObject.layer);
             _swordInstance.SetActive(false);
             _swordScript = _swordInstance.GetComponent<Sword>();
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer);
         }
     }
 

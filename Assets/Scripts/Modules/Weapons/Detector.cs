@@ -93,12 +93,10 @@ public class Detector : MonoBehaviour
         _enemiesInRange.Sort((a, b) =>
         {
             Vector3 posA = a.position;
-            if (a.TryGetComponent<Enemy>(out Enemy eA)) posA = eA.TargetPoint.position;
-            else if (a.TryGetComponent<Boss>(out Boss bA)) posA = bA.TargetPoint.position;
+            if (a.TryGetComponent<IDamageble>(out IDamageble dA)) posA = dA.TargetPoint.position;
 
             Vector3 posB = b.position;
-            if (b.TryGetComponent<Enemy>(out Enemy eB)) posB = eB.TargetPoint.position;
-            else if (b.TryGetComponent<Boss>(out Boss bB)) posB = bB.TargetPoint.position;
+            if (b.TryGetComponent<IDamageble>(out IDamageble dB)) posB = dB.TargetPoint.position;
 
             float sqrDistA = (posA - playerPos).sqrMagnitude;
             float sqrDistB = (posB - playerPos).sqrMagnitude;

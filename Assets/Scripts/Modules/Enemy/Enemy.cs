@@ -32,7 +32,7 @@ public struct EnemyCurrentStats : INetworkSerializable
     }
 }
 
-public class Enemy : NetworkBehaviour
+public class Enemy : NetworkBehaviour,IDamageble
 {
     [Header("=== Targeting ===")]
     [SerializeField] private Transform _targetPoint;
@@ -368,7 +368,7 @@ public class Enemy : NetworkBehaviour
 
                 // Aim directly at the player's TargetPoint
                 Transform aimTarget = targetObj.transform;
-                if (targetObj.TryGetComponent<Player>(out Player p)) aimTarget = p.TargetPoint;
+                if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
                 bulletObj.Initialize(aimTarget, CurrentStats.Value.ATKDamage, hitVFX);
             }
