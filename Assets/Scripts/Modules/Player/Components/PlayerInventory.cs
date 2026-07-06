@@ -171,7 +171,7 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (InstantiatedWeapons.TryGetValue(id, out GameObject weaponInstance))
         {
-            NotifyWeaponUpgrade(weaponInstance, level);
+            weaponInstance.SendMessage("UpgradeWeapon", level, SendMessageOptions.DontRequireReceiver);
         }
         else
         {

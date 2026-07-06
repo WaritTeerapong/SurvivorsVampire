@@ -12,11 +12,12 @@ public class SwordWeapon : MeleeWeapon
     {
         base.InitializeWeapon();
 
-        if (SwordPrefab != null)
+        if (SwordPrefab != null && _swordInstance == null)
         {
             _swordInstance = Instantiate(SwordPrefab, transform.position, Quaternion.identity);
             _swordInstance.SetActive(false);
             _swordScript = _swordInstance.GetComponent<Sword>();
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(_swordInstance, gameObject.scene);
         }
     }
 
