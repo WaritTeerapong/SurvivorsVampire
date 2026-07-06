@@ -24,8 +24,10 @@ public class BossCombat : NetworkBehaviour
         Boss boss = GetComponent<Boss>();
         if (boss.BossData.CloseAOEPrefab == null || ObjectPoolManager.Instance == null)
         {
-            // Debug.LogWarning("[BossCombat] CloseAOEPrefab missing.");
-            return;
+            if (targetObj.TryGetComponent<IDamageble>(out IDamageble damageable))
+            {
+                damageable.TakeDamage(damage);
+            }
         }
 
         Vector3 spawnPos = boss.TargetPoint.position;
@@ -74,7 +76,7 @@ public class BossCombat : NetworkBehaviour
                 bulletObj.Speed = bulletSpeed;
 
                 Transform aimTarget = targetObj.transform;
-                if (targetObj.TryGetComponent<Player>(out Player p)) aimTarget = p.TargetPoint;
+                if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
                 bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
             }

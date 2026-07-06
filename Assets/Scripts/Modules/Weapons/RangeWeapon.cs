@@ -34,8 +34,7 @@ public class RangeWeapon : BaseWeapon
                 GameObject hitVFX = WeaponData.HitVFXPrefab;
 
                 Transform aimTarget = target;
-                if (target.TryGetComponent<Enemy>(out Enemy e)) aimTarget = e.TargetPoint;
-                else if (target.TryGetComponent<Boss>(out Boss b)) aimTarget = b.TargetPoint;
+                if (target.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
                 bulletScript.Initialize(aimTarget, totalDamage, hitVFX);
             }

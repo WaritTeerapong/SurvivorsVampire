@@ -12,11 +12,22 @@ public class SwordWeapon : MeleeWeapon
     {
         base.InitializeWeapon();
 
-        if (SwordPrefab != null)
+        if (SwordPrefab != null && _swordInstance == null)
         {
             _swordInstance = Instantiate(SwordPrefab, transform.position, Quaternion.identity);
+            SetLayerRecursively(_swordInstance, gameObject.layer);
             _swordInstance.SetActive(false);
             _swordScript = _swordInstance.GetComponent<Sword>();
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(_swordInstance, gameObject.scene);
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer);
         }
     }
 

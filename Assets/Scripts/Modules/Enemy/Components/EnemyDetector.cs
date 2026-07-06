@@ -43,8 +43,7 @@ public class EnemyDetector : MonoBehaviour
         }
 
         Vector3 myPos = transform.position;
-        if (TryGetComponent<Enemy>(out Enemy e)) myPos = e.TargetPoint.position;
-        else if (TryGetComponent<Boss>(out Boss b)) myPos = b.TargetPoint.position;
+        if (TryGetComponent<IDamageble>(out IDamageble d)) myPos = d.TargetPoint.position;
 
         float shortestDistanceSqr = Mathf.Infinity;
         Transform nearestPlayer = null;
@@ -53,7 +52,7 @@ public class EnemyDetector : MonoBehaviour
         {
             if (playerTransform == null || !playerTransform.gameObject.activeInHierarchy) continue;
 
-            Player p = playerTransform.GetComponent<Player>();
+            IDamageble p = playerTransform.GetComponent<IDamageble>();
             Vector3 targetPos = p != null ? p.TargetPoint.position : playerTransform.position;
 
             float sqrDistance = (targetPos - myPos).sqrMagnitude;

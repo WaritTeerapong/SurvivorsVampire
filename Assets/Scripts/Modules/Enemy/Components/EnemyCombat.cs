@@ -8,16 +8,16 @@ public class EnemyCombat : MonoBehaviour
 
         float hitRange = enemy.CurrentStats.Value.ATKRange + 0.5f;
 
-        Player player = target.GetComponent<Player>();
-        Vector3 targetPos = player != null ? player.TargetPoint.position : target.position;
+        IDamageble damageable = target.GetComponent<IDamageble>();
+        Vector3 targetPos = damageable != null ? damageable.TargetPoint.position : target.position;
 
         float currentSqrDistance = (targetPos - enemy.TargetPoint.position).sqrMagnitude;
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            if (player != null)
+            if (damageable != null)
             {
-                player.TakeDamageRpc(enemy.CurrentStats.Value.ATKDamage);
+                damageable.TakeDamage(enemy.CurrentStats.Value.ATKDamage);
             }
         }
     }
@@ -28,14 +28,14 @@ public class EnemyCombat : MonoBehaviour
 
         float hitRange = enemy.CurrentStats.Value.ATKRange;
 
-        Player player = target.GetComponent<Player>();
-        Vector3 targetPos = player != null ? player.TargetPoint.position : target.position;
+        IDamageble damageable = target.GetComponent<IDamageble>();
+        Vector3 targetPos = damageable != null ? damageable.TargetPoint.position : target.position;
 
         float currentSqrDistance = (targetPos - enemy.TargetPoint.position).sqrMagnitude;
 
         if (currentSqrDistance <= (hitRange * hitRange))
         {
-            if (player != null)
+            if (damageable != null)
             {
                 enemy.RequestFireRpc();
             }

@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : NetworkBehaviour
+public class Player : NetworkBehaviour, IDamageble
 {
     #region Component Reference
     [Header("=== Component Reference ===")]
@@ -323,6 +323,11 @@ public class Player : NetworkBehaviour
         }
 
         RevivePlayerRpc();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        TakeDamageRpc(damage);
     }
 
     [Rpc(SendTo.Everyone)]
