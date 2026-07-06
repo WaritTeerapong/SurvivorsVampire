@@ -8,7 +8,9 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [Header("=== UI Panels ===")]
     public GameObject GameOverPanel;
+    public GameObject GameClearPanel;
 
     public NetworkVariable<float> ReturnToLobbyTimer = new NetworkVariable<float>(3f);
 
@@ -18,22 +20,24 @@ public class GameManager : NetworkBehaviour
         else Destroy(gameObject);
 
         if (GameOverPanel != null) GameOverPanel.SetActive(false);
+        if (GameClearPanel != null) GameClearPanel.SetActive(false);
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
         if (IsServer)
         {
-            PlayerManager.Instance.OnWipeout += HandleWipeout;
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.OnWipeout += HandleWipeout;
+            }
         }
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-
         if (IsServer && PlayerManager.Instance != null)
         {
             PlayerManager.Instance.OnWipeout -= HandleWipeout;
@@ -45,18 +49,41 @@ public class GameManager : NetworkBehaviour
         ShowGameOverClientRpc();
     }
 
+    public void HandleGameClear()
+    {
+        if (!IsServer) return;
+        ShowGameClearClientRpc();
+    }
+
     [Rpc(SendTo.Everyone)]
     private void ShowGameOverClientRpc()
     {
-        Debug.Log("Game Over Bros!!");
         DOVirtual.DelayedCall(2f, () =>
         {
             if (GameOverPanel != null)
             {
                 GameOverPanel.SetActive(true);
-
                 GameOverPanel.transform.localScale = Vector3.zero;
                 GameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
+            }
+        });
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void ShowGameClearClientRpc()
+    {
+        DOVirtual.DelayedCall(1.5f, () =>
+        {
+            if (GameClearPanel != null)
+            {
+                GameClearPanel.SetActive(true);
+                GameClearPanel.transform.localScale = Vector3.zero;
+                GameClearPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
+            }
+
+            if (IsServer)
+            {
+                DOVirtual.DelayedCall(5f, () => StartReTimer());
             }
         });
     }
@@ -70,35 +97,26 @@ public class GameManager : NetworkBehaviour
     private IEnumerator StartReToLobbyTimer()
     {
         ReturnToLobbyTimer.Value = 3f;
-
         while (ReturnToLobbyTimer.Value > 0)
         {
             ReturnToLobbyTimer.Value -= Time.deltaTime;
             yield return null;
         }
-
         ReturnToLobbyTimer.Value = 0f;
-
         yield return new WaitForSeconds(1f);
-
         RequestReturnToLobby();
     }
 
     public void RequestReturnToLobby()
     {
-        Debug.Log("[Game Manager] Return to Lobby!!!");
-
         StopAllCoroutines();
-
         ReturnToLobbyTimer.Value = 0f;
-
         ReturnToLobbyRpc();
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ReturnToLobbyRpc()
     {
-        // NETWORK OPERATION: Initiating transition to the Waiting Room scene on the server
         SceneController.Instance
             .NewTransition()
             .Load(Slots.SESSION, Scenes.WAITING_ROOM, setActive: true)
@@ -110,7 +128,6 @@ public class GameManager : NetworkBehaviour
 
     public void ReturnToMenu()
     {
-        Debug.Log("Back To Main Menu");
         NetworkDisconnectHandler.ReturnToMainMenu();
     }
 }

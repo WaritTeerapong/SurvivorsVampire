@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 4465102518590324283}
   - component: {fileID: 8189114626914011427}
   - component: {fileID: -8787312012905846688}
-  m_Layer: 6
-  m_Name: BossAOE_Prefab
+  m_Layer: 0
+  m_Name: BossCloseAOE_Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3385496468
+  GlobalObjectIdHash: 911117920
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -73,7 +73,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossAOEController
   ShowTopMostFoldoutHeaderGroup: 1
   DamageRadius: 2
-  WarningDuration: 1.5
+  WarningDuration: 0.5
   PlayerLayerMask:
     serializedVersion: 2
     m_Bits: 128

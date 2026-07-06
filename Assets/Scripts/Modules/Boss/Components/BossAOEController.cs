@@ -39,6 +39,32 @@ public class BossAOEController : NetworkBehaviour
         TriggerWarningVFXRpc(totalLifetime);
     }
 
+    public void InitializeCloseAOE(int damage, float targetRadius, float expandDuration)
+    {
+        if (!IsServer) return;
+
+        _damage = damage;
+        DamageRadius = targetRadius;
+
+        TriggerCloseAOEVisualsRpc(targetRadius, expandDuration);
+
+        Invoke(nameof(Explode), expandDuration);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void TriggerCloseAOEVisualsRpc(float targetRadius, float duration)
+    {
+        transform.localScale = Vector3.zero;
+
+        transform.DOScale(Vector3.one * targetRadius, duration).SetEase(Ease.Linear);
+
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = new Color(1f, 0f, 0f, 0f);
+            _spriteRenderer.DOColor(new Color(1f, 0f, 0f, 0.8f), duration).SetEase(Ease.InQuad);
+        }
+    }
+
     private void Update()
     {
         if (!IsServer) return;
@@ -46,7 +72,6 @@ public class BossAOEController : NetworkBehaviour
         if (_isTracking && _targetTransform != null)
         {
             _trackingTimeLeft -= Time.deltaTime;
-
             transform.position = Vector2.Lerp(
                 transform.position,
                 _targetTransform.position,
@@ -64,7 +89,7 @@ public class BossAOEController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Detect players within the explosion radius
+        // Detect players within the dynamic explosion radius
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, DamageRadius, PlayerLayerMask);
         foreach (Collider2D hit in hits)
         {
@@ -100,10 +125,6 @@ public class BossAOEController : NetworkBehaviour
                 PoolCategory.VFX
             );
             if (ps != null) ps.Play();
-        }
-        else
-        {
-            // Debug.LogWarning("BossAOEController: Missing VFX Prefab or ObjectPoolManager instance.");
         }
     }
 

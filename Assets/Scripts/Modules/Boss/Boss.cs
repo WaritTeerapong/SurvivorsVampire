@@ -41,6 +41,7 @@ public class Boss : NetworkBehaviour,IDamageble
     public readonly IBossState AOEState = new BossAOEState();
     public readonly IBossState SpawnState = new BossSpawnState();
     public readonly IBossState TransitionState = new BossTransitionState();
+    public readonly IBossState DieState = new BossDieState();
 
     private IBossState _currentState;
     private bool _isDead = false;
@@ -52,9 +53,10 @@ public class Boss : NetworkBehaviour,IDamageble
     public readonly int IDLE = Animator.StringToHash("IDLE");
     public readonly int CHASE = Animator.StringToHash("CHASE");
     public readonly int RANGED = Animator.StringToHash("RANGED");
-    public readonly int MELEE = Animator.StringToHash("MELEE");
+    public readonly int CLOSEAOE = Animator.StringToHash("CLOSEAOE");
     public readonly int AOE = Animator.StringToHash("AOE");
     public readonly int SPAWN = Animator.StringToHash("SPAWN");
+    public readonly int DIED = Animator.StringToHash("DIED");
 
     void Awake()
     {
@@ -146,17 +148,25 @@ public class Boss : NetworkBehaviour,IDamageble
         {
             CurrentHealth.Value = 0;
             _isDead = true;
-            DespawnBoss();
+            SwitchState(DieState);
         }
     }
 
-    private void DespawnBoss()
+    public void TriggerDeathSequence()
     {
         if (!IsServer) return;
 
         OnBossDied?.Invoke();
         PlayDeathVFXRpc(transform.position);
-        NetworkObject.Despawn(true);
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.HandleGameClear();
+        }
+        else
+        {
+            // Debug.LogWarning("[Boss] GameManager instance is missing. Cannot trigger Game Clear UI.");
+        }
     }
 
     [Rpc(SendTo.Everyone)]
@@ -181,11 +191,9 @@ public class Boss : NetworkBehaviour,IDamageble
 
         Vector3 centerPos = TargetPoint != null ? TargetPoint.position : transform.position;
 
-        // Draw Melee Attack Range (Red)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(centerPos, _bossData.MeleeAttackRange);
+        Gizmos.DrawWireSphere(centerPos, _bossData.CloseAttackRange);
 
-        // Draw Ranged Attack Range (Orange)
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(centerPos, _bossData.RangedAttackRange);
     }

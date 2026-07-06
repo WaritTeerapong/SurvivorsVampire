@@ -5,8 +5,8 @@ public class BossAttackState : IBossState
 {
     private float _stateTimer;
     private bool _hasAttacked;
-    private float _windUpTime = 0.3f;
-    private float _totalDuration = 1.0f;
+    private float _windUpTime;
+    private float _totalDuration;
     private bool _isMelee;
     private ulong _targetId;
     private int _damage;
@@ -22,14 +22,13 @@ public class BossAttackState : IBossState
             return;
         }
 
-        // Force boss to face the target when entering attack state
         boss.Movement.FaceTarget(boss.Detector.NearestTarget.position);
 
         Player p = boss.Detector.NearestTarget.GetComponent<Player>();
         Vector3 targetPos = p != null ? p.TargetPoint.position : boss.Detector.NearestTarget.position;
         float sqrDist = (targetPos - boss.TargetPoint.position).sqrMagnitude;
 
-        _isMelee = sqrDist <= (boss.BossData.MeleeAttackRange * boss.BossData.MeleeAttackRange);
+        _isMelee = sqrDist <= (boss.BossData.CloseAttackRange * boss.BossData.CloseAttackRange);
 
         if (boss.Detector.NearestTarget.TryGetComponent<NetworkObject>(out NetworkObject netObj))
         {
@@ -43,13 +42,17 @@ public class BossAttackState : IBossState
 
         if (_isMelee)
         {
-            boss.PlayAnimation(boss.MELEE);
+            boss.PlayAnimation(boss.CLOSEAOE);
             _damage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_MeleeDamage : boss.BossData.P2_MeleeDamage;
+            _totalDuration = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_CloseAOEDuration : boss.BossData.P2_CloseAOEDuration;
+            _windUpTime = 0.1f;
         }
         else
         {
             boss.PlayAnimation(boss.RANGED);
             _damage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_RangedDamage : boss.BossData.P2_RangedDamage;
+            _totalDuration = 1.0f;
+            _windUpTime = 0.3f;
         }
     }
 
@@ -63,7 +66,7 @@ public class BossAttackState : IBossState
 
             if (_isMelee)
             {
-                boss.Combat.ExecuteMeleeAttack(_targetId, _damage, cooldown);
+                boss.Combat.ExecuteCloseAOEAttack(_damage, boss.BossData.CloseAttackRange, _totalDuration, cooldown);
             }
             else
             {
@@ -73,7 +76,7 @@ public class BossAttackState : IBossState
             _hasAttacked = true;
         }
 
-        if (_stateTimer >= _totalDuration)
+        if (_stateTimer >= (_totalDuration + _windUpTime))
         {
             boss.SwitchState(boss.IdleState);
         }
