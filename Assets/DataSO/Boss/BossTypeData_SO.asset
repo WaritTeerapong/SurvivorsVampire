@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: BossTypeData_SO
   m_EditorClassIdentifier: Assembly-CSharp::BossTypeData_SO
   BossName: Necromancer
-  MaxHealth: 2000
-  MeleeAttackRange: 2
+  MaxHealth: 10
+  CloseAttackRange: 1.5
   RangedAttackRange: 5
   P1_MoveSpeed: 3
   P1_MeleeDamage: 20
