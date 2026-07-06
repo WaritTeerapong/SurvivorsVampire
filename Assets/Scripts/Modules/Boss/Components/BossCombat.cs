@@ -7,6 +7,7 @@ public class BossCombat : NetworkBehaviour
     [SerializeField] private Transform _firePoint;
 
     private float _attackCooldownTimer;
+
     public bool CanAttack => _attackCooldownTimer <= 0f;
 
     void Update()
@@ -24,10 +25,8 @@ public class BossCombat : NetworkBehaviour
         Boss boss = GetComponent<Boss>();
         if (boss.BossData.CloseAOEPrefab == null || ObjectPoolManager.Instance == null)
         {
-            if (targetObj.TryGetComponent<IDamageble>(out IDamageble damageable))
-            {
-                damageable.TakeDamage(damage);
-            }
+            // Debug.LogWarning("[BossCombat] CloseAOEPrefab missing or ObjectPoolManager is null.");
+            return;
         }
 
         Vector3 spawnPos = boss.TargetPoint.position;
@@ -61,22 +60,31 @@ public class BossCombat : NetworkBehaviour
 
         if (boss.BossData.BulletPrefab == null || ObjectPoolManager.Instance == null)
         {
+            // Debug.LogWarning("[BossCombat] BulletPrefab missing or ObjectPoolManager is null.");
             return;
         }
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out NetworkObject targetObj))
         {
             Vector3 spawnPos = _firePoint != null ? _firePoint.position : boss.TargetPoint.position;
-            Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(boss.BossData.BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
+            Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(
+                boss.BossData.BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles
+            );
 
             if (bulletObj != null)
             {
                 bulletObj.IsEnemy = true;
+
                 float bulletSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_BulletSpeed : boss.BossData.P2_BulletSpeed;
                 bulletObj.Speed = bulletSpeed;
 
                 Transform aimTarget = targetObj.transform;
-                if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
+
+                // Fetch TargetPoint using the new IDamageble interface
+                if (targetObj.TryGetComponent<IDamageble>(out IDamageble damageable))
+                {
+                    aimTarget = damageable.TargetPoint;
+                }
 
                 bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
             }
