@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PassiveItemData_SO
   Id: p2
   ItemName: Shoes
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 38482f6e1cbb8ca4a9c3aebbbb9acd64, type: 3}
   BonusPerLevel:
   - MaxHealth: 0
     MoveSpeed: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PassiveItemData_SO
   Id: p1
   ItemName: Armour
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: ae4c5bce9f9d8ac4abd7eddec7bc67dc, type: 3}
   BonusPerLevel:
   - MaxHealth: 20
     MoveSpeed: 0
