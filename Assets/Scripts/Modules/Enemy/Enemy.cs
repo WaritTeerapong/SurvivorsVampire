@@ -32,7 +32,7 @@ public struct EnemyCurrentStats : INetworkSerializable
     }
 }
 
-public class Enemy : NetworkBehaviour
+public class Enemy : NetworkBehaviour,IDamageble
 {
     [Header("=== Targeting ===")]
     [SerializeField] private Transform _targetPoint;
