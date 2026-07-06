@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -16,8 +17,15 @@ public class BossSpawnState : IBossState
 
         // Note: Trigger necromancy/summon animation here
 
+        boss.StartCoroutine(WaitToSpawnMinions(boss));
+    }
+
+    private IEnumerator WaitToSpawnMinions(Boss boss)
+    {
+        yield return new WaitForSeconds(CAST_DURATION / 1.5f);
+
         var minionConfig = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_Minions : boss.BossData.P2_Minions;
-        if (minionConfig == null) return;
+        if (minionConfig == null) yield break;
 
         foreach (var setup in minionConfig)
         {
