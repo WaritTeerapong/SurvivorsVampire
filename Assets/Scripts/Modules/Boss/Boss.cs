@@ -52,7 +52,7 @@ public class Boss : NetworkBehaviour
     public readonly int IDLE = Animator.StringToHash("IDLE");
     public readonly int CHASE = Animator.StringToHash("CHASE");
     public readonly int RANGED = Animator.StringToHash("RANGED");
-    public readonly int MELEE = Animator.StringToHash("MELEE");
+    public readonly int CLOSEAOE = Animator.StringToHash("CLOSEAOE");
     public readonly int AOE = Animator.StringToHash("AOE");
     public readonly int SPAWN = Animator.StringToHash("SPAWN");
 
@@ -181,9 +181,9 @@ public class Boss : NetworkBehaviour
 
         Vector3 centerPos = TargetPoint != null ? TargetPoint.position : transform.position;
 
-        // Draw Melee Attack Range (Red)
+        // Draw Close AOE Range (Red)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(centerPos, _bossData.MeleeAttackRange);
+        Gizmos.DrawWireSphere(centerPos, _bossData.CloseAttackRange);
 
         // Draw Ranged Attack Range (Orange)
         Gizmos.color = new Color(1f, 0.5f, 0f);

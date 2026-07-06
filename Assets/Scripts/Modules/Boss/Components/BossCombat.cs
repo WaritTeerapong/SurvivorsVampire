@@ -15,18 +15,32 @@ public class BossCombat : NetworkBehaviour
         if (_attackCooldownTimer > 0f) _attackCooldownTimer -= Time.deltaTime;
     }
 
-    public void ExecuteMeleeAttack(ulong targetId, int damage, float cooldown)
+    public void ExecuteCloseAOEAttack(int damage, float radius, float expandDuration, float cooldown)
     {
         if (!IsServer || !CanAttack) return;
 
         _attackCooldownTimer = cooldown;
 
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out NetworkObject targetObj))
+        Boss boss = GetComponent<Boss>();
+        if (boss.BossData.CloseAOEPrefab == null || ObjectPoolManager.Instance == null)
         {
-            if (targetObj.TryGetComponent<Player>(out Player player))
-            {
-                player.TakeDamageRpc(damage);
-            }
+            // Debug.LogWarning("[BossCombat] CloseAOEPrefab missing.");
+            return;
+        }
+
+        Vector3 spawnPos = boss.TargetPoint.position;
+        GameObject aoeObj = ObjectPoolManager.Instance.SpawnObject<GameObject>(
+            boss.BossData.CloseAOEPrefab, spawnPos, Quaternion.identity, PoolCategory.Default
+        );
+
+        if (aoeObj.TryGetComponent<NetworkObject>(out NetworkObject netObj) && !netObj.IsSpawned)
+        {
+            netObj.Spawn(true);
+        }
+
+        if (aoeObj.TryGetComponent<BossAOEController>(out BossAOEController controller))
+        {
+            controller.InitializeCloseAOE(damage, radius, expandDuration);
         }
     }
 
