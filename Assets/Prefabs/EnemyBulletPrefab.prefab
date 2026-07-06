@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 2232901423569696879}
   - component: {fileID: 8940120462578733433}
   - component: {fileID: 6632036928596805364}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyBulletPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -295,9 +295,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileCollision
   HitRadius: 1
-  TargetLayer:
-    serializedVersion: 2
-    m_Bits: 0
+  filter:
+    useTriggers: 0
+    useLayerMask: 0
+    useDepth: 0
+    useOutsideDepth: 0
+    useNormalAngle: 0
+    useOutsideNormalAngle: 0
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    minDepth: 0
+    maxDepth: 0
+    minNormalAngle: 0
+    maxNormalAngle: 0
 --- !u!114 &2232901423569696879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,7 +321,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 757e6ed2253dbc24aa0a3c2ba4e54acf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDamageDealer
-  IsEnemy: 0
 --- !u!114 &8940120462578733433
 MonoBehaviour:
   m_ObjectHideFlags: 0
