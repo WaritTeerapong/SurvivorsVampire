@@ -39,12 +39,11 @@ public class Sword : MonoBehaviour
 
         _hitTargets.Clear();
 
-        // 1. Setup damage & visuals components
-        _damageDealer.IsEnemy = IsEnemy;
+        // Setup damage & visuals components
         _damageDealer.SetDamage(damage);
         _visuals.Setup(detectorRange, hitVFX);
 
-        // 2. Determine angles
+        // Determine angles
         float targetAngle = 0f;
         if (target != null)
         {
@@ -61,13 +60,13 @@ public class Sword : MonoBehaviour
         _startAngle = adjustedTargetAngle - (SweepAngle / 2f);
         _endAngle = adjustedTargetAngle + (SweepAngle / 2f);
 
-        // 3. Register events
+        // Register events
         _movement.OnSweepCompleted += OnSweepCompleted;
         _collision.OnHitDetected += OnHit;
 
-        // 4. Activate movement and collision components
+        // Activate movement and collision components
         _collision.Range = detectorRange;
-        _collision.TargetLayer = IsEnemy ? LayerMask.GetMask("Player") : LayerMask.GetMask("Enemy");
+        _collision.SetFilter(gameObject.layer);
         _collision.Activate();
 
         _movement.StartSweep(_startAngle, _endAngle, SweepDuration, owner);
@@ -79,20 +78,18 @@ public class Sword : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + endDir * detectorRange, Color.blue, SweepDuration);
     }
 
-    private void OnHit(Collider2D other, Vector3 hitPoint)
+    private void OnHit(Collider2D hitCollider, Vector3 hitPoint)
     {
-        Transform targetTransform = other.transform;
+        Transform targetTransform = hitCollider.transform;
 
         // Prevent hitting the same enemy target multiple times in a single sweep
         if (_hitTargets.Contains(targetTransform)) return;
 
-        if (_damageDealer.DealDamage(other))
+        IDamageble damagebleObj = targetTransform.GetComponent<IDamageble>();
+        if (_damageDealer.DealDamage(damagebleObj))
         {
             _hitTargets.Add(targetTransform);
-
-            // Trigger impact visual effect and deal damage
             _visuals.SpawnHitVFX(hitPoint);
-
         }
     }
 
@@ -102,10 +99,7 @@ public class Sword : MonoBehaviour
         _movement.OnSweepCompleted -= OnSweepCompleted;
         _collision.OnHitDetected -= OnHit;
 
-        // Deactivate collision
         _collision.Deactivate();
-
-        // Visual hide
         _visuals.Disable();
 
         // Allow trail to fade out before returning to pool
