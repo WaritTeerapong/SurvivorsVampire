@@ -68,9 +68,9 @@ public class BossAOEController : NetworkBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, DamageRadius, PlayerLayerMask);
         foreach (Collider2D hit in hits)
         {
-            if (hit.TryGetComponent<Player>(out Player player))
+            if (hit.TryGetComponent<IDamageble>(out IDamageble damageable))
             {
-                player.TakeDamageRpc(_damage);
+                damageable.TakeDamage(_damage);
             }
         }
 

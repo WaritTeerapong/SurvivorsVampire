@@ -1,4 +1,7 @@
+using UnityEngine;
+
 public interface IDamageble
 {
-    public void TakeDamage(int damage);
+    Transform TargetPoint { get; }
+    void TakeDamage(int damage);
 }

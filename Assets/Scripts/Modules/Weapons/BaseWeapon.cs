@@ -54,17 +54,13 @@ public class BaseWeapon : MonoBehaviour, IWeapon
     {
         if (_isCooldown) return;
 
-        if (_detector == null)
-        {
-            return;
-        }
+        if (_detector == null) return;
+        
 
         // Detected Targets
         _targets = _detector.FindNearestTargets(_maxTarget);
-        if (_targets.Count == 0)
-        {
-            return; 
-        }
+        if (_targets.Count == 0) return; 
+
 
         // Get Total AtkSpeed & AtkRange
         float totalAtkSpeed = GetTotalATKSpeed();
@@ -77,8 +73,7 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         foreach (var target in _targets)
         {
             Vector3 targetPos = target.position;
-            if (target.TryGetComponent<Enemy>(out Enemy e)) targetPos = e.TargetPoint.position;
-            else if (target.TryGetComponent<Boss>(out Boss b)) targetPos = b.TargetPoint.position;
+            if (target.TryGetComponent<IDamageble>(out IDamageble d)) targetPos = d.TargetPoint.position;
 
             float sqrDist = (targetPos - playerPos).sqrMagnitude;
 
@@ -129,13 +124,9 @@ public class BaseWeapon : MonoBehaviour, IWeapon
         {
             int damage = GetTotalATKDamage();
 
-            if (target.TryGetComponent<Enemy>(out Enemy enemy))
+            if (target.TryGetComponent<IDamageble>(out IDamageble damageable))
             {
-                enemy.TakeDamage(damage);
-            }
-            else if (target.TryGetComponent<Boss>(out Boss boss))
-            {
-                boss.TakeDamage(damage);
+                damageable.TakeDamage(damage);
             }
         }
     }
