@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PassiveItemData_SO
   Id: p4
   ItemName: Lamp
-  Icon: {fileID: 21300000, guid: 6279b99d67d50be4abb5e61d14ce28aa, type: 3}
+  Icon: {fileID: 21300000, guid: a76559b7d45461d47bdf15459a671ceb, type: 3}
   BonusPerLevel:
   - MaxHealth: 0
     MoveSpeed: 0
