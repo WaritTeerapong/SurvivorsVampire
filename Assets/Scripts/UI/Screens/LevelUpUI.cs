@@ -1,32 +1,103 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class LevelUpUI : NetworkBehaviour
 {
+    [Header("=== UI Elements ===")]
     [SerializeField] private GameObject _levelUpScreen;
+    [SerializeField] private GameObject _waitingOverlay;
     [SerializeField] private UpgradeCard[] _upgradeCard;
+
+    [Header("=== Animation Settings ===")]
+    [SerializeField] private float _fadeDuration = 0.35f;
+
+    [Space]
     [SerializeField] private StatType[] IntStatArray;
 
     private PlayerRunTimeStats OwnerStat;
     private Player _localPlayer;
 
     private bool _isChoosing = false;
+    private bool _wasDead = false;
     private PopupUI popupUI;
 
     void Awake()
     {
-        if (popupUI == null) popupUI = _levelUpScreen.GetComponent<PopupUI>();
+        if (popupUI == null && _levelUpScreen != null)
+        {
+            popupUI = _levelUpScreen.GetComponent<PopupUI>();
+        }
     }
 
     void Start()
     {
-        _levelUpScreen.SetActive(true);
         UpdateUI();
         IntStatArray = new StatType[3] { StatType.MaxHealth, StatType.MoveSpeed, StatType.ATKDamage };
+    }
+
+    private void Update()
+    {
+        if (_localPlayer != null && _isChoosing)
+        {
+            bool isDead = _localPlayer.CurrentState is PlayerDiedState;
+
+            // Detect if the player transitions from Dead to Alive while the Level Up screen is active
+            if (_wasDead && !isDead)
+            {
+                _wasDead = false;
+                HandleRevivedDuringLevelUp();
+            }
+            else if (!_wasDead && isDead)
+            {
+                _wasDead = true;
+            }
+        }
+    }
+
+    private void HandleRevivedDuringLevelUp()
+    {
+        if (_waitingOverlay != null)
+        {
+            CanvasGroup canvasGroup = _waitingOverlay.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOKill();
+                canvasGroup.DOFade(0f, _fadeDuration).SetUpdate(true).OnComplete(() =>
+                {
+                    _waitingOverlay.SetActive(false);
+                    canvasGroup.alpha = 1f; // Reset alpha for future use
+                    ProceedToShowCards();
+                });
+            }
+            else
+            {
+                // Debug.LogWarning("[LevelUpUI] CanvasGroup missing on Waiting Overlay. Skipping fade animation.");
+                _waitingOverlay.SetActive(false);
+                ProceedToShowCards();
+            }
+        }
+        else
+        {
+            ProceedToShowCards();
+        }
+    }
+
+    private void ProceedToShowCards()
+    {
+        if (_levelUpScreen != null) _levelUpScreen.SetActive(true);
+
+        // Safety check to ensure the revived player is properly tracked in the pause system
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+        {
+            PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, true);
+        }
+
+        ShowNextCards();
     }
 
     public override void OnDestroy()
@@ -38,7 +109,6 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (_localPlayer == null && NetworkManager.Singleton != null)
         {
-            // 1. Try using Netcode SpawnManager (works on both Client and Host/Server)
             if (NetworkManager.Singleton.SpawnManager != null)
             {
                 var localPlayerObj = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
@@ -48,7 +118,6 @@ public class LevelUpUI : NetworkBehaviour
                 }
             }
 
-            // 2. Fallback to scanning registered players via IsOwner
             if (_localPlayer == null && PlayerManager.Instance != null)
             {
                 foreach (Player player in PlayerManager.Instance.AllPlayers)
@@ -72,15 +141,14 @@ public class LevelUpUI : NetworkBehaviour
     private void UpdateUI()
     {
         Player player = GetLocalPlayer();
-        if (player != null && player.CurrentState is PlayerDiedState)
-        {
-            return;
-        }
 
-        OpenLevelUpScreen();
+        bool isDead = (player != null && player.CurrentState is PlayerDiedState);
+        _wasDead = isDead;
+
+        OpenLevelUpScreen(isDead);
     }
 
-    private void OpenLevelUpScreen()
+    private void OpenLevelUpScreen(bool isDead)
     {
         if (PauseMenuUI.Instance != null)
         {
@@ -88,9 +156,32 @@ public class LevelUpUI : NetworkBehaviour
             PauseMenuUI.Instance.IsLevelUpActive = true;
         }
 
-        if (!_isChoosing)
+        if (isDead)
         {
-            StartChoosing();
+            if (_levelUpScreen != null) _levelUpScreen.SetActive(false);
+            if (_waitingOverlay != null)
+            {
+                _waitingOverlay.SetActive(true);
+                CanvasGroup canvasGroup = _waitingOverlay.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                {
+                    canvasGroup.DOKill();
+                    canvasGroup.alpha = 1f;
+                }
+            }
+
+            // Dead players do not immediately pause the game to prevent softlocks if not revived
+            _isChoosing = true;
+        }
+        else
+        {
+            if (_waitingOverlay != null) _waitingOverlay.SetActive(false);
+            if (_levelUpScreen != null) _levelUpScreen.SetActive(true);
+
+            if (!_isChoosing)
+            {
+                StartChoosing();
+            }
         }
     }
 
@@ -178,7 +269,7 @@ public class LevelUpUI : NetworkBehaviour
     private void SetupRespawnCard(UpgradeCard card, Player deadPlayer)
     {
         card.gameObject.SetActive(true);
-        card.UpgradeButton.interactable = true; // Ensure button is active for new queue
+        card.UpgradeButton.interactable = true;
         card.SetupCard();
 
         TMP_Text buttonText = card.UpgradeButton.GetComponentInChildren<TMP_Text>();
@@ -209,7 +300,7 @@ public class LevelUpUI : NetworkBehaviour
         }
 
         card.gameObject.SetActive(true);
-        card.UpgradeButton.interactable = true; // Ensure button is active for new queue
+        card.UpgradeButton.interactable = true;
 
         string statName = "";
         float increaseAmount = 0f;
@@ -314,6 +405,15 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (playerToRevive != null)
         {
+            int syncedQueues = (PlayerLevelManager.Instance != null) ? Mathf.Max(0, PlayerLevelManager.Instance.LocalPendingUpgrades - 1) : 0;
+            PlayerLevelManager.Instance.ForceSyncPendingUpgradesServerRpc(playerToRevive.OwnerClientId, syncedQueues);
+
+            // Explicitly force the revived player into the pause list BEFORE finishing to prevent scene unload race condition
+            if (NetworkManager.Singleton != null)
+            {
+                PauseManager.Instance.ToggleLevelUpPauseServerRpc(playerToRevive.OwnerClientId, true);
+            }
+
             playerToRevive.RevivePlayerRpc(true);
         }
 
@@ -359,27 +459,34 @@ public class LevelUpUI : NetworkBehaviour
         }
         else
         {
-            popupUI.ClosePopup(() =>
+            if (popupUI != null)
             {
-                _isChoosing = false;
-
-                if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
-
-                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                popupUI.ClosePopup(() =>
                 {
-                    PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
-                }
+                    _isChoosing = false;
 
-                if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
-                {
-                    PauseMenuUI.Instance.ResumeGame();
-                }
+                    if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
 
-                if (PlayerLevelManager.Instance != null)
-                {
-                    PlayerLevelManager.Instance.OnUpgradeSelected();
-                }
-            });
+                    if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                    {
+                        PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
+                    }
+
+                    if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
+                    {
+                        PauseMenuUI.Instance.ResumeGame();
+                    }
+
+                    if (PlayerLevelManager.Instance != null)
+                    {
+                        PlayerLevelManager.Instance.OnUpgradeSelected();
+                    }
+                });
+            }
+            else
+            {
+                // Debug.LogError("[LevelUpUI] PopupUI reference is missing!");
+            }
         }
     }
 

@@ -64,7 +64,6 @@ public class PlayerLevelManager : NetworkBehaviour
         {
             _isUpgradeSceneLoaded = false;
 
-            // Reset health for all active players in the session
             if (PlayerManager.Instance != null)
             {
                 foreach (Player player in PlayerManager.Instance.AllPlayers)
@@ -118,6 +117,19 @@ public class PlayerLevelManager : NetworkBehaviour
         {
             LocalPendingUpgrades--;
         }
+    }
+
+    // Force synchronize the remaining upgrade queues to a specific client (used when respawning)
+    [Rpc(SendTo.Server)]
+    public void ForceSyncPendingUpgradesServerRpc(ulong targetClientId, int pendingCount)
+    {
+        ForceSyncPendingUpgradesClientRpc(pendingCount, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ForceSyncPendingUpgradesClientRpc(int pendingCount, RpcParams rpcParams = default)
+    {
+        LocalPendingUpgrades = pendingCount;
     }
 
     public void OnUpgradeSelected()
