@@ -165,4 +165,13 @@ public class BaseWeapon : MonoBehaviour, IWeapon
 
         return totalATKRange;
     }
+
+    protected void SetInstanceLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetInstanceLayerRecursively(child.gameObject, newLayer);
+        }
+    }
 }

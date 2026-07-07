@@ -51,7 +51,6 @@ public class ProjectileCollision : MonoBehaviour
         Vector3 direction = (currentPosition - _lastPosition).normalized;
 
         if (distance <= 0.001f) return;
-        
         int hitCount = Physics2D.CircleCast(_lastPosition, HitRadius, direction, filter, _castResults, distance);
         
         _lastPosition = currentPosition;
@@ -60,7 +59,7 @@ public class ProjectileCollision : MonoBehaviour
         RaycastHit2D hit = _castResults[0];
 
         if (hit.collider == null) return;
-        
+
         OnHitDetected?.Invoke(hit.collider, hit.point);
     }
 
