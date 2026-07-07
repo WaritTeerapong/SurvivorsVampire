@@ -15,6 +15,8 @@ public class LevelUpUI : NetworkBehaviour
 
     [Header("=== Animation Settings ===")]
     [SerializeField] private float _fadeDuration = 0.35f;
+    [SerializeField] private float _cardAnimDuration = 0.3f;
+    [SerializeField] private float _cardStaggerDelay = 0.1f;
 
     [Space]
     [SerializeField] private StatType[] IntStatArray;
@@ -76,7 +78,6 @@ public class LevelUpUI : NetworkBehaviour
             }
             else
             {
-                // Debug.LogWarning("[LevelUpUI] CanvasGroup missing on Waiting Overlay. Skipping fade animation.");
                 _waitingOverlay.SetActive(false);
                 ProceedToShowCards();
             }
@@ -102,6 +103,10 @@ public class LevelUpUI : NetworkBehaviour
 
     public override void OnDestroy()
     {
+        foreach (var card in _upgradeCard)
+        {
+            if (card != null) card.transform.DOKill();
+        }
         base.OnDestroy();
     }
 
@@ -219,10 +224,13 @@ public class LevelUpUI : NetworkBehaviour
 
     private void CreateCards(Dictionary<string, int> itemList)
     {
+        // Reset state and kill any running animations
         foreach (UpgradeCard card in _upgradeCard)
         {
+            card.transform.DOKill();
             card.gameObject.SetActive(false);
         }
+
         int cardIndex = 0;
 
         Player deadPlayer = FindDeadPlayer();
@@ -230,6 +238,7 @@ public class LevelUpUI : NetworkBehaviour
             ? Random.Range(0, _upgradeCard.Length)
             : -1;
 
+        // Setup the data for each card
         foreach (KeyValuePair<string, int> kvp in itemList)
         {
             if (cardIndex >= _upgradeCard.Length)
@@ -247,6 +256,21 @@ public class LevelUpUI : NetworkBehaviour
 
             SetupUpgradeCard(_upgradeCard[cardIndex], kvp.Key, kvp.Value);
             cardIndex++;
+        }
+
+        // Play Scale-In Animation for active cards
+        Sequence inSeq = DOTween.Sequence().SetUpdate(true);
+        int activeIndex = 0;
+
+        foreach (UpgradeCard card in _upgradeCard)
+        {
+            if (card.gameObject.activeSelf)
+            {
+                // Start from scale 0
+                card.transform.localScale = Vector3.zero;
+                inSeq.Insert(activeIndex * _cardStaggerDelay, card.transform.DOScale(Vector3.one, _cardAnimDuration).SetEase(Ease.OutBack));
+                activeIndex++;
+            }
         }
     }
 
@@ -483,18 +507,30 @@ public class LevelUpUI : NetworkBehaviour
                     }
                 });
             }
-            else
-            {
-                // Debug.LogError("[LevelUpUI] PopupUI reference is missing!");
-            }
         }
     }
 
     private IEnumerator WaitServerSyncAndShowNextCard()
     {
-        foreach (var card in _upgradeCard) card.gameObject.SetActive(false);
+        // Play Scale-Out Animation for active cards
+        Sequence outSeq = DOTween.Sequence().SetUpdate(true);
+        int activeIndex = 0;
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        foreach (UpgradeCard card in _upgradeCard)
+        {
+            if (card.gameObject.activeSelf)
+            {
+                card.transform.DOKill();
+                outSeq.Insert(activeIndex * _cardStaggerDelay, card.transform.DOScale(Vector3.zero, _cardAnimDuration).SetEase(Ease.InBack));
+                activeIndex++;
+            }
+        }
+
+        // Wait until all cards have finished closing
+        yield return outSeq.WaitForCompletion();
+
+        // Wait a tiny moment before loading the next set of cards for a better feel
+        yield return new WaitForSecondsRealtime(0.1f);
 
         ShowNextCards();
     }
