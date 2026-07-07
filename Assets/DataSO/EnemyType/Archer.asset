@@ -24,7 +24,7 @@ MonoBehaviour:
       MoveSpeed: 1.5
       ATKDamage: 8
       ATKSpeed: 0.5
-      ATKRange: 7
+      ATKRange: 6
   - Tier: 2
     EnemyID: 4
     color: {r: 0.5921569, g: 0.8039216, b: 1, a: 0}
@@ -33,16 +33,16 @@ MonoBehaviour:
       MoveSpeed: 2
       ATKDamage: 12
       ATKSpeed: 0.8
-      ATKRange: 8
+      ATKRange: 7
   - Tier: 3
     EnemyID: 5
     color: {r: 1, g: 0.6342005, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 75
+      MaxHealth: 60
       MoveSpeed: 2.5
       ATKDamage: 15
       ATKSpeed: 1.2
-      ATKRange: 10
+      ATKRange: 8
   XPValue: 80
   DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
   BulletHitVFXPrefab: {fileID: 4084188421608476203, guid: 8ad18cf3a8cba9a48a7e54155f2bb667, type: 3}
