@@ -155,7 +155,7 @@ public class LevelUpUI : NetworkBehaviour
 
             if (cardIndex == respawnCardIndex && deadPlayer != null)
             {
-                SetupReviveCard(_upgradeCard[cardIndex], deadPlayer);
+                SetupRespawnCard(_upgradeCard[cardIndex], deadPlayer);
                 cardIndex++;
                 continue;
             }
@@ -181,15 +181,16 @@ public class LevelUpUI : NetworkBehaviour
         return null;
     }
 
-    private void SetupReviveCard(UpgradeCard card, Player deadPlayer)
+    private void SetupRespawnCard(UpgradeCard card, Player deadPlayer)
     {
         card.gameObject.SetActive(true);
-        card.SetupCard(false);
+        card.SetupCard();
 
         TMP_Text buttonText = card.UpgradeButton.GetComponentInChildren<TMP_Text>();
         if (buttonText != null)
         {
-            buttonText.text = "Revive";
+            buttonText.text = "Respawn";
+
         }
 
         card.UpgradeButton.onClick.RemoveAllListeners();
