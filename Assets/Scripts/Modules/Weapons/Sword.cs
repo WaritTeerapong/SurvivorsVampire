@@ -102,17 +102,11 @@ public class Sword : MonoBehaviour
         _collision.Deactivate();
         _visuals.Disable();
 
-        // Allow trail to fade out before returning to pool
-        Invoke(nameof(ReturnToPool), 0.15f);
-    }
+        _hitTargets.Clear();
 
-    private void ReturnToPool()
-    {
-        _movement.OnSweepCompleted -= OnSweepCompleted;
-        _collision.OnHitDetected -= OnHit;
-
-        CancelInvoke(nameof(ReturnToPool));
         gameObject.SetActive(false);
+
+
     }
 
     private void OnDrawGizmosSelected()

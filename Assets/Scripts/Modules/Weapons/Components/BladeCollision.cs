@@ -58,10 +58,9 @@ public class BladeCollision : MonoBehaviour
         for (int i = 0; i < hitCount; i++)
         {
             RaycastHit2D hit = _castResults[i];
-            Collider2D other = hit.collider;
-            if (other != null)
+            if (hit.collider != null)
             {
-                OnHitDetected?.Invoke(other, hit.point);
+                OnHitDetected?.Invoke(hit.collider, hit.point);
             }
         }
     }
