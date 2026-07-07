@@ -213,6 +213,28 @@ public class PlayerRunTimeStats : NetworkBehaviour
         PlayerStats stats = CurrentStats.Value;
         float healAmount = stats.MaxHealth * healPercent;
         stats.CurrentHealth = (int)healAmount;
+
+        if (stats.CurrentHealth > stats.MaxHealth)
+        {
+            stats.CurrentHealth = stats.MaxHealth;
+        }
+
+        CurrentStats.Value = stats;
+    }
+
+    public void HealPercentMaxHealth(float percent)
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        int healAmount = Mathf.RoundToInt(stats.MaxHealth * percent);
+        stats.CurrentHealth += healAmount;
+
+        if (stats.CurrentHealth > stats.MaxHealth)
+        {
+            stats.CurrentHealth = stats.MaxHealth;
+        }
+
         CurrentStats.Value = stats;
     }
 
@@ -237,7 +259,6 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
 
         // 2. Apply Passive Items
-
         if (_inventory != null && _inventory.PassiveDatabase != null)
         {
             // Get Bonus Stat from each Passive Items equiped
@@ -259,6 +280,12 @@ public class PlayerRunTimeStats : NetworkBehaviour
 
         // Keep current health capped and valid
         newStats.CurrentHealth = CurrentStats.Value.CurrentHealth;
+
+        // In case recalculating passives lowers the max health below current health
+        if (newStats.CurrentHealth > newStats.MaxHealth)
+        {
+            newStats.CurrentHealth = newStats.MaxHealth;
+        }
 
         CurrentStats.Value = newStats;
     }

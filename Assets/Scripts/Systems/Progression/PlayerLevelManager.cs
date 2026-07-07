@@ -70,7 +70,8 @@ public class PlayerLevelManager : NetworkBehaviour
                 {
                     if (player != null && !player.IsDownOrDied)
                     {
-                        player.Stats.ResetHealthToMax();
+                        // Heal player by 40% of their Max HP
+                        player.Stats.HealPercentMaxHealth(0.4f);
                     }
                 }
             }
