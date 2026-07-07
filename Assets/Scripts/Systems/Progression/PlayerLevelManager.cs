@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +12,8 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedLevel = new NetworkVariable<int>(1);
     public NetworkVariable<int> SharedXP = new NetworkVariable<int>(0);
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
+
+    public event Action OnLevelUp;
 
     void Awake()
     {
@@ -78,6 +79,14 @@ public class PlayerLevelManager : NetworkBehaviour
                 .NewTransition()
                 .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
                 .Perform();
+        }
+    }
+
+    public void OnUpgradeSelected()
+    {
+        if (IsServer)
+        {
+            OnLevelUp?.Invoke();
         }
     }
 
