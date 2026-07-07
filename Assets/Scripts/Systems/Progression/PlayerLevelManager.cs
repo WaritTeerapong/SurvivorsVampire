@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -74,13 +73,20 @@ public class PlayerLevelManager : NetworkBehaviour
     private void OnLevelChange(int previousValue, int newValue)
     {
         ReviveDownedPlayers();
-        OnLevelUp?.Invoke();
         if (IsServer)
         {
             SceneController.Instance
                 .NewTransition()
                 .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
                 .Perform();
+        }
+    }
+
+    public void OnUpgradeSelected()
+    {
+        if (IsServer)
+        {
+            OnLevelUp?.Invoke();
         }
     }
 

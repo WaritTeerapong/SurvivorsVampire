@@ -40,7 +40,7 @@ MonoBehaviour:
     enemyStats:
       MaxHealth: 75
       MoveSpeed: 2.5
-      ATKDamage: 25
+      ATKDamage: 17
       ATKSpeed: 1.2
       ATKRange: 10
   XPValue: 80
