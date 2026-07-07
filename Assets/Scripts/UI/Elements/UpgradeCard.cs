@@ -11,6 +11,8 @@ public class UpgradeCard : MonoBehaviour
     public Button UpgradeButton;
     public Image Icon;
 
+    public Sprite ReviveIcon;
+
     // increaseAmount = newLevel.bonus - lastLevel.bonus
     // totalValue = baseValue + newLevel.bonus
     public void SetupCard(string itemName, int newLevel, string statName, int increaseAmount, int totalValue, Sprite icon)
@@ -31,12 +33,18 @@ public class UpgradeCard : MonoBehaviour
         Icon.sprite = icon;
     }
 
-    public void SetupCard(bool isPlayer)
+    // For Respawn Event
+    public void SetupCard()
     {
-        ItemNameText.text = $"Revive Friend";
+        ItemNameText.text = $"Respawn Friend";
         ItemLevelText.text = "";
         StatNameText.text = "";
         StatBonusText.text = "";
+
+        TMP_Text UpgradeButtonText = UpgradeButton.GetComponentInChildren<TMP_Text>();
+        UpgradeButtonText.text = "Respawn";
+
+        Icon.sprite = ReviveIcon;
         return;
     }
 }

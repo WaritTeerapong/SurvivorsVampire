@@ -12,23 +12,24 @@ public class SwordWeapon : MeleeWeapon
     {
         base.InitializeWeapon();
 
-        if (SwordPrefab != null && _swordInstance == null)
-        {
-            _swordInstance = Instantiate(SwordPrefab, transform.position, Quaternion.identity);
-            SetLayerRecursively(_swordInstance, gameObject.layer);
-            _swordInstance.SetActive(false);
-            _swordScript = _swordInstance.GetComponent<Sword>();
-            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(_swordInstance, gameObject.scene);
-        }
-    }
 
-    private void SetLayerRecursively(GameObject obj, int newLayer)
-    {
-        obj.layer = newLayer;
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursively(child.gameObject, newLayer);
-        }
+        // Guard clause if Sword Instance already exist
+        if (SwordPrefab == null || _swordInstance != null) return;
+
+        // Instantiate and set up the sword hierarchy
+        _swordInstance = Instantiate(SwordPrefab, transform.position, Quaternion.identity);
+
+        // Move to session scene first to ensure correct scene placement
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(_swordInstance, gameObject.scene);
+
+        // Parent under the player's Weapons container for correct hierarchy placement
+        _swordInstance.transform.SetParent(gameObject.transform, true);
+
+        // Set Layer to Sword Instance
+        SetInstanceLayerRecursively(_swordInstance, _inventory.gameObject.layer);
+
+        _swordInstance.SetActive(false);
+        _swordScript = _swordInstance.GetComponent<Sword>();
     }
 
     public override void Attack(Transform target)
