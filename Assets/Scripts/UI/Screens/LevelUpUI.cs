@@ -223,7 +223,7 @@ public class LevelUpUI : NetworkBehaviour
         ResolveItemStats(itemData, nextLevel, currentLevel, ref activeStatType, ref statName, ref increaseAmount, ref totalValue);
 
         bool isFloat = IntStatArray == null || !IntStatArray.Contains(activeStatType);
-        
+
         if (isFloat)
         {
             card.SetupCard(itemData.ItemName, nextLevel, statName, increaseAmount, totalValue, itemData.Icon);
@@ -372,6 +372,11 @@ public class LevelUpUI : NetworkBehaviour
                 if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
                 {
                     PauseMenuUI.Instance.ResumeGame();
+                }
+
+                if (PlayerLevelManager.Instance != null)
+                {
+                    PlayerLevelManager.Instance.OnUpgradeSelected();
                 }
             });
         }

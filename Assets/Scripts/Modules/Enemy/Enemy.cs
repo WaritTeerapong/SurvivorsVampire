@@ -9,7 +9,7 @@ public struct EnemyCurrentStats : INetworkSerializable
     public int EnemyID;
     public int Tier;
     public int CurrentHealth;
-    public int MoveSpeed;
+    public float MoveSpeed;
     public int ATKDamage;
     public float ATKSpeed;
     public float ATKRange;
@@ -32,7 +32,7 @@ public struct EnemyCurrentStats : INetworkSerializable
     }
 }
 
-public class Enemy : NetworkBehaviour,IDamageble
+public class Enemy : NetworkBehaviour, IDamageble
 {
     [Header("=== Targeting ===")]
     [SerializeField] private Transform _targetPoint;

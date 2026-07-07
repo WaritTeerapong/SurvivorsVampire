@@ -16,13 +16,13 @@ MonoBehaviour:
   ItemName: Sword
   Icon: {fileID: 21300000, guid: c4fa0603ceef40549a41a9dc9bda3944, type: 3}
   BonusPerLevel:
-  - ATKDamage: 5
+  - ATKDamage: 8
     ATKRange: 0
-    ATKSpeed: 0
-  - ATKDamage: 7
+    ATKSpeed: 0.2
+  - ATKDamage: 15
     ATKRange: 0
-    ATKSpeed: 0
-  - ATKDamage: 10
+    ATKSpeed: 0.5
+  - ATKDamage: 25
     ATKRange: 0
     ATKSpeed: 1
   WeaponPrefab: {fileID: 5620591486559837236, guid: 2e492e8287e778247a7ecefd5f17b982, type: 3}

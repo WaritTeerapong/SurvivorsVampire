@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "StatUpgradeDatabase_SO", menuName = "DataSO/StatUpgradeDatabase_SO")]
@@ -24,7 +23,8 @@ public class StatUpgradeDatabase_SO : ScriptableObject
 }
 
 [System.Serializable]
-public struct StatUpgrade {
+public struct StatUpgrade
+{
     public string UpgradeName;
     public string Description;
     public Sprite UpgradeIcon;
@@ -44,7 +44,7 @@ public struct StatUpgrade {
         // Max Level
         return BonusPerLevel[BonusPerLevel.Length - 1];
     }
-    
+
 }
 
 
