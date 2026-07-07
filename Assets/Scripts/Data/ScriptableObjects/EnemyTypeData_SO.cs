@@ -59,7 +59,7 @@ public struct EnemyTier
 public struct EnemyStats
 {
     public int MaxHealth;
-    public int MoveSpeed;
+    public float MoveSpeed;
     public int ATKDamage;
     public float ATKSpeed;
     public float ATKRange;

@@ -14,6 +14,8 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedXP = new NetworkVariable<int>(0);
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
 
+    public event Action OnLevelUp;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -72,6 +74,7 @@ public class PlayerLevelManager : NetworkBehaviour
     private void OnLevelChange(int previousValue, int newValue)
     {
         ReviveDownedPlayers();
+        OnLevelUp?.Invoke();
         if (IsServer)
         {
             SceneController.Instance

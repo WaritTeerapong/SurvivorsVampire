@@ -21,27 +21,27 @@ MonoBehaviour:
     color: {r: 0.654902, g: 1, b: 0.5921569, a: 0}
     enemyStats:
       MaxHealth: 10
-      MoveSpeed: 1
-      ATKDamage: 5
+      MoveSpeed: 2
+      ATKDamage: 2
       ATKSpeed: 1
       ATKRange: 1
   - Tier: 2
     EnemyID: 1
     color: {r: 0.5921569, g: 0.8023434, b: 1, a: 0}
     enemyStats:
-      MaxHealth: 25
-      MoveSpeed: 2
-      ATKDamage: 10
-      ATKSpeed: 2
+      MaxHealth: 20
+      MoveSpeed: 2.5
+      ATKDamage: 5
+      ATKSpeed: 1.5
       ATKRange: 1
   - Tier: 3
     EnemyID: 2
     color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 40
+      MaxHealth: 50
       MoveSpeed: 3
-      ATKDamage: 15
-      ATKSpeed: 3
+      ATKDamage: 10
+      ATKSpeed: 2
       ATKRange: 1
   XPValue: 20
   DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
