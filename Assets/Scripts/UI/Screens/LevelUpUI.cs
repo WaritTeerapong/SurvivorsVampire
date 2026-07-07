@@ -14,9 +14,7 @@ public class LevelUpUI : NetworkBehaviour
     private PlayerRunTimeStats OwnerStat;
     private Player _localPlayer;
 
-    private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
-
     private PopupUI popupUI;
 
     void Awake()
@@ -40,7 +38,6 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (_localPlayer == null && NetworkManager.Singleton != null)
         {
-
             // 1. Try using Netcode SpawnManager (works on both Client and Host/Server)
             if (NetworkManager.Singleton.SpawnManager != null)
             {
@@ -68,15 +65,12 @@ public class LevelUpUI : NetworkBehaviour
             {
                 OwnerStat = _localPlayer.Stats;
             }
-
         }
         return _localPlayer;
     }
 
     private void UpdateUI()
     {
-        _pendingLevelUps++;
-
         Player player = GetLocalPlayer();
         if (player != null && player.CurrentState is PlayerDiedState)
         {
@@ -184,13 +178,13 @@ public class LevelUpUI : NetworkBehaviour
     private void SetupRespawnCard(UpgradeCard card, Player deadPlayer)
     {
         card.gameObject.SetActive(true);
+        card.UpgradeButton.interactable = true; // Ensure button is active for new queue
         card.SetupCard();
 
         TMP_Text buttonText = card.UpgradeButton.GetComponentInChildren<TMP_Text>();
         if (buttonText != null)
         {
             buttonText.text = "Respawn";
-
         }
 
         card.UpgradeButton.onClick.RemoveAllListeners();
@@ -215,6 +209,7 @@ public class LevelUpUI : NetworkBehaviour
         }
 
         card.gameObject.SetActive(true);
+        card.UpgradeButton.interactable = true; // Ensure button is active for new queue
 
         string statName = "";
         float increaseAmount = 0f;
@@ -351,9 +346,14 @@ public class LevelUpUI : NetworkBehaviour
             card.UpgradeButton.interactable = false;
         }
 
-        _pendingLevelUps--;
+        if (PlayerLevelManager.Instance != null)
+        {
+            PlayerLevelManager.Instance.ConsumePendingUpgrade();
+        }
 
-        if (_pendingLevelUps > 0)
+        int remainingUpgrades = PlayerLevelManager.Instance != null ? PlayerLevelManager.Instance.LocalPendingUpgrades : 0;
+
+        if (remainingUpgrades > 0)
         {
             StartCoroutine(WaitServerSyncAndShowNextCard());
         }

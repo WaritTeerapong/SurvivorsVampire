@@ -15,6 +15,9 @@ public class PlayerLevelManager : NetworkBehaviour
 
     public event Action OnLevelUp;
 
+    public int LocalPendingUpgrades { get; private set; } = 0;
+    private bool _isUpgradeSceneLoaded = false;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -59,6 +62,8 @@ public class PlayerLevelManager : NetworkBehaviour
         // Check if all players have finished selecting their upgrades
         if (IsServer && PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && changeEvent.Type == NetworkListEvent<ulong>.EventType.Remove)
         {
+            _isUpgradeSceneLoaded = false;
+
             // Reset health for all active players in the session
             if (PlayerManager.Instance != null)
             {
@@ -85,13 +90,33 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void OnLevelChange(int previousValue, int newValue)
     {
+        int delta = newValue - previousValue;
+        if (delta > 0)
+        {
+            LocalPendingUpgrades += delta;
+        }
+
         ReviveDownedPlayers();
+
         if (IsServer)
         {
-            SceneController.Instance
-                .NewTransition()
-                .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
-                .Perform();
+            // Prevent server from double-loading the upgrade scene if level jumps rapidly
+            if (!_isUpgradeSceneLoaded)
+            {
+                _isUpgradeSceneLoaded = true;
+                SceneController.Instance
+                    .NewTransition()
+                    .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+                    .Perform();
+            }
+        }
+    }
+
+    public void ConsumePendingUpgrade()
+    {
+        if (LocalPendingUpgrades > 0)
+        {
+            LocalPendingUpgrades--;
         }
     }
 
