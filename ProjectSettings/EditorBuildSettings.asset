@@ -10,7 +10,7 @@ EditorBuildSettings:
     guid: dd36cfa550a38ab43abd922120e27f8f
   - enabled: 1
     path: Assets/Scenes/MainMenuScene.unity
-    guid: 19d2fdaf9283b2a44aa551ed59e08e06
+    guid: 739e2798bd41d1a41acb9f44ed4d42cb
   - enabled: 1
     path: Assets/Scenes/WaitingRoomScene.unity
     guid: 3ca311bbcc554ac4cb190ee21364213c
