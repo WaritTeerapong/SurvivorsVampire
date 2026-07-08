@@ -10,6 +10,8 @@ public class Bullet : MonoBehaviour
     [Header("Bullet Settings")]
     public float Speed = 15f;
     public float HitDistance = 1f;
+
+    [HideInInspector]
     public bool IsEnemy = false;
 
     private ProjectileMovement _movement;
@@ -18,7 +20,7 @@ public class Bullet : MonoBehaviour
     private ProjectileVisuals _visuals;
     private ProjectileLifetime _lifetime;
 
-    void Awake()
+    private void Awake()
     {
         _movement = GetComponent<ProjectileMovement>() ?? gameObject.AddComponent<ProjectileMovement>();
         _collision = GetComponent<ProjectileCollision>() ?? gameObject.AddComponent<ProjectileCollision>();
@@ -27,17 +29,21 @@ public class Bullet : MonoBehaviour
         _lifetime = GetComponent<ProjectileLifetime>() ?? gameObject.AddComponent<ProjectileLifetime>();
     }
 
-    public void Initialize(Transform target, int damage, GameObject hitVFX)
+    // [FIX] Replaced selfLayer with explicit isEnemy boolean
+    public void Initialize(Transform target, int damage, GameObject hitVFX, bool isEnemy)
     {
-        // Set dynamic properties on the sub-components from config values
+        IsEnemy = isEnemy;
+
+        // Force the object to strictly align its physics layer based on the faction
+        gameObject.layer = IsEnemy ? LayerMask.NameToLayer("Enemy") : LayerMask.NameToLayer("Player");
+
         _movement.Speed = Speed;
         _collision.HitRadius = HitDistance;
-        _collision.SetFilter(gameObject.layer);
+        _collision.SetFilter(IsEnemy);
         _damageDealer.SetDamage(damage);
 
         _visuals.Setup(hitVFX);
 
-        // Set direction
         Vector3 direction = Vector3.right;
         if (target != null)
         {
@@ -50,11 +56,9 @@ public class Bullet : MonoBehaviour
             transform.rotation = Quaternion.identity;
         }
 
-        // Register events
         _collision.OnHitDetected += OnHit;
         _lifetime.OnLifetimeExpired += ReturnToPool;
 
-        // Activate components
         _movement.MoveInDirection(direction);
         _collision.Activate();
         _lifetime.StartCountdown();
@@ -62,23 +66,27 @@ public class Bullet : MonoBehaviour
 
     private void OnHit(Collider2D hitCollider, Vector3 hitPoint)
     {
-        // Unsubscribe to avoid double execution
         _collision.OnHitDetected -= OnHit;
         _lifetime.OnLifetimeExpired -= ReturnToPool;
 
-        // Stop updates
         _movement.Stop();
         _collision.Deactivate();
         _lifetime.StopCountdown();
 
         _visuals.Disable();
         _visuals.SpawnHitVFX(hitPoint);
-        
-        //Handle Damage
-        IDamageble damagebleObj = hitCollider.GetComponentInParent<IDamageble>();
-        _damageDealer.DealDamage(damagebleObj);
 
-        // Pool cleanup delay
+        IDamageble damagebleObj = hitCollider.GetComponentInParent<IDamageble>();
+
+        if (damagebleObj != null)
+        {
+            _damageDealer.DealDamage(damagebleObj);
+        }
+        else
+        {
+            // Debug.LogWarning("[Bullet] Hit object does not implement IDamageble.");
+        }
+
         Invoke(nameof(ReturnToPool), 0.1f);
     }
 
@@ -86,7 +94,7 @@ public class Bullet : MonoBehaviour
     {
         _collision.OnHitDetected -= OnHit;
         _lifetime.OnLifetimeExpired -= ReturnToPool;
-        
+
         CancelInvoke(nameof(ReturnToPool));
 
         if (ObjectPoolManager.Instance != null)

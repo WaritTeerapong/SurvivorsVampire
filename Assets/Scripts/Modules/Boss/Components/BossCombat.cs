@@ -86,7 +86,7 @@ public class BossCombat : NetworkBehaviour
                     aimTarget = damageable.TargetPoint;
                 }
 
-                bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
+                bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab, true);
             }
         }
     }

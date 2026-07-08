@@ -38,7 +38,7 @@ public class Enemy : NetworkBehaviour, IDamageble
     [SerializeField] private Transform _targetPoint;
     public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
 
-    [Header("Component refernce")]
+    [Header("Component Reference")]
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
@@ -46,7 +46,7 @@ public class Enemy : NetworkBehaviour, IDamageble
     [Header("Bullet Prefab")]
     public GameObject BulletPrefab;
 
-    [Header("Eneym Type SO")]
+    [Header("Enemy Type SO")]
     public EnemyTypeData_SO EnemyType;
 
     public Vector2 CurrentDirection { get; private set; }
@@ -54,7 +54,7 @@ public class Enemy : NetworkBehaviour, IDamageble
     private Animator _anim;
     private Vector3 _lastPosition;
     private bool _isDead = false;
-    private Collider2D col;
+    private Collider2D _col;
 
     [Header("=== Hit Flash Material ===")]
     public Material HitFlashMaterial;
@@ -77,7 +77,6 @@ public class Enemy : NetworkBehaviour, IDamageble
     public event Action<EnemyCurrentStats> OnEnemyStatsChanged;
     public event Action<Enemy> OnEnemyDespawned;
 
-    // === FSM ( Finite State-Machine ) ===
     #region FSM State-Machine
     public readonly IEnemyState IdleState = new EnemyIdleState();
     public readonly IEnemyState MoveState = new EnemyMoveState();
@@ -94,7 +93,7 @@ public class Enemy : NetworkBehaviour, IDamageble
     private void Awake()
     {
         _anim = GetComponentInChildren<Animator>();
-        col = GetComponent<Collider2D>();
+        _col = GetComponent<Collider2D>();
         _spriteRenderer = _anim != null ? _anim.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
         {
@@ -108,10 +107,13 @@ public class Enemy : NetworkBehaviour, IDamageble
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         ApplyTierColor(CurrentStats.Value);
 
+        // [FIX] Force local initialization for both Server and Client immediately.
+        // This avoids race conditions where the Server's RPC might arrive late or get dropped.
+        _isDead = false;
+        SetColliderTo(true);
+
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            _isDead = false;
-            SetColliderTo(true);
             Detector?.StartDetect();
             SwitchState(IdleState);
         }
@@ -132,7 +134,13 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
     }
 
-    public void SetColliderTo(bool isEnable) => col.enabled = isEnable;
+    public void SetColliderTo(bool isEnable)
+    {
+        if (_col != null)
+        {
+            _col.enabled = isEnable;
+        }
+    }
 
     private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
@@ -164,21 +172,21 @@ public class Enemy : NetworkBehaviour, IDamageble
     {
         EnemyType = enemyType;
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
-        EnemyStats _stats = currentTierData.enemyStats;
-        Color _color = currentTierData.color;
+        EnemyStats stats = currentTierData.enemyStats;
+        Color color = currentTierData.color;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
             EnemyID = currentTierData.EnemyID,
             Tier = tierLevel,
-            CurrentHealth = _stats.MaxHealth,
-            MoveSpeed = _stats.MoveSpeed,
-            ATKDamage = _stats.ATKDamage,
-            ATKSpeed = _stats.ATKSpeed,
-            ATKRange = _stats.ATKRange,
-            ColorR = _color.r,
-            ColorG = _color.g,
-            ColorB = _color.b
+            CurrentHealth = stats.MaxHealth,
+            MoveSpeed = stats.MoveSpeed,
+            ATKDamage = stats.ATKDamage,
+            ATKSpeed = stats.ATKSpeed,
+            ATKRange = stats.ATKRange,
+            ColorR = color.r,
+            ColorG = color.g,
+            ColorB = color.b
         };
 
         CurrentStats.Value = initStats;
@@ -298,20 +306,20 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
     }
 
-    private void ApplyTierColor(EnemyCurrentStats _stat)
+    private void ApplyTierColor(EnemyCurrentStats stat)
     {
         if (_anim == null) return;
 
         SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
         if (renderer == null) return;
 
-        if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0)
+        if (stat.ColorR == 0 && stat.ColorG == 0 && stat.ColorB == 0)
         {
             renderer.color = Color.white;
             return;
         }
 
-        renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
+        renderer.color = new Color(stat.ColorR, stat.ColorG, stat.ColorB, 1f);
     }
 
     private void FacingToDirection()
@@ -364,20 +372,19 @@ public class Enemy : NetworkBehaviour, IDamageble
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
         {
-            Vector3 spawnPos = TargetPoint.position; // Fire bullet from chest/target point
+            Vector3 spawnPos = TargetPoint.position;
 
             Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
             if (bulletObj != null)
             {
-                bulletObj.IsEnemy = true;
                 GameObject hitVFX = null;
                 if (EnemyType != null) hitVFX = EnemyType.BulletHitVFXPrefab;
 
-                // Aim directly at the player's TargetPoint
                 Transform aimTarget = targetObj.transform;
                 if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
-                bulletObj.Initialize(aimTarget, CurrentStats.Value.ATKDamage, hitVFX);
+                // [FIX] Explicitly declare this bullet belongs to the Enemy (isEnemy = true)
+                bulletObj.Initialize(aimTarget, CurrentStats.Value.ATKDamage, hitVFX, true);
             }
         }
     }

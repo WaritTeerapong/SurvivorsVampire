@@ -295,7 +295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileCollision
   HitRadius: 1
-  filter:
+  Filter:
     useTriggers: 0
     useLayerMask: 0
     useDepth: 0
