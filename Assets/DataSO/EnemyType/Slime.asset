@@ -38,7 +38,7 @@ MonoBehaviour:
     EnemyID: 2
     color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
     enemyStats:
-      MaxHealth: 50
+      MaxHealth: 40
       MoveSpeed: 3
       ATKDamage: 10
       ATKSpeed: 2

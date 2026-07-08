@@ -79,7 +79,8 @@ public class Detector : MonoBehaviour
 
     public List<Transform> FindNearestTargets(int maxTarget = 1)
     {
-        _enemiesInRange.RemoveAll(enemy => enemy == null || !enemy.gameObject.activeInHierarchy);
+        // Filter out null, inactive, and dead enemies
+        _enemiesInRange.RemoveAll(enemy => enemy == null || !enemy.gameObject.activeInHierarchy || IsEnemyDead(enemy));
 
         if (_enemiesInRange.Count == 0)
         {
@@ -112,6 +113,15 @@ public class Detector : MonoBehaviour
         }
 
         return _nearestEnemies;
+    }
+
+    private bool IsEnemyDead(Transform enemyTransform)
+    {
+        if (enemyTransform.TryGetComponent<Enemy>(out Enemy enemy))
+        {
+            return enemy.CurrentStats.Value.CurrentHealth <= 0;
+        }
+        return false;
     }
 
     void OnTriggerEnter2D(Collider2D other)

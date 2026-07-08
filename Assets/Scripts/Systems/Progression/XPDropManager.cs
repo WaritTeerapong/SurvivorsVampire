@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ public class XPDropManager : NetworkBehaviour
 
     [Header("Prefab")]
     public GameObject XPPrefab;
+
+    [HideInInspector]
+    public List<XPOrb> ActiveXPOrbs = new List<XPOrb>();
 
     void Awake()
     {
@@ -35,6 +39,8 @@ public class XPDropManager : NetworkBehaviour
         {
             NetworkManager.Singleton.PrefabHandler.RemoveHandler(XPPrefab);
         }
+
+        ActiveXPOrbs.Clear();
     }
 
     public void DropXP(Vector3 position, int xpValue)
@@ -48,9 +54,35 @@ public class XPDropManager : NetworkBehaviour
         NetworkObject netObj = xpObj.GetComponent<NetworkObject>();
 
         if (netObj == null) return;
-        xpObj.GetComponent<XPOrb>().Initialize(xpValue);
 
-        if (netObj.IsSpawned) return;
-        netObj.Spawn(true);
+        XPOrb orb = xpObj.GetComponent<XPOrb>();
+        orb.Initialize(xpValue);
+
+        if (!netObj.IsSpawned) netObj.Spawn(true);
+
+        ActiveXPOrbs.Add(orb);
+    }
+
+    public void RemoveXP(XPOrb orb)
+    {
+        if (ActiveXPOrbs.Contains(orb))
+        {
+            ActiveXPOrbs.Remove(orb);
+        }
+    }
+
+    public void PullAllXPToPlayers()
+    {
+        if (!IsServer) return;
+
+        // Create a copy of the list to iterate safely and avoid modification errors
+        List<XPOrb> orbsToPull = new List<XPOrb>(ActiveXPOrbs);
+        foreach (XPOrb orb in orbsToPull)
+        {
+            if (orb != null && orb.IsSpawned)
+            {
+                orb.StartHoming();
+            }
+        }
     }
 }

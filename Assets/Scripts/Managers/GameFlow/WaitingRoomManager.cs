@@ -10,6 +10,7 @@ public class WaitingRoomManager : NetworkBehaviour
 
     private NetworkVariable<float> _countdownTimer = new NetworkVariable<float>(3f);
     private NetworkVariable<bool> _isCountingDown = new NetworkVariable<bool>(false);
+    private NetworkVariable<int> _playerInZoneCount = new NetworkVariable<int>(0);
 
     private Collider2D _zoneCollider;
     private ContactFilter2D _filter;
@@ -43,6 +44,7 @@ public class WaitingRoomManager : NetworkBehaviour
             }
 
             int playersReady = playersInZone.Count;
+            _playerInZoneCount.Value = playersReady;
 
             if (totalConnected > 0 && totalSelected == totalConnected && playersReady == totalConnected)
             {
@@ -80,6 +82,11 @@ public class WaitingRoomManager : NetworkBehaviour
         {
             CountdownText.gameObject.SetActive(true);
             CountdownText.text = $"Game Starts in: {Mathf.CeilToInt(_countdownTimer.Value)}";
+        }
+        else if (_playerInZoneCount.Value > 0 && _playerInZoneCount.Value < NetworkManager.Singleton.ConnectedClientsIds.Count)
+        {
+            CountdownText.gameObject.SetActive(true);
+            CountdownText.text = $"Waiting for players... ({_playerInZoneCount.Value}/{NetworkManager.Singleton.ConnectedClientsIds.Count})";
         }
         else
         {
