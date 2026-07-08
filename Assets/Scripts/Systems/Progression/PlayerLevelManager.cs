@@ -6,7 +6,7 @@ public class PlayerLevelManager : NetworkBehaviour
 {
     public static PlayerLevelManager Instance { get; private set; }
 
-    [Header("Databases")]
+    [Header("=== Databases ===")]
     public LevelData_SO LevelData;
 
     public NetworkVariable<int> SharedLevel = new NetworkVariable<int>(1);
@@ -14,6 +14,9 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
 
     public event Action OnLevelUp;
+
+    public int LocalPendingUpgrades { get; private set; } = 0;
+    private bool _isUpgradeSceneLoaded = false;
 
     void Awake()
     {
@@ -27,11 +30,15 @@ public class PlayerLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            if (LevelData != null)
+            if (LevelData != null && LevelData.Levels.Length > 0)
             {
                 SharedLevel.Value = LevelData.Levels[0].Level;
                 SharedXP.Value = 0;
-                SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
+
+                if (LevelData.Levels.Length > 1)
+                    SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
+                else
+                    SharedXPNeeded.Value = LevelData.Levels[0].XPNeeded;
             }
 
             if (PauseManager.Instance != null)
@@ -58,6 +65,20 @@ public class PlayerLevelManager : NetworkBehaviour
     {
         if (IsServer && PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && changeEvent.Type == NetworkListEvent<ulong>.EventType.Remove)
         {
+            _isUpgradeSceneLoaded = false;
+
+            if (PlayerManager.Instance != null)
+            {
+                foreach (Player player in PlayerManager.Instance.AllPlayers)
+                {
+                    if (player != null && !player.IsDownOrDied)
+                    {
+                        // Heal player by 40% of their Max HP on upgrade finish
+                        player.Stats.HealPercentMaxHealth(0.4f);
+                    }
+                }
+            }
+
             if (SceneController.Instance != null)
             {
                 SceneController.Instance
@@ -72,14 +93,45 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void OnLevelChange(int previousValue, int newValue)
     {
+        int delta = newValue - previousValue;
+        if (delta > 0)
+        {
+            LocalPendingUpgrades += delta;
+        }
+
         ReviveDownedPlayers();
+
         if (IsServer)
         {
-            SceneController.Instance
-                .NewTransition()
-                .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
-                .Perform();
+            if (!_isUpgradeSceneLoaded)
+            {
+                _isUpgradeSceneLoaded = true;
+                SceneController.Instance
+                    .NewTransition()
+                    .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+                    .Perform();
+            }
         }
+    }
+
+    public void ConsumePendingUpgrade()
+    {
+        if (LocalPendingUpgrades > 0)
+        {
+            LocalPendingUpgrades--;
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void ForceSyncPendingUpgradesServerRpc(ulong targetClientId, int pendingCount)
+    {
+        ForceSyncPendingUpgradesClientRpc(pendingCount, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ForceSyncPendingUpgradesClientRpc(int pendingCount, RpcParams rpcParams = default)
+    {
+        LocalPendingUpgrades = pendingCount;
     }
 
     public void OnUpgradeSelected()
@@ -98,23 +150,50 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void GainXP(int incomingXP)
     {
-        if (!IsServer) return;
-        if (SharedXPNeeded.Value == -1) return;
+        if (!IsServer || LevelData == null) return;
         if (SharedXPNeeded.Value == -1) return;
 
         SharedXP.Value += incomingXP;
 
+        int maxLevel = LevelData.Levels.Length; // Calculate dynamic max level based on Array length
+
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
         {
             SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++;
-            SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
 
-
-            if (SharedXPNeeded.Value == -1)
+            if (SharedLevel.Value < maxLevel)
             {
-                SharedXP.Value = 0;
-                break;
+                SharedLevel.Value++;
+
+                if (SharedLevel.Value < maxLevel)
+                {
+                    SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
+                }
+                else
+                {
+                    // Reached max level. Maintain the last XP requirement to allow looping.
+                    SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(maxLevel);
+                }
+            }
+            else
+            {
+                // Already at max level and bar filled up again. Trigger Auto Heal.
+                SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(maxLevel);
+                HealAllPlayers(0.4f);
+            }
+        }
+    }
+
+    private void HealAllPlayers(float percent)
+    {
+        if (PlayerManager.Instance != null)
+        {
+            foreach (Player player in PlayerManager.Instance.AllPlayers)
+            {
+                if (player != null && !player.IsDownOrDied)
+                {
+                    player.Stats.HealPercentMaxHealth(percent);
+                }
             }
         }
     }
@@ -133,4 +212,3 @@ public class PlayerLevelManager : NetworkBehaviour
         }
     }
 }
-

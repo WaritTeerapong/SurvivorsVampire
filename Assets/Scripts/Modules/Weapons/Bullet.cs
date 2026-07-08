@@ -18,6 +18,8 @@ public class Bullet : MonoBehaviour
     private ProjectileVisuals _visuals;
     private ProjectileLifetime _lifetime;
 
+    private bool _isReturned = false;
+
     void Awake()
     {
         _movement = GetComponent<ProjectileMovement>() ?? gameObject.AddComponent<ProjectileMovement>();
@@ -29,32 +31,31 @@ public class Bullet : MonoBehaviour
 
     public void Initialize(Transform target, int damage, GameObject hitVFX)
     {
-        // Set dynamic properties on the sub-components from config values
         _movement.Speed = Speed;
         _collision.HitRadius = HitDistance;
         _collision.SetFilter(gameObject.layer);
         _damageDealer.SetDamage(damage);
-
         _visuals.Setup(hitVFX);
 
-        // Set direction
         Vector3 direction = Vector3.right;
         if (target != null)
         {
             direction = (target.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
+
+            // DEBUG
+            Debug.Log($"[Bullet] Spawn={transform.position} Target={target.name}@{target.position} Dir={direction} MyLayer={LayerMask.LayerToName(gameObject.layer)} FilterMask={_collision.filter.layerMask.value}");
         }
         else
         {
+            Debug.LogWarning("[Bullet] target is NULL at Initialize!"); // ถ้าเจอ log นี้บน Client = เจอสาเหตุแล้ว
             transform.rotation = Quaternion.identity;
         }
 
-        // Register events
         _collision.OnHitDetected += OnHit;
-        _lifetime.OnLifetimeExpired += ReturnToPool;
+        _lifetime.OnLifetimeExpired += OnLifetimeExpired;
 
-        // Activate components
         _movement.MoveInDirection(direction);
         _collision.Activate();
         _lifetime.StartCountdown();
@@ -62,41 +63,49 @@ public class Bullet : MonoBehaviour
 
     private void OnHit(Collider2D hitCollider, Vector3 hitPoint)
     {
-        // Unsubscribe to avoid double execution
-        _collision.OnHitDetected -= OnHit;
-        _lifetime.OnLifetimeExpired -= ReturnToPool;
+        if (_isReturned) return;
+        _isReturned = true;
 
-        // Stop updates
+        Cleanup();
+
+        _visuals.SpawnHitVFX(hitPoint);
+
+        if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsServer)
+        {
+            IDamageble damagebleObj = hitCollider.GetComponentInParent<IDamageble>();
+            if (damagebleObj != null) _damageDealer.DealDamage(damagebleObj);
+        }
+
+        ReturnToPool();
+    }
+
+    private void OnLifetimeExpired()
+    {
+        if (_isReturned) return;
+        _isReturned = true;
+
+        Cleanup();
+        ReturnToPool();
+    }
+
+    private void Cleanup()
+    {
+        _collision.OnHitDetected -= OnHit;
+        _lifetime.OnLifetimeExpired -= OnLifetimeExpired;
+
         _movement.Stop();
         _collision.Deactivate();
         _lifetime.StopCountdown();
-
         _visuals.Disable();
-        _visuals.SpawnHitVFX(hitPoint);
-        
-        //Handle Damage
-        IDamageble damagebleObj = hitCollider.GetComponentInParent<IDamageble>();
-        _damageDealer.DealDamage(damagebleObj);
-
-        // Pool cleanup delay
-        Invoke(nameof(ReturnToPool), 0.1f);
     }
 
     private void ReturnToPool()
     {
-        _collision.OnHitDetected -= OnHit;
-        _lifetime.OnLifetimeExpired -= ReturnToPool;
-        
         CancelInvoke(nameof(ReturnToPool));
-
         if (ObjectPoolManager.Instance != null)
-        {
             ObjectPoolManager.Instance.ReturnObjectToPool(gameObject);
-        }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
     private void OnDrawGizmos()

@@ -108,10 +108,11 @@ public class Enemy : NetworkBehaviour, IDamageble
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         ApplyTierColor(CurrentStats.Value);
 
+        _isDead = false;
+        SetColliderTo(true);
+
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            _isDead = false;
-            SetColliderTo(true);
             Detector?.StartDetect();
             SwitchState(IdleState);
         }
@@ -251,7 +252,14 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
 
         PlayDeathVFXClientRpc(transform.position);
+        DisableColliderRpc();
         StartCoroutine(DelayDespawnRoutine(1.2f));
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void DisableColliderRpc()
+    {
+        SetColliderTo(false);
     }
 
     private IEnumerator DelayDespawnRoutine(float delay)

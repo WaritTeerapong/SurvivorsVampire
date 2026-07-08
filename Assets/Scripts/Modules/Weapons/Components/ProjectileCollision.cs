@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 
 public class ProjectileCollision : MonoBehaviour
 {
@@ -46,18 +45,33 @@ public class ProjectileCollision : MonoBehaviour
     void Update()
     {
         if (!_isActive) return;
+
+        Physics2D.SyncTransforms();
+
         Vector3 currentPosition = transform.position;
         float distance = Vector3.Distance(_lastPosition, currentPosition);
         Vector3 direction = (currentPosition - _lastPosition).normalized;
 
         if (distance <= 0.001f) return;
+
         int hitCount = Physics2D.CircleCast(_lastPosition, HitRadius, direction, filter, _castResults, distance);
-        
+
+        // ตรวจก่อนว่ามี Enemy อยู่ในระยะ sweep นี้จริงไหม (ไม่สนใจ filter)
+        Collider2D[] enemiesNearby = Physics2D.OverlapCircleAll(currentPosition, HitRadius * 2f);
+        foreach (var c in enemiesNearby)
+        {
+            if (c.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+            {
+                Debug.Log($"[Collision] === ENEMY IN RANGE === From={_lastPosition} To={currentPosition} Dist={distance} HitRadius={HitRadius} hitCount(CircleCast)={hitCount} EnemyPos={c.transform.position} EnemyCollider={c.name} EnemyBounds={c.bounds}");
+            }
+        }
+
         _lastPosition = currentPosition;
 
         if (hitCount <= 0) return;
-        RaycastHit2D hit = _castResults[0];
 
+        RaycastHit2D hit = _castResults[0];
+        Debug.Log($"[Collision] >>> HIT CONFIRMED: {hit.collider?.name} at {hit.point}");
         if (hit.collider == null) return;
 
         OnHitDetected?.Invoke(hit.collider, hit.point);
