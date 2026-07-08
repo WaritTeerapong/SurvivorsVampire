@@ -17,13 +17,13 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: 705798dd87a15b0489d0f2c31a14fe84, type: 3}
   BonusPerLevel:
   - ATKDamage: 5
-    ATKRange: 1
+    ATKRange: 5
     ATKSpeed: 0
   - ATKDamage: 10
-    ATKRange: 1
+    ATKRange: 6
     ATKSpeed: 0
   - ATKDamage: 15
-    ATKRange: 1
+    ATKRange: 7
     ATKSpeed: 0
   WeaponPrefab: {fileID: 8609959353125987989, guid: f2ffd168eab58fd468a5bad8e364f7bc, type: 3}
   HitVFXPrefab: {fileID: 4084188421608476203, guid: 5e228c459a52b6f47b79ab4503cc5a0c, type: 3}

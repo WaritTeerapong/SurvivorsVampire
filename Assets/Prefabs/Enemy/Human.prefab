@@ -162,6 +162,7 @@ MonoBehaviour:
   Combat: {fileID: 8998301714788667492}
   BulletPrefab: {fileID: 3774078582942600365, guid: f33e895a80adc714d8ac7085d68907a9, type: 3}
   EnemyType: {fileID: 0}
+  _clientColliderDisableDelay: 0.25
   HitFlashMaterial: {fileID: 2100000, guid: 6ea2444fb0cf77a4cb3ed690d1b23280, type: 2}
   CurrentStats:
     UpdateTraits:
