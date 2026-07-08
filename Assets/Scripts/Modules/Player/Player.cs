@@ -118,10 +118,6 @@ public class Player : NetworkBehaviour, IDamageble
 
         Stats.CurrentStats.OnValueChanged += OnPlayerStatsChanged;
 
-        if (PlayerLevelManager.Instance != null)
-        {
-            PlayerLevelManager.Instance.OnLevelUp += OnLevelUp;
-        }
     }
 
     public override void OnNetworkDespawn()
@@ -136,11 +132,6 @@ public class Player : NetworkBehaviour, IDamageble
             }
         }
         Stats.CurrentStats.OnValueChanged -= OnPlayerStatsChanged;
-
-        if (PlayerLevelManager.Instance != null)
-        {
-            PlayerLevelManager.Instance.OnLevelUp -= OnLevelUp;
-        }
     }
 
     private void OnPlayerStatsChanged(PlayerStats previousValue, PlayerStats newValue)
@@ -208,15 +199,6 @@ public class Player : NetworkBehaviour, IDamageble
     public void PlayAnimation(int hash)
     {
         if (Anim.enabled) Anim.CrossFade(hash, 0.1f);
-    }
-
-    public void OnLevelUp()
-    {
-        if (IsOwner)
-        {
-            Stats.ResetHealthToMax();
-            Debug.Log($"Player {gameObject.name} leveled up! Health restored to max.");
-        }
     }
 
     public void BecomeGhost()
