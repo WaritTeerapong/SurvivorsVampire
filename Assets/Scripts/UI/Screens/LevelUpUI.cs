@@ -1,38 +1,112 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class LevelUpUI : NetworkBehaviour
 {
+    [Header("=== UI Elements ===")]
     [SerializeField] private GameObject _levelUpScreen;
+    [SerializeField] private GameObject _waitingOverlay;
     [SerializeField] private UpgradeCard[] _upgradeCard;
+
+    [Header("=== Animation Settings ===")]
+    [SerializeField] private float _fadeDuration = 0.35f;
+    [SerializeField] private float _cardAnimDuration = 0.3f;
+    [SerializeField] private float _cardStaggerDelay = 0.1f;
+
+    [Space]
     [SerializeField] private StatType[] IntStatArray;
 
     private PlayerRunTimeStats OwnerStat;
     private Player _localPlayer;
 
-    private int _pendingLevelUps = 0;
     private bool _isChoosing = false;
-
+    private bool _wasDead = false;
     private PopupUI popupUI;
 
     void Awake()
     {
-        if (popupUI == null) popupUI = _levelUpScreen.GetComponent<PopupUI>();
+        if (popupUI == null && _levelUpScreen != null)
+        {
+            popupUI = _levelUpScreen.GetComponent<PopupUI>();
+        }
     }
 
     void Start()
     {
-        _levelUpScreen.SetActive(true);
         UpdateUI();
         IntStatArray = new StatType[3] { StatType.MaxHealth, StatType.MoveSpeed, StatType.ATKDamage };
     }
 
+    private void Update()
+    {
+        if (_localPlayer != null && _isChoosing)
+        {
+            bool isDead = _localPlayer.CurrentState is PlayerDiedState;
+
+            // Detect if the player transitions from Dead to Alive while the Level Up screen is active
+            if (_wasDead && !isDead)
+            {
+                _wasDead = false;
+                HandleRevivedDuringLevelUp();
+            }
+            else if (!_wasDead && isDead)
+            {
+                _wasDead = true;
+            }
+        }
+    }
+
+    private void HandleRevivedDuringLevelUp()
+    {
+        if (_waitingOverlay != null)
+        {
+            CanvasGroup canvasGroup = _waitingOverlay.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOKill();
+                canvasGroup.DOFade(0f, _fadeDuration).SetUpdate(true).OnComplete(() =>
+                {
+                    _waitingOverlay.SetActive(false);
+                    canvasGroup.alpha = 1f; // Reset alpha for future use
+                    ProceedToShowCards();
+                });
+            }
+            else
+            {
+                _waitingOverlay.SetActive(false);
+                ProceedToShowCards();
+            }
+        }
+        else
+        {
+            ProceedToShowCards();
+        }
+    }
+
+    private void ProceedToShowCards()
+    {
+        if (_levelUpScreen != null) _levelUpScreen.SetActive(true);
+
+        // Safety check to ensure the revived player is properly tracked in the pause system
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+        {
+            PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, true);
+        }
+
+        ShowNextCards();
+    }
+
     public override void OnDestroy()
     {
+        foreach (var card in _upgradeCard)
+        {
+            if (card != null) card.transform.DOKill();
+        }
         base.OnDestroy();
     }
 
@@ -40,8 +114,6 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (_localPlayer == null && NetworkManager.Singleton != null)
         {
-
-            // 1. Try using Netcode SpawnManager (works on both Client and Host/Server)
             if (NetworkManager.Singleton.SpawnManager != null)
             {
                 var localPlayerObj = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
@@ -51,7 +123,6 @@ public class LevelUpUI : NetworkBehaviour
                 }
             }
 
-            // 2. Fallback to scanning registered players via IsOwner
             if (_localPlayer == null && PlayerManager.Instance != null)
             {
                 foreach (Player player in PlayerManager.Instance.AllPlayers)
@@ -68,25 +139,21 @@ public class LevelUpUI : NetworkBehaviour
             {
                 OwnerStat = _localPlayer.Stats;
             }
-
         }
         return _localPlayer;
     }
 
     private void UpdateUI()
     {
-        _pendingLevelUps++;
-
         Player player = GetLocalPlayer();
-        if (player != null && player.CurrentState is PlayerDiedState)
-        {
-            return;
-        }
 
-        OpenLevelUpScreen();
+        bool isDead = (player != null && player.CurrentState is PlayerDiedState);
+        _wasDead = isDead;
+
+        OpenLevelUpScreen(isDead);
     }
 
-    private void OpenLevelUpScreen()
+    private void OpenLevelUpScreen(bool isDead)
     {
         if (PauseMenuUI.Instance != null)
         {
@@ -94,9 +161,32 @@ public class LevelUpUI : NetworkBehaviour
             PauseMenuUI.Instance.IsLevelUpActive = true;
         }
 
-        if (!_isChoosing)
+        if (isDead)
         {
-            StartChoosing();
+            if (_levelUpScreen != null) _levelUpScreen.SetActive(false);
+            if (_waitingOverlay != null)
+            {
+                _waitingOverlay.SetActive(true);
+                CanvasGroup canvasGroup = _waitingOverlay.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                {
+                    canvasGroup.DOKill();
+                    canvasGroup.alpha = 1f;
+                }
+            }
+
+            // Dead players do not immediately pause the game to prevent softlocks if not revived
+            _isChoosing = true;
+        }
+        else
+        {
+            if (_waitingOverlay != null) _waitingOverlay.SetActive(false);
+            if (_levelUpScreen != null) _levelUpScreen.SetActive(true);
+
+            if (!_isChoosing)
+            {
+                StartChoosing();
+            }
         }
     }
 
@@ -134,10 +224,13 @@ public class LevelUpUI : NetworkBehaviour
 
     private void CreateCards(Dictionary<string, int> itemList)
     {
+        // Reset state and kill any running animations
         foreach (UpgradeCard card in _upgradeCard)
         {
+            card.transform.DOKill();
             card.gameObject.SetActive(false);
         }
+
         int cardIndex = 0;
 
         Player deadPlayer = FindDeadPlayer();
@@ -145,6 +238,7 @@ public class LevelUpUI : NetworkBehaviour
             ? Random.Range(0, _upgradeCard.Length)
             : -1;
 
+        // Setup the data for each card
         foreach (KeyValuePair<string, int> kvp in itemList)
         {
             if (cardIndex >= _upgradeCard.Length)
@@ -162,6 +256,21 @@ public class LevelUpUI : NetworkBehaviour
 
             SetupUpgradeCard(_upgradeCard[cardIndex], kvp.Key, kvp.Value);
             cardIndex++;
+        }
+
+        // Play Scale-In Animation for active cards
+        Sequence inSeq = DOTween.Sequence().SetUpdate(true);
+        int activeIndex = 0;
+
+        foreach (UpgradeCard card in _upgradeCard)
+        {
+            if (card.gameObject.activeSelf)
+            {
+                // Start from scale 0
+                card.transform.localScale = Vector3.zero;
+                inSeq.Insert(activeIndex * _cardStaggerDelay, card.transform.DOScale(Vector3.one, _cardAnimDuration).SetEase(Ease.OutBack));
+                activeIndex++;
+            }
         }
     }
 
@@ -184,13 +293,13 @@ public class LevelUpUI : NetworkBehaviour
     private void SetupRespawnCard(UpgradeCard card, Player deadPlayer)
     {
         card.gameObject.SetActive(true);
+        card.UpgradeButton.interactable = true;
         card.SetupCard();
 
         TMP_Text buttonText = card.UpgradeButton.GetComponentInChildren<TMP_Text>();
         if (buttonText != null)
         {
             buttonText.text = "Respawn";
-
         }
 
         card.UpgradeButton.onClick.RemoveAllListeners();
@@ -215,6 +324,7 @@ public class LevelUpUI : NetworkBehaviour
         }
 
         card.gameObject.SetActive(true);
+        card.UpgradeButton.interactable = true;
 
         string statName = "";
         float increaseAmount = 0f;
@@ -319,6 +429,15 @@ public class LevelUpUI : NetworkBehaviour
     {
         if (playerToRevive != null)
         {
+            int syncedQueues = (PlayerLevelManager.Instance != null) ? Mathf.Max(0, PlayerLevelManager.Instance.LocalPendingUpgrades - 1) : 0;
+            PlayerLevelManager.Instance.ForceSyncPendingUpgradesServerRpc(playerToRevive.OwnerClientId, syncedQueues);
+
+            // Explicitly force the revived player into the pause list BEFORE finishing to prevent scene unload race condition
+            if (NetworkManager.Singleton != null)
+            {
+                PauseManager.Instance.ToggleLevelUpPauseServerRpc(playerToRevive.OwnerClientId, true);
+            }
+
             playerToRevive.RevivePlayerRpc(true);
         }
 
@@ -351,43 +470,67 @@ public class LevelUpUI : NetworkBehaviour
             card.UpgradeButton.interactable = false;
         }
 
-        _pendingLevelUps--;
+        if (PlayerLevelManager.Instance != null)
+        {
+            PlayerLevelManager.Instance.ConsumePendingUpgrade();
+        }
 
-        if (_pendingLevelUps > 0)
+        int remainingUpgrades = PlayerLevelManager.Instance != null ? PlayerLevelManager.Instance.LocalPendingUpgrades : 0;
+
+        if (remainingUpgrades > 0)
         {
             StartCoroutine(WaitServerSyncAndShowNextCard());
         }
         else
         {
-            popupUI.ClosePopup(() =>
+            if (popupUI != null)
             {
-                _isChoosing = false;
-
-                if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
-
-                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                popupUI.ClosePopup(() =>
                 {
-                    PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
-                }
+                    _isChoosing = false;
 
-                if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
-                {
-                    PauseMenuUI.Instance.ResumeGame();
-                }
+                    if (PauseMenuUI.Instance != null) PauseMenuUI.Instance.IsLevelUpActive = false;
 
-                if (PlayerLevelManager.Instance != null)
-                {
-                    PlayerLevelManager.Instance.OnUpgradeSelected();
-                }
-            });
+                    if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+                    {
+                        PauseManager.Instance.ToggleLevelUpPauseServerRpc(NetworkManager.Singleton.LocalClientId, false);
+                    }
+
+                    if (PauseManager.Instance != null && PauseManager.Instance.IsGamePaused.Value && PauseMenuUI.Instance != null)
+                    {
+                        PauseMenuUI.Instance.ResumeGame();
+                    }
+
+                    if (PlayerLevelManager.Instance != null)
+                    {
+                        PlayerLevelManager.Instance.OnUpgradeSelected();
+                    }
+                });
+            }
         }
     }
 
     private IEnumerator WaitServerSyncAndShowNextCard()
     {
-        foreach (var card in _upgradeCard) card.gameObject.SetActive(false);
+        // Play Scale-Out Animation for active cards
+        Sequence outSeq = DOTween.Sequence().SetUpdate(true);
+        int activeIndex = 0;
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        foreach (UpgradeCard card in _upgradeCard)
+        {
+            if (card.gameObject.activeSelf)
+            {
+                card.transform.DOKill();
+                outSeq.Insert(activeIndex * _cardStaggerDelay, card.transform.DOScale(Vector3.zero, _cardAnimDuration).SetEase(Ease.InBack));
+                activeIndex++;
+            }
+        }
+
+        // Wait until all cards have finished closing
+        yield return outSeq.WaitForCompletion();
+
+        // Wait a tiny moment before loading the next set of cards for a better feel
+        yield return new WaitForSecondsRealtime(0.1f);
 
         ShowNextCards();
     }

@@ -251,7 +251,14 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
 
         PlayDeathVFXClientRpc(transform.position);
+        DisableColliderRpc();
         StartCoroutine(DelayDespawnRoutine(1.2f));
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void DisableColliderRpc()
+    {
+        SetColliderTo(false);
     }
 
     private IEnumerator DelayDespawnRoutine(float delay)

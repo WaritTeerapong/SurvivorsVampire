@@ -3,6 +3,7 @@ using System.Collections;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameManager : NetworkBehaviour
 {
@@ -42,6 +43,31 @@ public class GameManager : NetworkBehaviour
         {
             PlayerManager.Instance.OnWipeout -= HandleWipeout;
         }
+    }
+
+    private void Update()
+    {
+        // Debug tool: Fast Forward / Normal Speed (Host only triggers)
+        if (IsServer)
+        {
+#if UNITY_EDITOR
+            if (Keyboard.current.fKey.wasPressedThisFrame)
+            {
+                SetTimeScaleRpc(3f);
+            }
+            if (Keyboard.current.gKey.wasPressedThisFrame)
+            {
+                SetTimeScaleRpc(1f);
+            }
+#endif
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void SetTimeScaleRpc(float timeScale)
+    {
+        Time.timeScale = timeScale;
+        // Debug.Log($"[GameManager] TimeScale synced to {timeScale} across all clients.");
     }
 
     public void HandleWipeout()

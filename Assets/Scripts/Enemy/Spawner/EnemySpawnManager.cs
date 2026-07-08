@@ -78,8 +78,6 @@ public class EnemySpawnManager : NetworkBehaviour
             CurrentWave.Value = _currentWaveIndex + 1;
             IsResting.Value = false;
 
-            // Debug.Log($"[EnemySpawnManager] Starting Wave {_currentWaveIndex + 1}");
-
             if (currentWave.IsBossWave)
             {
                 _canSpawnEnemies = false;
@@ -89,6 +87,8 @@ public class EnemySpawnManager : NetworkBehaviour
                 SpawnBossAtCenter(currentWave.BossPrefab);
 
                 yield return new WaitUntil(() => _isBossDefeated);
+
+                // Note: No PullAllXPToPlayers() here as requested.
             }
             else
             {
@@ -106,6 +106,12 @@ public class EnemySpawnManager : NetworkBehaviour
                 // Force stop spawning safely
                 _canSpawnEnemies = false;
                 if (_spawnCoroutine != null) StopCoroutine(_spawnCoroutine);
+
+                // === PULL XP TO PLAYERS WHEN NON-BOSS WAVE ENDS ===
+                if (XPDropManager.Instance != null)
+                {
+                    XPDropManager.Instance.PullAllXPToPlayers();
+                }
             }
 
             IsResting.Value = true;
@@ -123,7 +129,6 @@ public class EnemySpawnManager : NetworkBehaviour
         }
 
         TimeRemaining.Value = 0;
-        // Debug.Log("[EnemySpawnManager] All Waves Completed!");
     }
 
     private void SpawnBossAtCenter(GameObject bossPrefab)
