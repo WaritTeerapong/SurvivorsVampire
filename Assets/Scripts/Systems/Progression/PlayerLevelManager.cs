@@ -30,11 +30,15 @@ public class PlayerLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            if (LevelData != null)
+            if (LevelData != null && LevelData.Levels.Length > 0)
             {
                 SharedLevel.Value = LevelData.Levels[0].Level;
                 SharedXP.Value = 0;
-                SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
+
+                if (LevelData.Levels.Length > 1)
+                    SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
+                else
+                    SharedXPNeeded.Value = LevelData.Levels[0].XPNeeded;
             }
 
             if (PauseManager.Instance != null)
@@ -59,7 +63,6 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void OnPlayersSelectingUpgradeChanged(NetworkListEvent<ulong> changeEvent)
     {
-        // Check if all players have finished selecting their upgrades
         if (IsServer && PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && changeEvent.Type == NetworkListEvent<ulong>.EventType.Remove)
         {
             _isUpgradeSceneLoaded = false;
@@ -70,7 +73,7 @@ public class PlayerLevelManager : NetworkBehaviour
                 {
                     if (player != null && !player.IsDownOrDied)
                     {
-                        // Heal player by 40% of their Max HP
+                        // Heal player by 40% of their Max HP on upgrade finish
                         player.Stats.HealPercentMaxHealth(0.4f);
                     }
                 }
@@ -100,7 +103,6 @@ public class PlayerLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            // Prevent server from double-loading the upgrade scene if level jumps rapidly
             if (!_isUpgradeSceneLoaded)
             {
                 _isUpgradeSceneLoaded = true;
@@ -120,7 +122,6 @@ public class PlayerLevelManager : NetworkBehaviour
         }
     }
 
-    // Force synchronize the remaining upgrade queues to a specific client (used when respawning)
     [Rpc(SendTo.Server)]
     public void ForceSyncPendingUpgradesServerRpc(ulong targetClientId, int pendingCount)
     {
@@ -149,21 +150,50 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void GainXP(int incomingXP)
     {
-        if (!IsServer) return;
+        if (!IsServer || LevelData == null) return;
         if (SharedXPNeeded.Value == -1) return;
 
         SharedXP.Value += incomingXP;
 
+        int maxLevel = LevelData.Levels.Length; // Calculate dynamic max level based on Array length
+
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
         {
             SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++;
-            SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
 
-            if (SharedXPNeeded.Value == -1)
+            if (SharedLevel.Value < maxLevel)
             {
-                SharedXP.Value = 0;
-                break;
+                SharedLevel.Value++;
+
+                if (SharedLevel.Value < maxLevel)
+                {
+                    SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
+                }
+                else
+                {
+                    // Reached max level. Maintain the last XP requirement to allow looping.
+                    SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(maxLevel);
+                }
+            }
+            else
+            {
+                // Already at max level and bar filled up again. Trigger Auto Heal.
+                SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(maxLevel);
+                HealAllPlayers(0.4f);
+            }
+        }
+    }
+
+    private void HealAllPlayers(float percent)
+    {
+        if (PlayerManager.Instance != null)
+        {
+            foreach (Player player in PlayerManager.Instance.AllPlayers)
+            {
+                if (player != null && !player.IsDownOrDied)
+                {
+                    player.Stats.HealPercentMaxHealth(percent);
+                }
             }
         }
     }

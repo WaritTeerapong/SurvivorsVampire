@@ -108,10 +108,11 @@ public class Enemy : NetworkBehaviour, IDamageble
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         ApplyTierColor(CurrentStats.Value);
 
+        _isDead = false;
+        SetColliderTo(true);
+
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            _isDead = false;
-            SetColliderTo(true);
             Detector?.StartDetect();
             SwitchState(IdleState);
         }
