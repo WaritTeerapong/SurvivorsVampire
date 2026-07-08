@@ -31,6 +31,13 @@ public class NetworkDisconnectHandler : MonoBehaviour
         {
             Debug.Log("[Network] Host is Gone for good!! Going to Main Menu...");
 
+            // If we are still on the Main Menu, don't reload CoreScene.
+            // This lets the Main Menu UI (JoinUI) display the connection failure.
+            if (SceneManager.GetSceneByName(Scenes.MAIN_MENU).isLoaded)
+            {
+                return;
+            }
+
             Time.timeScale = 1f;
             SceneManager.LoadScene("CoreScene");
         }
