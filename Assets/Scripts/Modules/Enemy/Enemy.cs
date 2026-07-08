@@ -38,25 +38,26 @@ public class Enemy : NetworkBehaviour, IDamageble
     [SerializeField] private Transform _targetPoint;
     public Transform TargetPoint => _targetPoint != null ? _targetPoint : transform;
 
-    [Header("Component refernce")]
+    [Header("=== Component References ===")]
     public EnemyDetector Detector;
     public EnemyMovement Movement;
     public EnemyCombat Combat;
 
-    [Header("Bullet Prefab")]
+    [Header("=== Spawning & Setup ===")]
     public GameObject BulletPrefab;
-
-    [Header("Eneym Type SO")]
     public EnemyTypeData_SO EnemyType;
+
+    [Header("=== Despawn Settings ===")]
+    [SerializeField] private float _clientColliderDisableDelay = 0.25f;
 
     public Vector2 CurrentDirection { get; private set; }
 
     private Animator _anim;
     private Vector3 _lastPosition;
     private bool _isDead = false;
-    private Collider2D col;
+    private Collider2D _col;
 
-    [Header("=== Hit Flash Material ===")]
+    [Header("=== Hit Flash ===")]
     public Material HitFlashMaterial;
     private Material _originalMaterial;
     private SpriteRenderer _spriteRenderer;
@@ -94,7 +95,11 @@ public class Enemy : NetworkBehaviour, IDamageble
     private void Awake()
     {
         _anim = GetComponentInChildren<Animator>();
-        col = GetComponent<Collider2D>();
+        _col = GetComponent<Collider2D>();
+
+        // Handle missing references safely
+        // Debug.LogWarning("Animator is missing on Enemy", this);
+
         _spriteRenderer = _anim != null ? _anim.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
         {
@@ -108,10 +113,12 @@ public class Enemy : NetworkBehaviour, IDamageble
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         ApplyTierColor(CurrentStats.Value);
 
+        // Reset state for everyone to fix Client-side pooling bug
+        _isDead = false;
+        SetColliderTo(true);
+
         if (IsServer && EnemySpawnManager.Instance != null)
         {
-            _isDead = false;
-            SetColliderTo(true);
             Detector?.StartDetect();
             SwitchState(IdleState);
         }
@@ -132,7 +139,13 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
     }
 
-    public void SetColliderTo(bool isEnable) => col.enabled = isEnable;
+    public void SetColliderTo(bool isEnable)
+    {
+        if (_col != null)
+        {
+            _col.enabled = isEnable;
+        }
+    }
 
     private void OnEnemyStatsValueChanged(EnemyCurrentStats previousValue, EnemyCurrentStats newValue)
     {
@@ -149,7 +162,7 @@ public class Enemy : NetworkBehaviour, IDamageble
                     {
                         _spriteRenderer.material = _originalMaterial;
                     }
-                });
+                }).SetLink(gameObject);
             }
         }
         else if (previousValue.Tier != newValue.Tier || previousValue.EnemyID != newValue.EnemyID)
@@ -164,21 +177,21 @@ public class Enemy : NetworkBehaviour, IDamageble
     {
         EnemyType = enemyType;
         EnemyTier currentTierData = EnemyType.Setup(tierLevel);
-        EnemyStats _stats = currentTierData.enemyStats;
-        Color _color = currentTierData.color;
+        EnemyStats stats = currentTierData.enemyStats;
+        Color color = currentTierData.color;
 
         EnemyCurrentStats initStats = new EnemyCurrentStats
         {
             EnemyID = currentTierData.EnemyID,
             Tier = tierLevel,
-            CurrentHealth = _stats.MaxHealth,
-            MoveSpeed = _stats.MoveSpeed,
-            ATKDamage = _stats.ATKDamage,
-            ATKSpeed = _stats.ATKSpeed,
-            ATKRange = _stats.ATKRange,
-            ColorR = _color.r,
-            ColorG = _color.g,
-            ColorB = _color.b
+            CurrentHealth = stats.MaxHealth,
+            MoveSpeed = stats.MoveSpeed,
+            ATKDamage = stats.ATKDamage,
+            ATKSpeed = stats.ATKSpeed,
+            ATKRange = stats.ATKRange,
+            ColorR = color.r,
+            ColorG = color.g,
+            ColorB = color.b
         };
 
         CurrentStats.Value = initStats;
@@ -237,7 +250,7 @@ public class Enemy : NetworkBehaviour, IDamageble
     public void PlayAnimation(int animation)
     {
         if (!IsServer) return;
-        _anim.Play(animation);
+        if (_anim != null) _anim.Play(animation);
     }
 
     private void Despawn()
@@ -258,7 +271,22 @@ public class Enemy : NetworkBehaviour, IDamageble
     [Rpc(SendTo.Everyone)]
     private void DisableColliderRpc()
     {
-        SetColliderTo(false);
+        if (IsServer)
+        {
+            // Server disables immediately to stop logic processing
+            SetColliderTo(false);
+        }
+        else
+        {
+            // Client delays disabling to allow local bullets to hit and trigger VFX
+            DOVirtual.DelayedCall(_clientColliderDisableDelay, () =>
+            {
+                if (this != null && gameObject != null && gameObject.activeInHierarchy)
+                {
+                    SetColliderTo(false);
+                }
+            }).SetLink(gameObject);
+        }
     }
 
     private IEnumerator DelayDespawnRoutine(float delay)
@@ -298,20 +326,20 @@ public class Enemy : NetworkBehaviour, IDamageble
         }
     }
 
-    private void ApplyTierColor(EnemyCurrentStats _stat)
+    private void ApplyTierColor(EnemyCurrentStats stat)
     {
         if (_anim == null) return;
 
         SpriteRenderer renderer = _anim.GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
         if (renderer == null) return;
 
-        if (_stat.ColorR == 0 && _stat.ColorG == 0 && _stat.ColorB == 0)
+        if (stat.ColorR == 0 && stat.ColorG == 0 && stat.ColorB == 0)
         {
             renderer.color = Color.white;
             return;
         }
 
-        renderer.color = new Color(_stat.ColorR, _stat.ColorG, _stat.ColorB, 1f);
+        renderer.color = new Color(stat.ColorR, stat.ColorG, stat.ColorB, 1f);
     }
 
     private void FacingToDirection()
@@ -326,8 +354,7 @@ public class Enemy : NetworkBehaviour, IDamageble
         {
             positionDelta = Detector.NearestTarget.position - transform.position;
         }
-
-        if (Detector.NearestTarget == null)
+        else
         {
             positionDelta = transform.position - _lastPosition;
         }
@@ -364,7 +391,7 @@ public class Enemy : NetworkBehaviour, IDamageble
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetObj))
         {
-            Vector3 spawnPos = TargetPoint.position; // Fire bullet from chest/target point
+            Vector3 spawnPos = TargetPoint.position;
 
             Bullet bulletObj = ObjectPoolManager.Instance.SpawnObject<Bullet>(BulletPrefab, spawnPos, Quaternion.identity, PoolCategory.Projectiles);
             if (bulletObj != null)
@@ -373,7 +400,6 @@ public class Enemy : NetworkBehaviour, IDamageble
                 GameObject hitVFX = null;
                 if (EnemyType != null) hitVFX = EnemyType.BulletHitVFXPrefab;
 
-                // Aim directly at the player's TargetPoint
                 Transform aimTarget = targetObj.transform;
                 if (targetObj.TryGetComponent<IDamageble>(out IDamageble d)) aimTarget = d.TargetPoint;
 
