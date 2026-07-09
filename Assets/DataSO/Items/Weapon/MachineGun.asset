@@ -22,8 +22,8 @@ MonoBehaviour:
   - ATKDamage: 3
     ATKRange: 4
     ATKSpeed: 3
-  - ATKDamage: 5
-    ATKRange: 5
+  - ATKDamage: 6
+    ATKRange: 6
     ATKSpeed: 5
   WeaponPrefab: {fileID: 8609959353125987989, guid: 036a58a498f4f4c4a9d0d9244275099d, type: 3}
   HitVFXPrefab: {fileID: 4084188421608476203, guid: 9d508adcbbdafd649922efd1b75b2534, type: 3}
