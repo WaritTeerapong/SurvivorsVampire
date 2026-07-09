@@ -20,25 +20,60 @@ MonoBehaviour:
     MinPitch: 0.61
     MaxPitch: 1.28
     MaxDistance: 15
+  - SoundName: PlayerHurt
+    Clip: {fileID: 8300000, guid: bc14d4f5d64f23545b9c4ddd736fc1ef, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: PlayerRespawn
+    Clip: {fileID: 8300000, guid: 536e6139ebd1ab5469b46f1e8c58ffcd, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: EnemyHurt
+    Clip: {fileID: 8300000, guid: 6b2be947b3228d440b34660aba1d40aa, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
   UIList:
   - SoundName: Click
-    Clip: {fileID: 8300000, guid: ca9aa9f7e4a079b49b43dc75f696120b, type: 3}
-    Volume: 0.343
+    Clip: {fileID: 8300000, guid: d8641bf1347c6424faeb6cf0ec60fff2, type: 3}
+    Volume: 0.5
     UseRandomPitch: 1
-    MinPitch: 0.61
-    MaxPitch: 1.91
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 0
+  - SoundName: Hover
+    Clip: {fileID: 8300000, guid: ac2bd2cee8e73da458ec644ed3fb7950, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 0
+  - SoundName: Panel
+    Clip: {fileID: 8300000, guid: ed39372236c0ffd4dbbf8e06bab64aba, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
     MaxDistance: 0
   BGMList:
-  - SoundName: BGM01
-    Clip: {fileID: 8300000, guid: d3b28c6e99c9a3f4cbfcec1e88a7ff44, type: 3}
-    Volume: 0.453
+  - SoundName: MainMenu
+    Clip: {fileID: 8300000, guid: 6ba94f4fbf7d27943b9efebd1d5a31f6, type: 3}
+    Volume: 0.5
     UseRandomPitch: 0
     MinPitch: 0
     MaxPitch: 0
     MaxDistance: 0
-  - SoundName: BGM02
+  - SoundName: Gameplay
     Clip: {fileID: 8300000, guid: fbcc4935630aac34ab8b112d15b8d940, type: 3}
-    Volume: 0.652
+    Volume: 0.5
     UseRandomPitch: 0
     MinPitch: 0
     MaxPitch: 0

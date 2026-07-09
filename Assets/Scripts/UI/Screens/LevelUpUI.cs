@@ -318,7 +318,22 @@ public class LevelUpUI : NetworkBehaviour
             if (card.gameObject.activeSelf)
             {
                 card.transform.localScale = Vector3.zero;
-                inSeq.Insert(activeIndex * _cardStaggerDelay, card.transform.DOScale(Vector3.one, _cardAnimDuration).SetEase(Ease.OutBack));
+
+                // Calculate the exact stagger time for this card
+                float staggerTime = activeIndex * _cardStaggerDelay;
+
+                // Insert the scale animation
+                inSeq.Insert(staggerTime, card.transform.DOScale(Vector3.one, _cardAnimDuration).SetEase(Ease.OutBack));
+
+                // Insert the audio callback at the exact same stagger time
+                inSeq.InsertCallback(staggerTime, () =>
+                {
+                    if (AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.PlayUI("Panel");
+                    }
+                });
+
                 activeIndex++;
             }
         }

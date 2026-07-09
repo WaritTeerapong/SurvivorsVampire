@@ -27,6 +27,8 @@ public class GameManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        AudioManager.Instance?.PlayBGM("Gameplay");
         if (IsServer)
         {
             if (PlayerManager.Instance != null)

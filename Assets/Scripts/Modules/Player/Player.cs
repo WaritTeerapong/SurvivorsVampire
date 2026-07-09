@@ -117,7 +117,6 @@ public class Player : NetworkBehaviour, IDamageble
         }
 
         Stats.CurrentStats.OnValueChanged += OnPlayerStatsChanged;
-
     }
 
     public override void OnNetworkDespawn()
@@ -347,14 +346,25 @@ public class Player : NetworkBehaviour, IDamageble
 
         Stats.ApplyDamage(damage);
 
-        if (DamagePopupManager.Instance != null)
-        {
-            DamagePopupManager.Instance.ShowPopup(transform.position, damage, true);
-        }
+        PlayHurtEffectsClientRpc(damage);
 
         if (Stats.CurrentStats.Value.CurrentHealth <= 0 && !IsDowned)
         {
             SwitchToDownedRpc();
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void PlayHurtEffectsClientRpc(int damage)
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("PlayerHurt", transform.position);
+        }
+
+        if (DamagePopupManager.Instance != null)
+        {
+            DamagePopupManager.Instance.ShowPopup(transform.position, damage, true);
         }
     }
 
@@ -377,7 +387,19 @@ public class Player : NetworkBehaviour, IDamageble
             PlayerManager.Instance.ActiveTargets.Add(transform);
         }
 
+        // Trigger visual and audio effects for all clients
+        PlayReviveEffectsClientRpc();
+
         SwitchToIdleRpc();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void PlayReviveEffectsClientRpc()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("PlayerRespawn", transform.position);
+        }
     }
 
     [Rpc(SendTo.Everyone)]

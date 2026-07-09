@@ -21,6 +21,8 @@ public class PopupUI : MonoBehaviour
         transform.DOKill();
         transform.localScale = Vector3.zero;
         transform.DOScale(_originalScale, OpenDuration).SetEase(OpenEase).SetUpdate(true);
+
+        AudioManager.Instance?.PlayUI("Panel");
     }
 
     public void ClosePopup(Action onCompleate = null)
@@ -33,6 +35,8 @@ public class PopupUI : MonoBehaviour
                 gameObject.SetActive(false);
                 transform.localScale = _originalScale;
                 onCompleate?.Invoke();
+
+                AudioManager.Instance?.PlayUI("Panel");
             });
     }
 
