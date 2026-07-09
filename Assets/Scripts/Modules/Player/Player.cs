@@ -66,7 +66,7 @@ public class Player : NetworkBehaviour, IDamageble
     private int _playersInReviveZone = 0;
     private float _reviveScanTimer = 0f;
     private const float REVIVE_SCAN_INTERVAL = 0.1f;
-    private Collider2D[] _reviveScanResults = new Collider2D[2];
+    private Collider2D[] _reviveScanResults = new Collider2D[32];
     private ContactFilter2D _playerScanFilter;
     private bool _isFilterInitialized = false;
     public LayerMask PlayerLayer;
