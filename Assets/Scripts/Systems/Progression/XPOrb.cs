@@ -89,9 +89,20 @@ public class XPOrb : NetworkBehaviour
         _isCollected = true;
         PlayerLevelManager.Instance.RequestGainXPRpc(XPValue);
 
+        PlaySFXClientRpc("XPOrbCollect");
+
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void PlaySFXClientRpc(string sfxName)
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(sfxName, transform.position);
         }
     }
 }

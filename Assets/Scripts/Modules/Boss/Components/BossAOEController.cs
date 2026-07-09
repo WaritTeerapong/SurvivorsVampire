@@ -89,7 +89,6 @@ public class BossAOEController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Detect players within the dynamic explosion radius
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, DamageRadius, PlayerLayerMask);
         foreach (Collider2D hit in hits)
         {
@@ -116,6 +115,11 @@ public class BossAOEController : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void PlayExplosionVFXRpc()
     {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("BossAOEImpact", transform.position);
+        }
+
         if (ExplosionVFXPrefab != null && ObjectPoolManager.Instance != null)
         {
             ParticleSystem ps = ObjectPoolManager.Instance.SpawnObject<ParticleSystem>(

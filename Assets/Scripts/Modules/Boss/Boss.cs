@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Boss : NetworkBehaviour,IDamageble
+public class Boss : NetworkBehaviour, IDamageble
 {
     public static event Action<Boss> OnBossSpawnedGlobal;
     public static event Action<Boss> OnBossDespawnedGlobal;
@@ -96,6 +96,20 @@ public class Boss : NetworkBehaviour,IDamageble
         if (IsServer && _detector != null) _detector.StopDetect();
     }
 
+    [Rpc(SendTo.Everyone)]
+    public void PlaySFXClientRpc(string sfxName)
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(sfxName, transform.position);
+        }
+    }
+
+    public void AnimationEventSFX(string sfxName)
+    {
+        if (IsServer) PlaySFXClientRpc(sfxName);
+    }
+
     private void HandlePhaseChanged(int previousValue, int newValue)
     {
         OnPhaseChanged?.Invoke(newValue);
@@ -143,6 +157,8 @@ public class Boss : NetworkBehaviour,IDamageble
             DamagePopupManager.Instance.ShowPopup(transform.position, damage, false);
         }
 
+        PlaySFXClientRpc("EnemyHurt");
+
         CurrentHealth.Value -= damage;
         if (CurrentHealth.Value <= 0)
         {
@@ -157,15 +173,12 @@ public class Boss : NetworkBehaviour,IDamageble
         if (!IsServer) return;
 
         OnBossDied?.Invoke();
+        PlaySFXClientRpc("EnemyDie");
         PlayDeathVFXRpc(transform.position);
 
         if (GameManager.Instance != null)
         {
             GameManager.Instance.HandleGameClear();
-        }
-        else
-        {
-            // Debug.LogWarning("[Boss] GameManager instance is missing. Cannot trigger Game Clear UI.");
         }
     }
 

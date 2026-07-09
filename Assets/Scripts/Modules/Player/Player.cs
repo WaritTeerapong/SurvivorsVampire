@@ -406,12 +406,14 @@ public class Player : NetworkBehaviour, IDamageble
     private void SwitchToDownedRpc()
     {
         SwitchState(DownedState);
+        AudioManager.Instance?.PlaySFX("PlayerDie", transform.position);
     }
 
     [Rpc(SendTo.Everyone)]
     private void SwitchToGhostRpc()
     {
         SwitchState(DiedState);
+        AudioManager.Instance?.PlaySFX("PlayerGhost", transform.position);
     }
 
     [Rpc(SendTo.Everyone)]

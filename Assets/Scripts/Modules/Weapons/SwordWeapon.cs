@@ -51,7 +51,7 @@ public class SwordWeapon : MeleeWeapon
 
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySFX("PlayerShoot", spawnPos);
+            AudioManager.Instance.PlaySFX("PlayerSword", spawnPos);
         }
     }
 
