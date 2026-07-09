@@ -36,6 +36,7 @@ public class ButtonSFXUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                  .SetUpdate(true);
 
         // PLAY HOVER SFX
+        AudioManager.Instance?.PlayUI("Hover");
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -60,6 +61,7 @@ public class ButtonSFXUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
 
         // PLAY CLICK SFX
+        AudioManager.Instance?.PlayUI("Click");
     }
 
     public void OnPointerUp(PointerEventData eventData)

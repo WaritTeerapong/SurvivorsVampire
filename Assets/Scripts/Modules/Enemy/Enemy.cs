@@ -238,6 +238,8 @@ public class Enemy : NetworkBehaviour, IDamageble
         EnemyCurrentStats stats = CurrentStats.Value;
         stats.CurrentHealth -= damage;
 
+        AudioManager.Instance?.PlaySFX("EnemyHurt", transform.position);
+
         if (stats.CurrentHealth <= 0)
         {
             _isDead = true;

@@ -18,6 +18,8 @@ public class MainMenuManager : MonoBehaviour
         if (MainMenuPanel != null) MainMenuPanel.SetActive(true);
         if (SettingsPanel != null) SettingsPanel.SetActive(false);
         if (JoinPanel != null) JoinPanel.SetActive(false);
+
+        AudioManager.Instance?.PlayBGM("MainMenu");
     }
 
     public void OnHostButtonClicked()
