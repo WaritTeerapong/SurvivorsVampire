@@ -1,6 +1,7 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerLevelManager : NetworkBehaviour
 {
@@ -14,10 +15,13 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
 
     public event Action OnLevelUp;
-    public event Action OnMaxLevelLoop; // Event แจ้ง UI ให้เล่นอนิเมชันตอนหลอดวนลูป
+    public event Action OnMaxLevelLoop;
 
     public int LocalPendingUpgrades { get; private set; } = 0;
+
     private bool _isUpgradeSceneLoaded = false;
+    private float _lastUnloadTime = -999f;
+    private Coroutine _loadCoroutine;
 
     void Awake()
     {
@@ -36,7 +40,6 @@ public class PlayerLevelManager : NetworkBehaviour
                 SharedLevel.Value = LevelData.Levels[0].Level;
                 SharedXP.Value = 0;
 
-                // ดึงค่า XP ที่ต้องการสำหรับขึ้นเลเวล 2 มาตั้งต้น
                 int initialXP = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
                 SharedXPNeeded.Value = initialXP != -1 ? initialXP : LevelData.Levels[0].XPNeeded;
             }
@@ -67,13 +70,15 @@ public class PlayerLevelManager : NetworkBehaviour
         {
             _isUpgradeSceneLoaded = false;
 
+            // Record the exact time we started unloading to prevent overlapping loads
+            _lastUnloadTime = Time.realtimeSinceStartup;
+
             if (PlayerManager.Instance != null)
             {
                 foreach (Player player in PlayerManager.Instance.AllPlayers)
                 {
                     if (player != null && !player.IsDownOrDied)
                     {
-                        // ฮีล 40% หลังจากเลือกอัปเกรดเสร็จ
                         player.Stats.HealPercentMaxHealth(0.4f);
                     }
                 }
@@ -103,15 +108,32 @@ public class PlayerLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            // หน้าต่างอัปเกรดจะเด้งขึ้นมา "ก็ต่อเมื่อ" SharedLevel มีการเปลี่ยนแปลงเท่านั้น
             if (!_isUpgradeSceneLoaded)
             {
                 _isUpgradeSceneLoaded = true;
-                SceneController.Instance
-                    .NewTransition()
-                    .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
-                    .Perform();
+
+                // Use a Coroutine buffer to prevent breaking the SceneController
+                if (_loadCoroutine != null) StopCoroutine(_loadCoroutine);
+                _loadCoroutine = StartCoroutine(SafeLoadUpgradeScene());
             }
+        }
+    }
+
+    private IEnumerator SafeLoadUpgradeScene()
+    {
+        // Wait until at least 1.5 seconds have passed since the last Unload.
+        // This ensures the SceneController has completely finished clearing the old UI.
+        while (Time.realtimeSinceStartup - _lastUnloadTime < 1.5f)
+        {
+            yield return null;
+        }
+
+        if (_isUpgradeSceneLoaded && SceneController.Instance != null)
+        {
+            SceneController.Instance
+                .NewTransition()
+                .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+                .Perform();
         }
     }
 
@@ -154,33 +176,26 @@ public class PlayerLevelManager : NetworkBehaviour
         if (!IsServer || LevelData == null || LevelData.Levels.Length == 0) return;
 
         SharedXP.Value += incomingXP;
-
-        // ดึงตัวเลขเลเวลสูงสุดจาก Array ช่องสุดท้ายมาใช้เป็น Max Level (เช่น 20)
         int maxLevel = LevelData.Levels[LevelData.Levels.Length - 1].Level;
 
-        // ใส่เงื่อนไข > 0 เพื่อป้องกันกรณี XPNeeded เป็น 0 แล้วเกิด Infinite Loop ค้าง
         while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value > 0)
         {
             if (SharedLevel.Value >= maxLevel)
             {
-                // [ถึงจุด Max Level] - หักลบ XP, สั่งฮีล, ทริกเกอร์ลูป UI โดย **ห้ามบวกเลเวลเด็ดขาด**
                 SharedXP.Value -= SharedXPNeeded.Value;
                 HealActivePlayers(0.4f);
                 TriggerMaxLevelLoopClientRpc();
             }
             else
             {
-                // [เลเวลอัปปกติ] - หักลบ XP และบวกเลเวลเพิ่ม 1
                 SharedXP.Value -= SharedXPNeeded.Value;
                 SharedLevel.Value++;
 
-                // ค้นหา XP ของเลเวลถัดไปมาเตรียมไว้รอ
                 int nextXPNeeded = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
                 if (nextXPNeeded != -1)
                 {
                     SharedXPNeeded.Value = nextXPNeeded;
                 }
-                // ถ้าเป็น -1 (พึ่งถึงเวล 20 พอดี) จะใช้ค่า SharedXPNeeded เดิมของเลเวล 20 ต่อไปตามที่คุณต้องการ
             }
         }
     }
