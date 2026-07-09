@@ -15,6 +15,8 @@ public class XPBarUI : NetworkBehaviour
 
     private int _visualLevel = -1;
     private bool _needUpdate = false;
+    private bool _isLoopingAnimation = false;
+
     private Image _fillImage;
     private Color _originalFillColor;
 
@@ -31,6 +33,7 @@ public class XPBarUI : NetworkBehaviour
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged += OnXPChanged;
             PlayerLevelManager.Instance.SharedXP.OnValueChanged += OnXPChanged;
             PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged += OnXPChanged;
+            PlayerLevelManager.Instance.OnMaxLevelLoop += HandleMaxLevelLoop;
         }
 
         _needUpdate = true;
@@ -39,17 +42,24 @@ public class XPBarUI : NetworkBehaviour
     public override void OnDestroy()
     {
         base.OnDestroy();
-
         if (PlayerLevelManager.Instance != null)
         {
             PlayerLevelManager.Instance.SharedLevel.OnValueChanged -= OnXPChanged;
             PlayerLevelManager.Instance.SharedXP.OnValueChanged -= OnXPChanged;
             PlayerLevelManager.Instance.SharedXPNeeded.OnValueChanged -= OnXPChanged;
+            PlayerLevelManager.Instance.OnMaxLevelLoop -= HandleMaxLevelLoop;
         }
     }
 
-    private void OnXPChanged(int previosValue, int newValue)
+    private void OnXPChanged(int previousValue, int newValue)
     {
+        _needUpdate = true;
+    }
+
+    private void HandleMaxLevelLoop()
+    {
+        // Flag to intercept and play the loop animation during the next UI update cycle
+        _isLoopingAnimation = true;
         _needUpdate = true;
     }
 
@@ -80,21 +90,46 @@ public class XPBarUI : NetworkBehaviour
             return;
         }
 
-        if (xpNeeded == -1) // MAX LEVEL
+        // Loop execution when Max Level XP is filled
+        if (_isLoopingAnimation)
         {
-            _xpText.text = "MAX";
-            _xpSlider.maxValue = 1;
-            _xpSlider.DOValue(1, 0.3f).SetUpdate(true);
+            _isLoopingAnimation = false;
+            _xpText.text = $"{currentXP} / {xpNeeded}";
+
+            Sequence seq = DOTween.Sequence();
+            seq.SetUpdate(true);
+
+            // Fill bar to max
+            seq.Append(_xpSlider.DOValue(_xpSlider.maxValue, 0.15f).SetEase(Ease.OutQuad));
+
+            // Flash effect
+            if (_fillImage != null)
+            {
+                seq.Append(_fillImage.DOColor(Color.white, 0.05f));
+                seq.Append(_fillImage.DOColor(_originalFillColor, 0.1f));
+            }
+
+            // Reset and bounce level text (still showing max level number)
+            seq.AppendCallback(() =>
+            {
+                _xpSlider.maxValue = xpNeeded;
+                _xpSlider.value = 0;
+                _levelText.text = currentLevel.ToString();
+                _levelText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 1).SetUpdate(true);
+            });
+
+            // Lerp to remaining XP
+            seq.Append(_xpSlider.DOValue(currentXP, 0.2f).SetEase(Ease.OutQuad));
             return;
         }
 
+        // Normal Level Up execution
         if (currentLevel > _visualLevel)
         {
             _visualLevel = currentLevel;
             _xpText.text = $"{currentXP} / {xpNeeded}";
 
             Sequence seq = DOTween.Sequence();
-
             seq.SetUpdate(true);
 
             seq.Append(_xpSlider.DOValue(_xpSlider.maxValue, 0.15f).SetEase(Ease.OutQuad));
@@ -110,7 +145,6 @@ public class XPBarUI : NetworkBehaviour
                 _xpSlider.maxValue = xpNeeded;
                 _xpSlider.value = 0;
                 _levelText.text = currentLevel.ToString();
-
                 _levelText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 1).SetUpdate(true);
             });
 
@@ -118,6 +152,7 @@ public class XPBarUI : NetworkBehaviour
         }
         else
         {
+            // Normal XP Gain execution
             _xpText.text = $"{currentXP} / {xpNeeded}";
             _xpSlider.maxValue = xpNeeded;
             _xpSlider.DOValue(currentXP, 0.2f).SetEase(Ease.OutCubic).SetUpdate(true);
