@@ -87,6 +87,11 @@ public class BossCombat : NetworkBehaviour
                 }
 
                 bulletObj.Initialize(aimTarget, damage, boss.BossData.BulletHitVFXPrefab);
+
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX("BossShoot", spawnPos);
+                }
             }
         }
     }

@@ -11,26 +11,23 @@ public class BossAOEState : IBossState
         _castTimer = CAST_DURATION;
         boss.PlayAnimation(boss.AOE);
 
-        // Trigger magic cast animation here
+        boss.PlaySFXClientRpc("BossAOECasting");
+
         if (boss.BossData.AOEPrefab == null || PlayerManager.Instance == null) return;
 
-        // Using the newly defined AOE damage variables
         int attackDamage = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOEDamage : boss.BossData.P2_AOEDamage;
 
-        // Target all active players in the game session
         foreach (Transform target in PlayerManager.Instance.ActiveTargets)
         {
             if (target == null) continue;
 
             if (boss.CurrentPhase.Value == 1)
             {
-                // Phase 1: Spawn a single tracking circle per active player
                 ulong targetNetId = target.GetComponent<NetworkObject>().NetworkObjectId;
                 SpawnAOEPrefab(boss, target.position, attackDamage, targetNetId, true);
             }
             else
             {
-                // Phase 2: Spawn 3 static line circles predicting player movement direction
                 Vector2 playerForward = GetPlayerForwardDirection(target);
                 for (int i = 0; i < 3; i++)
                 {
@@ -71,7 +68,6 @@ public class BossAOEState : IBossState
             float trackTime = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingTime : 0f;
             float trackSpeed = boss.CurrentPhase.Value == 1 ? boss.BossData.P1_AOETrackingSpeed : 0f;
 
-            // Pass trackSpeed into the initialized RPC
             controller.InitializeAOERpc(damage, targetId, isTracking, trackTime, trackSpeed);
         }
     }
@@ -83,6 +79,6 @@ public class BossAOEState : IBossState
         {
             return player.InputHandler.MoveInput.normalized;
         }
-        return Vector2.right; // Fallback direction if player is static
+        return Vector2.right;
     }
 }

@@ -41,7 +41,7 @@ public class RangeWeapon : BaseWeapon
 
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.PlaySFX("PlayerShoot", spawnPos);
+                AudioManager.Instance.PlaySFX("PlayerMGShoot", spawnPos);
             }
         }
     }

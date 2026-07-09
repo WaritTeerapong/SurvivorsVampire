@@ -97,9 +97,6 @@ public class Enemy : NetworkBehaviour, IDamageble
         _anim = GetComponentInChildren<Animator>();
         _col = GetComponent<Collider2D>();
 
-        // Handle missing references safely
-        // Debug.LogWarning("Animator is missing on Enemy", this);
-
         _spriteRenderer = _anim != null ? _anim.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
         {
@@ -113,7 +110,6 @@ public class Enemy : NetworkBehaviour, IDamageble
         CurrentStats.OnValueChanged += OnEnemyStatsValueChanged;
         ApplyTierColor(CurrentStats.Value);
 
-        // Reset state for everyone to fix Client-side pooling bug
         _isDead = false;
         SetColliderTo(true);
 
@@ -226,6 +222,15 @@ public class Enemy : NetworkBehaviour, IDamageble
         _currentState?.OnUpdate(this);
     }
 
+    [Rpc(SendTo.Everyone)]
+    public void PlaySFXClientRpc(string sfxName)
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(sfxName, transform.position);
+        }
+    }
+
     public void TakeDamage(int damage)
     {
         if (!IsServer) return;
@@ -235,10 +240,10 @@ public class Enemy : NetworkBehaviour, IDamageble
             DamagePopupManager.Instance.ShowPopup(transform.position, damage, false);
         }
 
+        PlaySFXClientRpc("EnemyHurt");
+
         EnemyCurrentStats stats = CurrentStats.Value;
         stats.CurrentHealth -= damage;
-
-        AudioManager.Instance?.PlaySFX("EnemyHurt", transform.position);
 
         if (stats.CurrentHealth <= 0)
         {
@@ -265,6 +270,7 @@ public class Enemy : NetworkBehaviour, IDamageble
             XPDropManager.Instance.DropXP(transform.position, EnemyType.XPValue);
         }
 
+        PlaySFXClientRpc("EnemyDie");
         PlayDeathVFXClientRpc(transform.position);
         DisableColliderRpc();
         StartCoroutine(DelayDespawnRoutine(1.2f));
@@ -275,12 +281,10 @@ public class Enemy : NetworkBehaviour, IDamageble
     {
         if (IsServer)
         {
-            // Server disables immediately to stop logic processing
             SetColliderTo(false);
         }
         else
         {
-            // Client delays disabling to allow local bullets to hit and trigger VFX
             DOVirtual.DelayedCall(_clientColliderDisableDelay, () =>
             {
                 if (this != null && gameObject != null && gameObject.activeInHierarchy)
@@ -381,6 +385,7 @@ public class Enemy : NetworkBehaviour, IDamageble
             NetworkObject targetNetObj = Detector.NearestTarget.GetComponent<NetworkObject>();
             if (targetNetObj != null)
             {
+                PlaySFXClientRpc("EnemyShoot");
                 EnemyFireRpc(targetNetObj.NetworkObjectId);
             }
         }

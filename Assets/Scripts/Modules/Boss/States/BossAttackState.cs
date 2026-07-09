@@ -70,6 +70,7 @@ public class BossAttackState : IBossState
             }
             else
             {
+                boss.PlaySFXClientRpc("BossShoot");
                 boss.Combat.ExecuteRangedAttack(_targetId, _damage, cooldown);
             }
 
