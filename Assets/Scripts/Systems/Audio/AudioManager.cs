@@ -80,6 +80,14 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void StopBGM(float fadeDuration = 1.5f)
+    {
+        if (BGMSource.isPlaying)
+        {
+            BGMSource.DOFade(0f, fadeDuration / 2f);
+        }
+    }
+
     private void ChangeBGMAndFadeIn(SoundData data, float fadeDuration)
     {
         BGMSource.clip = data.Clip;
@@ -87,4 +95,6 @@ public class AudioManager : MonoBehaviour
         BGMSource.Play();
         BGMSource.DOFade(data.Volume, fadeDuration);
     }
+
+
 }
