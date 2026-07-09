@@ -171,6 +171,18 @@ public class PlayerLevelManager : NetworkBehaviour
         GainXP(amount);
     }
 
+    [Rpc(SendTo.Server)]
+    public void ForceLevelUpByXPNeededRpc()
+    {
+        if (!IsServer) return;
+
+        int xpNeeded = SharedXPNeeded.Value;
+        if (xpNeeded > 0)
+        {
+            GainXP(xpNeeded);
+        }
+    }
+
     private void GainXP(int incomingXP)
     {
         if (!IsServer || LevelData == null || LevelData.Levels.Length == 0) return;

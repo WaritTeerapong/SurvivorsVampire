@@ -19,6 +19,7 @@ public class XPBarUI : NetworkBehaviour
 
     private Image _fillImage;
     private Color _originalFillColor;
+    private Vector3 _originalTextScale; // To prevent DOTween scale drift
 
     void Start()
     {
@@ -26,6 +27,11 @@ public class XPBarUI : NetworkBehaviour
         {
             _fillImage = _xpSlider.fillRect.GetComponent<Image>();
             if (_fillImage != null) _originalFillColor = _fillImage.color;
+        }
+
+        if (_levelText != null)
+        {
+            _originalTextScale = _levelText.transform.localScale;
         }
 
         if (PlayerLevelManager.Instance != null)
@@ -109,12 +115,15 @@ public class XPBarUI : NetworkBehaviour
                 seq.Append(_fillImage.DOColor(_originalFillColor, 0.1f));
             }
 
-            // Reset and bounce level text (still showing max level number)
+            // Reset scale explicitly and bounce level text
             seq.AppendCallback(() =>
             {
                 _xpSlider.maxValue = xpNeeded;
                 _xpSlider.value = 0;
                 _levelText.text = currentLevel.ToString();
+
+                _levelText.transform.DOKill();
+                _levelText.transform.localScale = _originalTextScale;
                 _levelText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 1).SetUpdate(true);
             });
 
@@ -145,6 +154,9 @@ public class XPBarUI : NetworkBehaviour
                 _xpSlider.maxValue = xpNeeded;
                 _xpSlider.value = 0;
                 _levelText.text = currentLevel.ToString();
+
+                _levelText.transform.DOKill();
+                _levelText.transform.localScale = _originalTextScale;
                 _levelText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 1).SetUpdate(true);
             });
 
