@@ -1,6 +1,7 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerLevelManager : NetworkBehaviour
 {
@@ -14,9 +15,14 @@ public class PlayerLevelManager : NetworkBehaviour
     public NetworkVariable<int> SharedXPNeeded = new NetworkVariable<int>(0);
 
     public event Action OnLevelUp;
+    public event Action OnMaxLevelLoop;
+    public event Action<int> OnPendingUpgradesAdded;
 
     public int LocalPendingUpgrades { get; private set; } = 0;
+
     private bool _isUpgradeSceneLoaded = false;
+    private float _lastUnloadTime = -999f;
+    private Coroutine _loadCoroutine;
 
     void Awake()
     {
@@ -30,11 +36,13 @@ public class PlayerLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            if (LevelData != null)
+            if (LevelData != null && LevelData.Levels.Length > 0)
             {
                 SharedLevel.Value = LevelData.Levels[0].Level;
                 SharedXP.Value = 0;
-                SharedXPNeeded.Value = LevelData.Levels[1].XPNeeded;
+
+                int initialXP = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
+                SharedXPNeeded.Value = initialXP != -1 ? initialXP : LevelData.Levels[0].XPNeeded;
             }
 
             if (PauseManager.Instance != null)
@@ -59,10 +67,11 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private void OnPlayersSelectingUpgradeChanged(NetworkListEvent<ulong> changeEvent)
     {
-        // Check if all players have finished selecting their upgrades
         if (IsServer && PauseManager.Instance.PlayersSelectingUpgrade.Count == 0 && changeEvent.Type == NetworkListEvent<ulong>.EventType.Remove)
         {
             _isUpgradeSceneLoaded = false;
+
+            _lastUnloadTime = Time.realtimeSinceStartup;
 
             if (PlayerManager.Instance != null)
             {
@@ -70,7 +79,6 @@ public class PlayerLevelManager : NetworkBehaviour
                 {
                     if (player != null && !player.IsDownOrDied)
                     {
-                        // Heal player by 40% of their Max HP
                         player.Stats.HealPercentMaxHealth(0.4f);
                     }
                 }
@@ -94,21 +102,36 @@ public class PlayerLevelManager : NetworkBehaviour
         if (delta > 0)
         {
             LocalPendingUpgrades += delta;
+            OnPendingUpgradesAdded?.Invoke(delta);
         }
 
         ReviveDownedPlayers();
 
         if (IsServer)
         {
-            // Prevent server from double-loading the upgrade scene if level jumps rapidly
             if (!_isUpgradeSceneLoaded)
             {
                 _isUpgradeSceneLoaded = true;
-                SceneController.Instance
-                    .NewTransition()
-                    .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
-                    .Perform();
+
+                if (_loadCoroutine != null) StopCoroutine(_loadCoroutine);
+                _loadCoroutine = StartCoroutine(SafeLoadUpgradeScene());
             }
+        }
+    }
+
+    private IEnumerator SafeLoadUpgradeScene()
+    {
+        while (Time.realtimeSinceStartup - _lastUnloadTime < 1.5f)
+        {
+            yield return null;
+        }
+
+        if (_isUpgradeSceneLoaded && SceneController.Instance != null)
+        {
+            SceneController.Instance
+                .NewTransition()
+                .Load(Slots.SESSION_CONTENT, Scenes.UPGRADE, setActive: true)
+                .Perform();
         }
     }
 
@@ -120,7 +143,6 @@ public class PlayerLevelManager : NetworkBehaviour
         }
     }
 
-    // Force synchronize the remaining upgrade queues to a specific client (used when respawning)
     [Rpc(SendTo.Server)]
     public void ForceSyncPendingUpgradesServerRpc(ulong targetClientId, int pendingCount)
     {
@@ -147,25 +169,64 @@ public class PlayerLevelManager : NetworkBehaviour
         GainXP(amount);
     }
 
-    private void GainXP(int incomingXP)
+    [Rpc(SendTo.Server)]
+    public void ForceLevelUpByXPNeededRpc()
     {
         if (!IsServer) return;
-        if (SharedXPNeeded.Value == -1) return;
+
+        int xpNeeded = SharedXPNeeded.Value;
+        if (xpNeeded > 0)
+        {
+            GainXP(xpNeeded);
+        }
+    }
+
+    private void GainXP(int incomingXP)
+    {
+        if (!IsServer || LevelData == null || LevelData.Levels.Length == 0) return;
 
         SharedXP.Value += incomingXP;
+        int maxLevel = LevelData.Levels[LevelData.Levels.Length - 1].Level;
 
-        while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value != -1)
+        while (SharedXP.Value >= SharedXPNeeded.Value && SharedXPNeeded.Value > 0)
         {
-            SharedXP.Value -= SharedXPNeeded.Value;
-            SharedLevel.Value++;
-            SharedXPNeeded.Value = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
-
-            if (SharedXPNeeded.Value == -1)
+            if (SharedLevel.Value >= maxLevel)
             {
-                SharedXP.Value = 0;
-                break;
+                SharedXP.Value -= SharedXPNeeded.Value;
+                HealActivePlayers(0.4f);
+                TriggerMaxLevelLoopClientRpc();
+            }
+            else
+            {
+                SharedXP.Value -= SharedXPNeeded.Value;
+                SharedLevel.Value++;
+
+                int nextXPNeeded = LevelData.GetNeededXPForLevel(SharedLevel.Value + 1);
+                if (nextXPNeeded != -1)
+                {
+                    SharedXPNeeded.Value = nextXPNeeded;
+                }
             }
         }
+    }
+
+    private void HealActivePlayers(float percentage)
+    {
+        if (PlayerManager.Instance == null) return;
+
+        foreach (Player player in PlayerManager.Instance.AllPlayers)
+        {
+            if (player != null && !player.IsDownOrDied)
+            {
+                player.Stats.HealPercentMaxHealth(percentage);
+            }
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void TriggerMaxLevelLoopClientRpc()
+    {
+        OnMaxLevelLoop?.Invoke();
     }
 
     private void ReviveDownedPlayers()
