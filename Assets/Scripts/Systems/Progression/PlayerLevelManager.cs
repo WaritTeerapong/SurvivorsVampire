@@ -16,6 +16,7 @@ public class PlayerLevelManager : NetworkBehaviour
 
     public event Action OnLevelUp;
     public event Action OnMaxLevelLoop;
+    public event Action<int> OnPendingUpgradesAdded;
 
     public int LocalPendingUpgrades { get; private set; } = 0;
 
@@ -70,7 +71,6 @@ public class PlayerLevelManager : NetworkBehaviour
         {
             _isUpgradeSceneLoaded = false;
 
-            // Record the exact time we started unloading to prevent overlapping loads
             _lastUnloadTime = Time.realtimeSinceStartup;
 
             if (PlayerManager.Instance != null)
@@ -102,6 +102,7 @@ public class PlayerLevelManager : NetworkBehaviour
         if (delta > 0)
         {
             LocalPendingUpgrades += delta;
+            OnPendingUpgradesAdded?.Invoke(delta);
         }
 
         ReviveDownedPlayers();
@@ -112,7 +113,6 @@ public class PlayerLevelManager : NetworkBehaviour
             {
                 _isUpgradeSceneLoaded = true;
 
-                // Use a Coroutine buffer to prevent breaking the SceneController
                 if (_loadCoroutine != null) StopCoroutine(_loadCoroutine);
                 _loadCoroutine = StartCoroutine(SafeLoadUpgradeScene());
             }
@@ -121,8 +121,6 @@ public class PlayerLevelManager : NetworkBehaviour
 
     private IEnumerator SafeLoadUpgradeScene()
     {
-        // Wait until at least 1.5 seconds have passed since the last Unload.
-        // This ensures the SceneController has completely finished clearing the old UI.
         while (Time.realtimeSinceStartup - _lastUnloadTime < 1.5f)
         {
             yield return null;
