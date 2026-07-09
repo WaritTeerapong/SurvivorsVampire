@@ -140,6 +140,27 @@ MonoBehaviour:
     MinPitch: 0.6
     MaxPitch: 2
     MaxDistance: 0
+  - SoundName: Win
+    Clip: {fileID: 8300000, guid: 525e97db55c922e4d9c6e00527b2caa4, type: 3}
+    Volume: 0.6
+    UseRandomPitch: 0
+    MinPitch: 0.1
+    MaxPitch: 0.1
+    MaxDistance: 0
+  - SoundName: Lose
+    Clip: {fileID: 8300000, guid: 6505d7ebc9fba694e9f0d74224996c7c, type: 3}
+    Volume: 0.3
+    UseRandomPitch: 0
+    MinPitch: 0.1
+    MaxPitch: 0.1
+    MaxDistance: 0
+  - SoundName: LevelUp
+    Clip: {fileID: 8300000, guid: b7e2cf3e95be3a04eacfcf15a3d825cb, type: 3}
+    Volume: 0.4
+    UseRandomPitch: 1
+    MinPitch: 0.4
+    MaxPitch: 1.65
+    MaxDistance: 0
   BGMList:
   - SoundName: MainMenu
     Clip: {fileID: 8300000, guid: 6ba94f4fbf7d27943b9efebd1d5a31f6, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BossTypeData_SO
   m_EditorClassIdentifier: Assembly-CSharp::BossTypeData_SO
   BossName: Necromancer
-  MaxHealth: 100
+  MaxHealth: 10000
   CloseAttackRange: 1.5
   RangedAttackRange: 5
   P1_MoveSpeed: 3

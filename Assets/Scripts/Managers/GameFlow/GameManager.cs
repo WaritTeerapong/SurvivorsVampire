@@ -1,9 +1,10 @@
+using DG.Tweening;
 using System;
 using System.Collections;
-using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class GameManager : NetworkBehaviour
 {
@@ -94,6 +95,8 @@ public class GameManager : NetworkBehaviour
                 GameOverPanel.transform.localScale = Vector3.zero;
                 GameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
             }
+            AudioManager.Instance.StopBGM();
+            AudioManager.Instance.PlayUI("Lose");
         });
     }
 
@@ -108,6 +111,8 @@ public class GameManager : NetworkBehaviour
                 GameClearPanel.transform.localScale = Vector3.zero;
                 GameClearPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
             }
+
+            AudioManager.Instance.PlayUI("Win");
 
             if (IsServer)
             {

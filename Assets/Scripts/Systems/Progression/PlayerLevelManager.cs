@@ -105,6 +105,7 @@ public class PlayerLevelManager : NetworkBehaviour
             OnPendingUpgradesAdded?.Invoke(delta);
         }
 
+        AudioManager.Instance.PlayUI("LevelUp");
         ReviveDownedPlayers();
 
         if (IsServer)
