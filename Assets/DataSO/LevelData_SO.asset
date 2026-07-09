@@ -13,41 +13,43 @@ MonoBehaviour:
   m_Name: LevelData_SO
   m_EditorClassIdentifier: Assembly-CSharp::LevelData_SO
   Levels:
+  - Level: 1
+    XPNeeded: 0
   - Level: 2
-    XPNeeded: 100
-  - Level: 3
     XPNeeded: 200
-  - Level: 4
+  - Level: 3
     XPNeeded: 300
-  - Level: 5
+  - Level: 4
     XPNeeded: 400
-  - Level: 6
+  - Level: 5
     XPNeeded: 500
-  - Level: 7
+  - Level: 6
     XPNeeded: 600
-  - Level: 8
+  - Level: 7
     XPNeeded: 700
-  - Level: 9
+  - Level: 8
     XPNeeded: 800
-  - Level: 10
+  - Level: 9
     XPNeeded: 900
-  - Level: 11
+  - Level: 10
     XPNeeded: 1000
-  - Level: 12
+  - Level: 11
     XPNeeded: 1100
-  - Level: 13
+  - Level: 12
     XPNeeded: 1200
-  - Level: 14
+  - Level: 13
     XPNeeded: 1300
-  - Level: 15
+  - Level: 14
     XPNeeded: 1400
+  - Level: 15
+    XPNeeded: 1500
   - Level: 16
-    XPNeeded: 1500
+    XPNeeded: 1600
   - Level: 17
-    XPNeeded: 1500
+    XPNeeded: 1700
   - Level: 18
-    XPNeeded: 1500
+    XPNeeded: 1800
   - Level: 19
-    XPNeeded: 1500
+    XPNeeded: 1900
   - Level: 20
-    XPNeeded: 1500
+    XPNeeded: 2000
