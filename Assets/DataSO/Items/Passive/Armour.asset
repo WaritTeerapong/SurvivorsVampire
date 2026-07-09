@@ -21,12 +21,12 @@ MonoBehaviour:
     ATKDamage: 0
     ATKSpeed: 0
     ATKRange: 0
-  - MaxHealth: 125
+  - MaxHealth: 150
     MoveSpeed: 0
     ATKDamage: 0
     ATKSpeed: 0
     ATKRange: 0
-  - MaxHealth: 200
+  - MaxHealth: 300
     MoveSpeed: 0
     ATKDamage: 0
     ATKSpeed: 0
