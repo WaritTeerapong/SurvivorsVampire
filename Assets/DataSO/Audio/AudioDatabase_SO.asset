@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1c3707d86bc7ab4c9ef662fd8d45a24, type: 3}
+  m_Name: AudioDatabase_SO
+  m_EditorClassIdentifier: Assembly-CSharp::AudioDatabase_SO
+  SFXList:
+  - SoundName: PlayerGShoot
+    Clip: {fileID: 8300000, guid: 3e2223cf9a428b64c98e53a948028068, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 1.5
+    MaxDistance: 15
+  - SoundName: PlayerMGShoot
+    Clip: {fileID: 8300000, guid: 85371bb8de736b74f84ba3ef01091729, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 1.5
+    MaxDistance: 15
+  - SoundName: PlayerSword
+    Clip: {fileID: 8300000, guid: a5d537298af128749836a0676b3c5a7c, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 1.5
+    MaxDistance: 15
+  - SoundName: PlayerHurt
+    Clip: {fileID: 8300000, guid: bc14d4f5d64f23545b9c4ddd736fc1ef, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: PlayerDie
+    Clip: {fileID: 8300000, guid: b5ef71daf43f5244ea8740fd4a3b5c46, type: 3}
+    Volume: 1
+    UseRandomPitch: 0
+    MinPitch: 0.6
+    MaxPitch: 1.5
+    MaxDistance: 15
+  - SoundName: PlayerRespawn
+    Clip: {fileID: 8300000, guid: 536e6139ebd1ab5469b46f1e8c58ffcd, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: PlayerGhost
+    Clip: {fileID: 8300000, guid: 81a19bf3d9546494a8f839f98ad878f9, type: 3}
+    Volume: 1
+    UseRandomPitch: 0
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: EnemyShoot
+    Clip: {fileID: 8300000, guid: 7b83bc1a86c220941b88fd7f5f890f26, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: EnemyHurt
+    Clip: {fileID: 8300000, guid: 6b2be947b3228d440b34660aba1d40aa, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: EnemyDie
+    Clip: {fileID: 8300000, guid: d40b75ff0abf9d049b5c4f0ea54a8e32, type: 3}
+    Volume: 1
+    UseRandomPitch: 0
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: BossAOECasting
+    Clip: {fileID: 8300000, guid: 484d4653add292c499696ee7d97a2367, type: 3}
+    Volume: 1
+    UseRandomPitch: 0
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: BossAOEImpact
+    Clip: {fileID: 8300000, guid: 93df9b7a1e8e08b4ababdab2dbff7907, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: BossShoot
+    Clip: {fileID: 8300000, guid: a2a8aac6b5d1b854f9fc3863980ebe71, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: BossSummon
+    Clip: {fileID: 8300000, guid: 1ffa31a1844e1424c974fc243856f5e7, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 15
+  - SoundName: XPOrbCollect
+    Clip: {fileID: 8300000, guid: 2b633136454a3c141a181de649a6dba5, type: 3}
+    Volume: 1
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 1.5
+    MaxDistance: 15
+  UIList:
+  - SoundName: Click
+    Clip: {fileID: 8300000, guid: d8641bf1347c6424faeb6cf0ec60fff2, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 0
+  - SoundName: Hover
+    Clip: {fileID: 8300000, guid: ac2bd2cee8e73da458ec644ed3fb7950, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 0
+  - SoundName: Panel
+    Clip: {fileID: 8300000, guid: ed39372236c0ffd4dbbf8e06bab64aba, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 1
+    MinPitch: 0.6
+    MaxPitch: 2
+    MaxDistance: 0
+  - SoundName: Win
+    Clip: {fileID: 8300000, guid: 525e97db55c922e4d9c6e00527b2caa4, type: 3}
+    Volume: 0.6
+    UseRandomPitch: 0
+    MinPitch: 0.1
+    MaxPitch: 0.1
+    MaxDistance: 0
+  - SoundName: Lose
+    Clip: {fileID: 8300000, guid: 6505d7ebc9fba694e9f0d74224996c7c, type: 3}
+    Volume: 0.3
+    UseRandomPitch: 0
+    MinPitch: 0.1
+    MaxPitch: 0.1
+    MaxDistance: 0
+  - SoundName: LevelUp
+    Clip: {fileID: 8300000, guid: b7e2cf3e95be3a04eacfcf15a3d825cb, type: 3}
+    Volume: 0.4
+    UseRandomPitch: 1
+    MinPitch: 0.4
+    MaxPitch: 1.65
+    MaxDistance: 0
+  BGMList:
+  - SoundName: MainMenu
+    Clip: {fileID: 8300000, guid: 6ba94f4fbf7d27943b9efebd1d5a31f6, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 0
+    MinPitch: 0
+    MaxPitch: 0
+    MaxDistance: 0
+  - SoundName: Gameplay
+    Clip: {fileID: 8300000, guid: fbcc4935630aac34ab8b112d15b8d940, type: 3}
+    Volume: 0.5
+    UseRandomPitch: 0
+    MinPitch: 0
+    MaxPitch: 0
+    MaxDistance: 0

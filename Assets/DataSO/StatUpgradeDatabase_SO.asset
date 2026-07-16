@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dd15299d5dc67049950a2994673090e, type: 3}
+  m_Name: StatUpgradeDatabase_SO
+  m_EditorClassIdentifier: Assembly-CSharp::StatUpgradeDatabase_SO
+  Stats:
+  - UpgradeName: Max Health
+    Description: 
+    UpgradeIcon: {fileID: 0}
+    StatType: 0
+    BonusPerLevel:
+    - 0
+    - 20
+    - 50
+  - UpgradeName: Move Speed
+    Description: 
+    UpgradeIcon: {fileID: 0}
+    StatType: 1
+    BonusPerLevel:
+    - 0
+    - 1
+    - 2
+  - UpgradeName: ATK Damage
+    Description: 
+    UpgradeIcon: {fileID: 0}
+    StatType: 2
+    BonusPerLevel:
+    - 0
+    - 10
+    - 20
+  - UpgradeName: ATK Speed
+    Description: 
+    UpgradeIcon: {fileID: 0}
+    StatType: 3
+    BonusPerLevel:
+    - 0
+    - 1
+    - 2
+  - UpgradeName: ATK Range
+    Description: 
+    UpgradeIcon: {fileID: 0}
+    StatType: 4
+    BonusPerLevel:
+    - 0
+    - 1
+    - 2

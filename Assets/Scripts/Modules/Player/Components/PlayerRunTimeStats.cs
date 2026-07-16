@@ -1,0 +1,339 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
+
+public struct PlayerStats : INetworkSerializable
+{
+    public int CurrentHealth;
+    public int MaxHealth;
+    public int MoveSpeed;
+    public int ATKDamage;
+    public float ATKSpeed;
+    public float ATKRange;
+    public void ApplyStat(StatType type, BaseStat baseStats, float bonus)
+    {
+        switch (type)
+        {
+            case StatType.MaxHealth:
+                MaxHealth = baseStats.MaxHealth + Mathf.RoundToInt(bonus);
+                break;
+            case StatType.MoveSpeed:
+                MoveSpeed = baseStats.MoveSpeed + Mathf.RoundToInt(bonus);
+                break;
+            case StatType.ATKDamage:
+                ATKDamage = baseStats.ATKDamage + Mathf.RoundToInt(bonus);
+                break;
+            case StatType.ATKSpeed:
+                ATKSpeed = baseStats.ATKSpeed + bonus;
+                break;
+            case StatType.ATKRange:
+                ATKRange = baseStats.ATKRange + bonus;
+                break;
+        }
+    }
+    public float GetCurrentStat(StatType type)
+    {
+        return type switch
+        {
+            StatType.MaxHealth => MaxHealth,
+            StatType.MoveSpeed => MoveSpeed,
+            StatType.ATKDamage => ATKDamage,
+            StatType.ATKSpeed => ATKSpeed,
+            StatType.ATKRange => ATKRange,
+            _ => 0
+        };
+    }
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref CurrentHealth);
+        serializer.SerializeValue(ref MaxHealth);
+        serializer.SerializeValue(ref MoveSpeed);
+        serializer.SerializeValue(ref ATKDamage);
+        serializer.SerializeValue(ref ATKSpeed);
+        serializer.SerializeValue(ref ATKRange);
+    }
+}
+public struct StatLevel : INetworkSerializable
+{
+    public int MaxHealth;
+    public int MoveSpeed;
+    public int ATKDamage;
+    public int ATKSpeed;
+    public int ATKRange;
+
+    public int IncrementLevel(StatType type)
+    {
+        return type switch
+        {
+            StatType.MaxHealth => ++MaxHealth,
+            StatType.MoveSpeed => ++MoveSpeed,
+            StatType.ATKDamage => ++ATKDamage,
+            StatType.ATKSpeed => ++ATKSpeed,
+            StatType.ATKRange => ++ATKRange,
+            _ => 0
+        };
+    }
+    public int GetCurrentLevel(StatType type)
+    {
+        return type switch
+        {
+            StatType.MaxHealth => MaxHealth,
+            StatType.MoveSpeed => MoveSpeed,
+            StatType.ATKDamage => ATKDamage,
+            StatType.ATKSpeed => ATKSpeed,
+            StatType.ATKRange => ATKRange,
+            _ => 0
+        };
+    }
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref MaxHealth);
+        serializer.SerializeValue(ref MoveSpeed);
+        serializer.SerializeValue(ref ATKDamage);
+        serializer.SerializeValue(ref ATKSpeed);
+        serializer.SerializeValue(ref ATKRange);
+    }
+}
+
+public class PlayerRunTimeStats : NetworkBehaviour
+{
+    public PlayerData_SO PlayerData;
+    public StatUpgradeDatabase_SO StatUpgradeData;
+    public event Action<PlayerStats> OnStatChanged;
+
+    private PlayerInventory _inventory;
+
+    public NetworkVariable<PlayerStats> CurrentStats = new NetworkVariable<PlayerStats>
+    (
+        new PlayerStats(),
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+    public NetworkVariable<StatLevel> CurrentStatsLevel = new NetworkVariable<StatLevel>
+    (
+        new StatLevel(),
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        CurrentStats.OnValueChanged += OnStatsValueChanged;
+
+        if (IsServer)
+        {
+            InitStatsLevel();
+            InitStats();
+        }
+
+        _inventory = GetComponent<PlayerInventory>();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        CurrentStats.OnValueChanged -= OnStatsValueChanged;
+    }
+
+    private void OnStatsValueChanged(PlayerStats previousValue, PlayerStats newValue)
+    {
+        OnStatChanged?.Invoke(newValue);
+    }
+
+    private void InitStats()
+    {
+        if (PlayerData == null)
+        {
+            Debug.LogWarning("PlayerData_SO is not assigned in PlayerRunTimeStats.");
+            return;
+        }
+
+        PlayerStats initStats = new PlayerStats
+        {
+            CurrentHealth = PlayerData.Stat.MaxHealth,
+            MaxHealth = PlayerData.Stat.MaxHealth,
+            MoveSpeed = PlayerData.Stat.MoveSpeed,
+            ATKDamage = PlayerData.Stat.ATKDamage,
+            ATKSpeed = PlayerData.Stat.ATKSpeed,
+            ATKRange = PlayerData.Stat.ATKRange
+        };
+
+        CurrentStats.Value = initStats;
+    }
+    private void InitStatsLevel()
+    {
+        if (PlayerData == null)
+        {
+            Debug.LogWarning("PlayerData_SO is not assigned in PlayerRunTimeStats.");
+            return;
+        }
+
+        StatLevel initStats = new StatLevel
+        {
+            MaxHealth = PlayerData.StatLevel.MaxHealthLevel,
+            MoveSpeed = PlayerData.StatLevel.MoveSpeedLevel,
+            ATKDamage = PlayerData.StatLevel.ATKDamageLevel,
+            ATKSpeed = PlayerData.StatLevel.ATKSpeedLevel,
+            ATKRange = PlayerData.StatLevel.ATKRangeLevel
+        };
+
+        CurrentStatsLevel.Value = initStats;
+    }
+
+    public void ApplyDamage(int damage)
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        stats.CurrentHealth -= damage;
+
+        if (stats.CurrentHealth < 0) stats.CurrentHealth = 0;
+
+        CurrentStats.Value = stats;
+    }
+
+    public void ResetHealthToMax()
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        stats.CurrentHealth = stats.MaxHealth;
+
+        CurrentStats.Value = stats;
+    }
+
+    public void ResetHealthToPercent(float healPercent)
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        float healAmount = stats.MaxHealth * healPercent;
+        stats.CurrentHealth = (int)healAmount;
+
+        if (stats.CurrentHealth > stats.MaxHealth)
+        {
+            stats.CurrentHealth = stats.MaxHealth;
+        }
+
+        CurrentStats.Value = stats;
+    }
+
+    public void HealPercentMaxHealth(float percent)
+    {
+        if (!IsServer) return;
+
+        PlayerStats stats = CurrentStats.Value;
+        int healAmount = Mathf.RoundToInt(stats.MaxHealth * percent);
+        stats.CurrentHealth += healAmount;
+
+        if (stats.CurrentHealth > stats.MaxHealth)
+        {
+            stats.CurrentHealth = stats.MaxHealth;
+        }
+
+        CurrentStats.Value = stats;
+    }
+
+    public void RecalculateStats()
+    {
+        if (!IsServer) return;
+        if (PlayerData == null)
+        {
+            Debug.LogWarning("PlayerData_SO is not assigned in PlayerRunTimeStats.");
+            return;
+        }
+
+        // 1.Get Base Stat
+        PlayerStats newStats = new PlayerStats
+        {
+            MaxHealth = PlayerData.Stat.MaxHealth,
+            MoveSpeed = PlayerData.Stat.MoveSpeed,
+            ATKDamage = PlayerData.Stat.ATKDamage,
+            ATKSpeed = PlayerData.Stat.ATKSpeed,
+            ATKRange = PlayerData.Stat.ATKRange
+        };
+
+
+        // 2. Apply Passive Items
+        if (_inventory != null && _inventory.PassiveDatabase != null)
+        {
+            // Get Bonus Stat from each Passive Items equiped
+            foreach (var entry in _inventory.OwnedPassives)
+            {
+                string id = entry.ItemId.ToString();
+                PassiveItemData_SO passiveData = _inventory.PassiveDatabase.GetItemByID(id);
+                if (passiveData != null && entry.Level > 0)
+                {
+                    BaseStat itemBonus = passiveData.GetBonusForLevel(entry.Level);
+                    newStats.MaxHealth += itemBonus.MaxHealth;
+                    newStats.MoveSpeed += itemBonus.MoveSpeed;
+                    newStats.ATKDamage += itemBonus.ATKDamage;
+                    newStats.ATKSpeed += itemBonus.ATKSpeed;
+                    newStats.ATKRange += itemBonus.ATKRange;
+                }
+            }
+        }
+
+        // Keep current health capped and valid
+        newStats.CurrentHealth = CurrentStats.Value.CurrentHealth;
+
+        // In case recalculating passives lowers the max health below current health
+        if (newStats.CurrentHealth > newStats.MaxHealth)
+        {
+            newStats.CurrentHealth = newStats.MaxHealth;
+        }
+
+        CurrentStats.Value = newStats;
+    }
+
+    private float FindUpgradeStat(StatType chosenStat, int level)
+    {
+        foreach (StatUpgrade stat in StatUpgradeData.Stats)
+        {
+            if (stat.StatType == chosenStat)
+            {
+                return stat.GetBonusForLevel(level);
+            }
+        }
+        Debug.LogWarning($"Stat {chosenStat} not found in database!");
+        return 0f;
+    }
+
+    [Rpc(SendTo.Owner)]
+    public void DebugLogStatsRpc()
+    {
+        Debug.Log($"Player {OwnerClientId} Stats - " +
+            $"Health: {CurrentStats.Value.CurrentHealth}, " +
+            $"MaxHealth: {CurrentStats.Value.MaxHealth}, " +
+            $"MoveSpeed: {CurrentStats.Value.MoveSpeed}, " +
+            $"ATKDamage: {CurrentStats.Value.ATKDamage}, " +
+            $"ATKSpeed: {CurrentStats.Value.ATKSpeed}, " +
+            $"ATKRange: {CurrentStats.Value.ATKRange}");
+    }
+
+    [Rpc(SendTo.Owner)]
+    public void DebugLogStatsLevelRpc()
+    {
+        Debug.Log($"Player {OwnerClientId} Stats - " +
+            $"MaxHealth Level: {CurrentStatsLevel.Value.MaxHealth}, " +
+            $"MoveSpeed Level: {CurrentStatsLevel.Value.MoveSpeed}, " +
+            $"ATKDamage Level: {CurrentStatsLevel.Value.ATKDamage}, " +
+            $"ATKSpeed Level: {CurrentStatsLevel.Value.ATKSpeed}, " +
+            $"ATKRange Level: {CurrentStatsLevel.Value.ATKRange}");
+    }
+
+    [Rpc(SendTo.Server)]
+    public void RequestUpgradeServerRpc(StatType chosenStat)
+    {
+        StatLevel statLevel = CurrentStatsLevel.Value;
+
+        statLevel.IncrementLevel(chosenStat);
+        CurrentStatsLevel.Value = statLevel;
+
+        RecalculateStats();
+    }
+}

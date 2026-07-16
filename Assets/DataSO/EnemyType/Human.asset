@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b69b2c75b1e5e4a47972202e04629fa7, type: 3}
+  m_Name: Human
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData_SO
+  EnemyName: Human
+  EnemyPrefab: {fileID: 3942754042103540661, guid: fbd1e0aef8e19ff4bac7ed0baa5eaa2e, type: 3}
+  IsRange: 0
+  enemyTiers:
+  - Tier: 1
+    EnemyID: 3
+    color: {r: 0.654902, g: 1, b: 0.5921569, a: 0}
+    enemyStats:
+      MaxHealth: 20
+      MoveSpeed: 3.5
+      ATKDamage: 5
+      ATKSpeed: 1.2
+      ATKRange: 1.2
+  - Tier: 2
+    EnemyID: 4
+    color: {r: 0.5921569, g: 0.8039216, b: 1, a: 0}
+    enemyStats:
+      MaxHealth: 45
+      MoveSpeed: 4.5
+      ATKDamage: 10
+      ATKSpeed: 1.5
+      ATKRange: 1.2
+  - Tier: 3
+    EnemyID: 5
+    color: {r: 1, g: 0.63529414, b: 0.5921569, a: 0}
+    enemyStats:
+      MaxHealth: 90
+      MoveSpeed: 5.5
+      ATKDamage: 20
+      ATKSpeed: 2.5
+      ATKRange: 1.2
+  XPValue: 40
+  DeathVFXPrefab: {fileID: 4084188421608476203, guid: b1e45f0d0473c91489fb1b4fec8cc9ca, type: 3}
+  BulletHitVFXPrefab: {fileID: 0}
+  UseBoids: 1
+  EnemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  BoidsDetectionRadius: 1.5
+  SeparationWeight: 1.5
+  AlignmentWeight: 0.2
+  CohesionWeight: 0
+  TargetWeight: 2
